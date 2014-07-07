@@ -9,15 +9,17 @@ var express = require('express');
 var basicAuth = require('connect-basic-auth');
 var bodyParser = require('body-parser')
 var process = require('process');
+var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = 1.0;
+var collectwVersion = 1.1;
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
 var counters = [];
 var client;
+var path = 'C:\\Program\ Files (x86)\\CollectW\\';
 
 var regPlugins = new Winreg({
       hive: Winreg.HKLM,
@@ -34,6 +36,10 @@ regPlugins.values(function (err, items) {
 			plugins[items[i].name] = JSON.parse(items[i].value);
 		}
 	}
+	for (i in plugins) {
+		add_counter(plugins[i].counter, plugins[i].type, plugins[i].p, plugins[i].pi, plugins[i].t, plugins[i].ti);
+	}
+
 });
 
 
@@ -326,13 +332,12 @@ function start_monitoring() {
 	setInterval(get_uptime, 60000);
 	get_process();
 	get_swap();
-	for (i in plugins) {
-		add_counter(plugins[i].counter, plugins[i].type, plugins[i].p, plugins[i].pi, plugins[i].t, plugins[i].ti);
-	}
 }
 
 function add_counter(counter, type, p, pi, t, ti) {
-	counter = counter.replace("\\\\", "\\");
+	//counter = counter.replace("\\\\", "\\");
+	if (typeof pi == 'undefined') { pi = ''; }
+	if (typeof ti == 'undefined') { ti = ''; }
 	if (typeof counters[p+'-'+pi] == 'undefined') {
 		counters[p+'-'+pi] = client.plugin(p, pi);
 	}
@@ -354,7 +359,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(basicAuth(function(credentials, req, res, next) {
 	if (credentials.username != collectwUser || md5(credentials.password) != collectwPassword) {
 		res.statusCode = 401;
-		res.end('Invalid credential')
+		res.json({error: 'Invalid credential'})
 	} else { next(); }
 }, 'Please enter your credentials.'));
 
@@ -363,9 +368,17 @@ app.all('*', function(req, res, next) {
 });
 
 app.get('/', function(req, res) {
-	res.json({ 
-		message: "CollectW version " + collectwVersion + " is running. Data sent to " + collectdHost + ":" + collectdPort
-	});
+	res.set('Content-Type', 'text/html');
+	res.send(fs.readFileSync(path + 'frontend\\index.html'));
+});
+
+app.get('/jquery-2.1.1.min.js', function(req, res) {
+	res.set('Content-Type', 'application/javascript');
+	res.send(fs.readFileSync(path + 'frontend\\jquery-2.1.1.min.js'));
+});
+
+app.get('/version', function(req, res) {
+	res.json({ version: collectwVersion	});
 });
 
 app.get('/allCounters', function(req, res) {
@@ -385,7 +398,7 @@ app.get('/counters', function(req, res) {
 
 app.delete('/counters/:name', function(req, res) {
 	regPlugins.remove(req.params.name, function () {
-		delete plugin[req.params.name];
+		delete plugins[req.params.name];
 		res.json({message: "Counter deleted. Will take effect on next start"});
 		res.send();
 	});
@@ -414,13 +427,13 @@ app.put('/counters', function(req, res) {
 	}
 });
 
-app.put('/server', function(req, res) {
+app.get('/server', function(req, res) {
 	res.json({ 
 		serverHost: collectdHost, serverPort: collectdPort 
 	});
 });
 
-app.put('/process/stop', function(req, res) {
+app.post('/process/stop', function(req, res) {
 	process.exit();
 });
 

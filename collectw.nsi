@@ -1,6 +1,6 @@
 Name "CollectW"
 
-OutFile "CollectW-1.0.exe"
+OutFile "CollectW-1.1.exe"
 
 InstallDir $PROGRAMFILES\CollectW
 
@@ -16,7 +16,10 @@ Section ""
 	File service.js
 	SetOutPath $INSTDIR\bin
 	File bin\node.exe
-
+	SetOutPath $INSTDIR\frontend
+	File frontend\index.html
+	File frontend\jquery-2.1.1.min.js
+	
 	SetOutPath $INSTDIR\node_modules\body-parser
 	File node_modules\body-parser\.npmignore
 	SetOutPath $INSTDIR\node_modules\body-parser

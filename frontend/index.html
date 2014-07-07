@@ -1,0 +1,126 @@
+﻿<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>CollectW admin</title>
+		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+		<script type="text/javascript">
+			function notify (data) {
+				if(typeof data.error !== 'undefined') {
+					alert('Error: ' + data.error);
+				} else if (typeof data.message !== 'undefined') {
+					alert(data.message);
+					window.location = '/';
+				}
+			}
+			$(document).ready(function() {
+				$.getJSON('/version', function(data) {
+					$('#version').html(data.version);
+				});
+				$.getJSON('/allCounters', function(data) {
+					for(i in data) {
+						$('#all_counters').append('<option>\\' + data[i] + '</option>');
+					}
+				});
+				$.getJSON('/counters', function(data) {
+					for(i in data) {
+						$('#list_counter').append('<tr><td>' 
+						+ data[i].p
+						+ (typeof data[i].pi != 'undefined' && data[i].pi != '' ? '-' + data[i].pi : '')
+						+ '/' + data[i].t
+						+ (typeof data[i].ti != 'undefined' && data[i].ti != ''  ? '-' + data[i].ti : '')
+						+ '</td>'
+						+ '<td>' + data[i].counter + '</td>'
+						+ '<td>' + data[i].type + '</td>'
+						+ '<td><a href="#" cid="' + i + '" action="delete">delete</a></td>'
+						+ '</tr>');
+					}
+					$('#list_counter a').click(function (data) {
+						var cid = $(this).attr('cid');
+						switch($(this).attr('action')) {
+							case 'delete':
+								$.ajax({
+									url: '/counters/' + cid,
+									method: 'DELETE',
+									success : function (data) {
+										notify(data);
+									}
+								});
+							break;
+						}
+					});
+				});
+				$.getJSON('/server', function(data) {
+					$('#server').html(data.serverHost + ':' + data.serverPort);
+					$('#host').val(data.serverHost);
+					$('#port').val(data.serverPort);
+				});
+				$('#submit_authentification').click(function () {
+					$.post('/account', { user: $('#user').val(), password: $('#password').val() }, function( data ) {
+						notify(data);
+					});
+				});
+				$('#submit_server').click(function () {
+					$.post('/server', { host: $('#host').val(), port: $('#port').val() }, function( data ) {
+						notify(data);
+					});
+				});
+				$('#submit_stop').click(function () {
+					$.post('/process/stop', function( data ) {
+						notify(data);
+					});
+				});
+				$('#submit_counter').click(function () {
+					$.ajax({
+						url: '/counters',
+						method: 'PUT',
+						data: {counter: $('#all_counters').val(), p: $('#p').val(), pi: $('#pi').val(), t: $('#t').val(), ti: $('#ti').val(), type: $('#type').val() },
+						success : function (data) {
+							notify(data);
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="block_version">
+			<span>CollectW v</span><span id="version"></span> <span>is running and send data to</span> <span id="server"></span>
+		</div>
+		<hr />
+		<div id="block_authentification">
+			<span>User :</span> <span><input type="text" name="user" id="user" /></span>
+			<span>password</span> <span><input type="password" name="password" id="password" /></span>
+			<input type="submit" name="submit_authentification" id="submit_authentification" />
+		</div>
+		<hr />
+		<div id="block_server">
+			<span>Host :</span> <span><input type="text" name="host" id="host" /></span>
+			<span>Port</span> <span><input type="text" name="port" id="port" /></span>
+			<input type="submit" name="submit_server" id="submit_server" />
+		</div>
+		<hr />
+		<div id="block_action">
+			<input type="submit" name="submit_stop" id="submit_stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectW Windows service to make it restart on stop)</span>
+		</div>
+		<hr />
+		<div id="block_list_counter">
+			<table id="list_counter" border="1">
+				<tr><th>Collectd</th><th>Windows</th><th>Type</th><th>Actions</th></tr>
+			</table>
+		</div>
+		<hr />
+		Counter : <div id="block_add_counter">
+			<select name="all_counters" id="all_counters" style="width:200px;"></select>
+		</div>
+		-&gt;
+		Plugin : <input type="text" name="p" id="p" />
+		Plugin-Instance : <input type="text" name="pi" id="pi" />
+		Type : <input type="text" name="t" id="t" />
+		Type-Intance : <input type="text" name="ti" id="ti" />
+		<select name="type" id="type">
+			<option>gauge</option>
+			<option>counter</option>
+		</select>
+		<input type="submit" name="submit_counter" id="submit_counter" value="Add" />
+	</body>
+</html>
