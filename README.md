@@ -22,4 +22,4 @@ Use your browser to go to http://<your_server:25826/ (login: admin / password: a
 
 FAQ
 ===
-* Todo ...
+* Wich Windows version are suported ? It was only tested on Windows 2008, don't know for other version.
