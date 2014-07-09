@@ -13,7 +13,7 @@ var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = 1.1;
+var collectwVersion = "1.1.1";
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
@@ -335,13 +335,14 @@ function start_monitoring() {
 }
 
 function add_counter(counter, type, p, pi, t, ti) {
-	//counter = counter.replace("\\\\", "\\");
+	counter = counter.replace(/\\\\/g, "\\");
 	if (typeof pi == 'undefined') { pi = ''; }
 	if (typeof ti == 'undefined') { ti = ''; }
 	if (typeof counters[p+'-'+pi] == 'undefined') {
 		counters[p+'-'+pi] = client.plugin(p, pi);
 	}
 	perfmon(counter, function(err, data) {
+		if (typeof data === 'undefined' || typeof data.counters === 'undefined') { return; }
 		switch (type) {
 			case 'counter':
 				counters[p+'-'+pi].addCounter(t, ti, data.counters[counter]);
