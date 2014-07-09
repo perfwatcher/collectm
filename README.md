@@ -6,7 +6,8 @@ Collectd agent for Windows
 Installation
 ============
 
-run `CollectW-1.1.exe`
+* Download https://github.com/perfwatcher/collectw/blob/master/CollectW-1.1.exe
+* run `CollectW-1.1.exe`
 
 CollectW would be added as service and started. If not :
 ```
@@ -21,4 +22,12 @@ Use your browser to go to http://<your_server:25826/ (login: admin / password: a
 
 FAQ
 ===
-* Todo ...
+* Wich Windows version are suported ? It was only tested on Windows 2008, don't know for other version.
+
+TODO
+====
+* Write more documentation
+* Add SSL on management port
+* Have the possibility to disable plugins
+* Set server host at install
+* Stop to write what you'll never do
