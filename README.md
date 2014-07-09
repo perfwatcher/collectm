@@ -6,8 +6,8 @@ Collectd agent for Windows
 Installation
 ============
 
-* Download https://github.com/perfwatcher/collectw/blob/master/CollectW-1.1.exe
-* run `CollectW-1.1.exe`
+* Download https://github.com/perfwatcher/collectw/blob/master/CollectW-1.1.1.exe
+* run `CollectW-1.1.1.exe`
 
 CollectW would be added as service and started. If not :
 ```
