@@ -1,6 +1,6 @@
 Name "CollectW"
 
-OutFile "CollectW-1.1.1.exe"
+OutFile "CollectW-1.1.2.exe"
 
 InstallDir $PROGRAMFILES\CollectW
 
@@ -113,7 +113,6 @@ Section ""
 	SetOutPath $INSTDIR\node_modules\body-parser\node_modules\iconv-lite
 	File node_modules\body-parser\node_modules\iconv-lite\README.md
 	SetOutPath $INSTDIR\node_modules\body-parser\node_modules\iconv-lite
-	File node_modules\body-parser\node_modules\iconv-lite\README.md~
 	SetOutPath $INSTDIR\node_modules\body-parser\node_modules\media-typer
 	File node_modules\body-parser\node_modules\media-typer\.npmignore
 	SetOutPath $INSTDIR\node_modules\body-parser\node_modules\media-typer
@@ -191,19 +190,15 @@ Section ""
 	SetOutPath $INSTDIR\node_modules\collectdout\example
 	File node_modules\collectdout\example\simple.js
 	SetOutPath $INSTDIR\node_modules\collectdout\example
-	File node_modules\collectdout\example\simple.js~
 	SetOutPath $INSTDIR\node_modules\collectdout\lib
 	File node_modules\collectdout\lib\index.js
 	SetOutPath $INSTDIR\node_modules\collectdout\lib
-	File node_modules\collectdout\lib\index.js~
 	SetOutPath $INSTDIR\node_modules\collectdout
 	File node_modules\collectdout\package.json
 	SetOutPath $INSTDIR\node_modules\collectdout
-	File node_modules\collectdout\package.json~
 	SetOutPath $INSTDIR\node_modules\collectdout
 	File node_modules\collectdout\README.md
 	SetOutPath $INSTDIR\node_modules\collectdout
-	File node_modules\collectdout\README.md~
 	SetOutPath $INSTDIR\node_modules\connect-basic-auth
 	File node_modules\connect-basic-auth\basic-auth.js
 	SetOutPath $INSTDIR\node_modules\connect-basic-auth
@@ -875,6 +870,525 @@ SectionEnd
 
 Section "Uninstall"
 
-  RMDir "$INSTDIR"
+	ExecWait '"$INSTDIR\bin\node.exe" "$INSTDIR\service.js" stopAndUninstall'
+	ExecWait '"$INSTDIR\bin\node.exe" "$INSTDIR\service.js" stopAndUninstall'
+
+	Delete $INSTDIR\node_modules\winreg\test.js
+	Delete $INSTDIR\node_modules\winreg\README.md
+	Delete $INSTDIR\node_modules\winreg\package.json
+	Delete $INSTDIR\node_modules\winreg\.npmignore
+	Delete $INSTDIR\node_modules\winreg\lib\registry.js
+	Delete $INSTDIR\node_modules\windows-cpu\test\mocha.opts
+	Delete $INSTDIR\node_modules\windows-cpu\test\cpu.js
+	Delete $INSTDIR\node_modules\windows-cpu\README.md
+	Delete $INSTDIR\node_modules\windows-cpu\package.json
+	Delete $INSTDIR\node_modules\windows-cpu\.npmignore
+	Delete $INSTDIR\node_modules\windows-cpu\LICENSE
+	Delete $INSTDIR\node_modules\windows-cpu\index.js
+	Delete $INSTDIR\node_modules\windows-cpu\CONTRIBUTING.md
+	Delete $INSTDIR\node_modules\process\README.md
+	Delete $INSTDIR\node_modules\process\package.json
+	Delete $INSTDIR\node_modules\process\LICENSE
+	Delete $INSTDIR\node_modules\process\index.js
+	Delete $INSTDIR\node_modules\process\browser.js
+	Delete $INSTDIR\node_modules\perfmon\test\test.js
+	Delete $INSTDIR\node_modules\perfmon\README.md
+	Delete $INSTDIR\node_modules\perfmon\perfmon.js
+	Delete $INSTDIR\node_modules\perfmon\package.json
+	Delete $INSTDIR\node_modules\perfmon\.npmignore
+	Delete $INSTDIR\node_modules\perfmon\LICENSE.md
+	Delete $INSTDIR\node_modules\perfmon\lib\TypePerf.js
+	Delete $INSTDIR\node_modules\perfmon\lib\PerfmonStream.js
+	Delete $INSTDIR\node_modules\perfmon\examples\remotehost.js
+	Delete $INSTDIR\node_modules\perfmon\examples\listcounters.js
+	Delete $INSTDIR\node_modules\perfmon\examples\cpu-mem.js
+	Delete $INSTDIR\node_modules\node-windows\TESTS.md
+	Delete $INSTDIR\node_modules\node-windows\README.md
+	Delete $INSTDIR\node_modules\node-windows\.project
+	Delete $INSTDIR\node_modules\node-windows\package.json
+	Delete $INSTDIR\node_modules\node-windows\.npmignore
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\.travis.yml
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\whitespace.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\usage.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\short.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\parse_modified.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\parse.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\_.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\dash.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\_\bin.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\test\_\argv.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\readme.markdown
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\package.json
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\test\wrap.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\test\idleness.txt
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\test\break.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\README.markdown
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\package.json
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\.npmignore
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\index.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\example\meat.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\example\center.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\.travis.yml
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\whitespace.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\short.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\parse_modified.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\parse.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\num.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\long.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\dotted.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\default_bool.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\dash.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test\bool.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\readme.markdown
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\package.json
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\LICENSE
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\index.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\example\parse.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\LICENSE
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\index.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\xup.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\usage-options.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\string.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\short.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\reflect.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\nonopt.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\line_count_wrap.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\line_count_options.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\line_count.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\divide.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\default_singles.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\default_hash.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\bool.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\boolean_single.js
+	Delete $INSTDIR\node_modules\node-windows\node_modules\optimist\example\boolean_double.js
+	Delete $INSTDIR\node_modules\node-windows\LICENSE
+	Delete $INSTDIR\node_modules\node-windows\lib\wrapper.js
+	Delete $INSTDIR\node_modules\node-windows\lib\winsw.js
+	Delete $INSTDIR\node_modules\node-windows\lib\node-windows.js
+	Delete $INSTDIR\node_modules\node-windows\lib\eventlog.js
+	Delete $INSTDIR\node_modules\node-windows\lib\daemon.js
+	Delete $INSTDIR\node_modules\node-windows\lib\cmd.js
+	Delete $INSTDIR\node_modules\node-windows\lib\binaries.js
+	Delete $INSTDIR\node_modules\node-windows\example\uninstall.js
+	Delete $INSTDIR\node_modules\node-windows\example\install.js
+	Delete $INSTDIR\node_modules\node-windows\example\helloworld.js
+	Delete $INSTDIR\node_modules\node-windows\bin\winsw\x86\winsw.exe
+	Delete $INSTDIR\node_modules\node-windows\bin\winsw\x64\winsw.exe
+	Delete $INSTDIR\node_modules\node-windows\bin\sudowin\Sudowin.Common.dll
+	Delete $INSTDIR\node_modules\node-windows\bin\sudowin\sudo.exe.config
+	Delete $INSTDIR\node_modules\node-windows\bin\sudowin\sudo.exe
+	Delete $INSTDIR\node_modules\node-windows\bin\sudowin\LICENSE.txt
+	Delete $INSTDIR\node_modules\node-windows\bin\elevate\elevate.vbs
+	Delete $INSTDIR\node_modules\node-windows\bin\elevate\elevate.cmd
+	Delete $INSTDIR\node_modules\MD5\.travis.yml
+	Delete $INSTDIR\node_modules\MD5\test.js
+	Delete $INSTDIR\node_modules\MD5\README.md
+	Delete $INSTDIR\node_modules\MD5\package.json
+	Delete $INSTDIR\node_modules\MD5\.npmignore
+	Delete $INSTDIR\node_modules\MD5\node_modules\crypt\README.mkd
+	Delete $INSTDIR\node_modules\MD5\node_modules\crypt\package.json
+	Delete $INSTDIR\node_modules\MD5\node_modules\crypt\LICENSE.mkd
+	Delete $INSTDIR\node_modules\MD5\node_modules\crypt\crypt.js
+	Delete $INSTDIR\node_modules\MD5\node_modules\charenc\README.js
+	Delete $INSTDIR\node_modules\MD5\node_modules\charenc\package.json
+	Delete $INSTDIR\node_modules\MD5\node_modules\charenc\LICENSE.mkd
+	Delete $INSTDIR\node_modules\MD5\node_modules\charenc\charenc.js
+	Delete $INSTDIR\node_modules\MD5\md5.js
+	Delete $INSTDIR\node_modules\MD5\LICENSE
+	Delete $INSTDIR\node_modules\express\Readme.md
+	Delete $INSTDIR\node_modules\express\package.json
+	Delete $INSTDIR\node_modules\express\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\vary\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\vary\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\vary\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\vary\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\vary\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\vary\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\utils-merge\.travis.yml
+	Delete $INSTDIR\node_modules\express\node_modules\utils-merge\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\utils-merge\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\utils-merge\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\utils-merge\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\.travis.yml
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\test\test.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\test\mime.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\SOURCES.md
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\lib\node.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\lib\mime.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\lib\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\lib\custom.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\build.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\type-is\HISTORY.md
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\serve-static\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\send\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\types\node.types
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\types\mime.types
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\test.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\mime.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\test.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\HISTORY.md
+	Delete $INSTDIR\node_modules\express\node_modules\send\lib\utils.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\lib\send.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\send\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\range-parser\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\qs\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\qs\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\qs\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\qs\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\qs\.gitmodules
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\test\ipaddr.test.coffee
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\src\ipaddr.coffee
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\lib\ipaddr.js
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\ipaddr.min.js
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\Cakefile
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\proxy-addr\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\test.js
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\path-to-regexp\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\parseurl\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\parseurl\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\parseurl\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\parseurl\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\methods\test\methods.js
+	Delete $INSTDIR\node_modules\express\node_modules\methods\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\methods\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\methods\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\methods\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\methods\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\methods\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\merge-descriptors\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\merge-descriptors\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\merge-descriptors\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\merge-descriptors\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\merge-descriptors\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\fresh\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\escape-html\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\debug\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\debug\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\debug\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\debug\node_modules\ms\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\debug\node_modules\ms\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\debug\node_modules\ms\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\debug\node_modules\ms\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\debug\node.js
+	Delete $INSTDIR\node_modules\express\node_modules\debug\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\debug\.jshintrc
+	Delete $INSTDIR\node_modules\express\node_modules\debug\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\debug\debug.js
+	Delete $INSTDIR\node_modules\express\node_modules\debug\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\debug\browser.js
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\Readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\cookie-signature\History.md
+	Delete $INSTDIR\node_modules\express\node_modules\cookie\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\cookie\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\cookie\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\cookie\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\cookie\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\.travis.yml
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\tests\crc.test.js
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\buffer-crc32\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\readme.md
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib\negotiator.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib\mediaType.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib\language.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib\encoding.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib\charset.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\.travis.yml
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\SOURCES.md
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\README.md
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\package.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\.npmignore
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\Makefile
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\LICENSE
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\lib\node.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\lib\mime.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\lib\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\lib\custom.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\component.json
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\index.js
+	Delete $INSTDIR\node_modules\express\node_modules\accepts\History.md
+	Delete $INSTDIR\node_modules\express\LICENSE
+	Delete $INSTDIR\node_modules\express\lib\view.js
+	Delete $INSTDIR\node_modules\express\lib\utils.js
+	Delete $INSTDIR\node_modules\express\lib\router\route.js
+	Delete $INSTDIR\node_modules\express\lib\router\layer.js
+	Delete $INSTDIR\node_modules\express\lib\router\index.js
+	Delete $INSTDIR\node_modules\express\lib\response.js
+	Delete $INSTDIR\node_modules\express\lib\request.js
+	Delete $INSTDIR\node_modules\express\lib\middleware\query.js
+	Delete $INSTDIR\node_modules\express\lib\middleware\init.js
+	Delete $INSTDIR\node_modules\express\lib\express.js
+	Delete $INSTDIR\node_modules\express\lib\application.js
+	Delete $INSTDIR\node_modules\express\index.js
+	Delete $INSTDIR\node_modules\express\History.md
+	Delete $INSTDIR\node_modules\diskspace\.travis.yml
+	Delete $INSTDIR\node_modules\diskspace\test.js
+	Delete $INSTDIR\node_modules\diskspace\readme.md
+	Delete $INSTDIR\node_modules\diskspace\package.json
+	Delete $INSTDIR\node_modules\diskspace\.npmignore
+	Delete $INSTDIR\node_modules\diskspace\LICENSE.txt
+	Delete $INSTDIR\node_modules\diskspace\drivespace.exe
+	Delete $INSTDIR\node_modules\diskspace\diskspace.js
+	Delete $INSTDIR\node_modules\connect-basic-auth\README.md
+	Delete $INSTDIR\node_modules\connect-basic-auth\package.json
+	Delete $INSTDIR\node_modules\connect-basic-auth\basic-auth.js
+	Delete $INSTDIR\node_modules\collectdout\README.md~
+	Delete $INSTDIR\node_modules\collectdout\README.md
+	Delete $INSTDIR\node_modules\collectdout\package.json~
+	Delete $INSTDIR\node_modules\collectdout\package.json
+	Delete $INSTDIR\node_modules\collectdout\lib\index.js~
+	Delete $INSTDIR\node_modules\collectdout\lib\index.js
+	Delete $INSTDIR\node_modules\collectdout\example\simple.js~
+	Delete $INSTDIR\node_modules\collectdout\example\simple.js
+	Delete $INSTDIR\node_modules\body-parser\README.md
+	Delete $INSTDIR\node_modules\body-parser\package.json
+	Delete $INSTDIR\node_modules\body-parser\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\README.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\.travis.yml
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\test\test.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\test\mime.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\SOURCES.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\README.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\Makefile
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\LICENSE
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\lib\node.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\lib\mime.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\lib\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\lib\custom.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\component.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\build.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\type-is\HISTORY.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\raw-body\README.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\raw-body\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\raw-body\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\raw-body\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\raw-body\HISTORY.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\qs\Readme.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\qs\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\qs\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\qs\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\qs\.gitmodules
+	Delete $INSTDIR\node_modules\body-parser\node_modules\media-typer\README.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\media-typer\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\media-typer\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\media-typer\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\media-typer\HISTORY.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\.travis.yml
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\README.md~
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\README.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\LICENSE
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\lib\streams.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\lib\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\lib\extend-node.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\utf16.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\shiftjis.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\gbk-added.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\gb18030-ranges.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\eucjp.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\cp950.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\cp949.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\cp936.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables\big5-added.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\sbcs-data.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\sbcs-data-generated.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\sbcs-codec.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\internal.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\dbcs-data.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\dbcs-codec.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\Changelog.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\Readme.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\LICENSE
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\depd\History.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\Readme.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\package.json
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\.npmignore
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\Makefile
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\index.js
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\History.md
+	Delete $INSTDIR\node_modules\body-parser\node_modules\bytes\component.json
+	Delete $INSTDIR\node_modules\body-parser\lib\types\urlencoded.js
+	Delete $INSTDIR\node_modules\body-parser\lib\types\text.js
+	Delete $INSTDIR\node_modules\body-parser\lib\types\raw.js
+	Delete $INSTDIR\node_modules\body-parser\lib\types\json.js
+	Delete $INSTDIR\node_modules\body-parser\lib\read.js
+	Delete $INSTDIR\node_modules\body-parser\index.js
+	Delete $INSTDIR\node_modules\body-parser\HISTORY.md
+
+	RmDir /r $INSTDIR\node_modules\winreg\lib
+	RmDir /r $INSTDIR\node_modules\winreg
+	RmDir /r $INSTDIR\node_modules\windows-cpu\test
+	RmDir /r $INSTDIR\node_modules\windows-cpu
+	RmDir /r $INSTDIR\node_modules\process
+	RmDir /r $INSTDIR\node_modules\perfmon\test
+	RmDir /r $INSTDIR\node_modules\perfmon\lib
+	RmDir /r $INSTDIR\node_modules\perfmon\examples
+	RmDir /r $INSTDIR\node_modules\perfmon
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\test\_
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\test
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\test
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap\example
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\wordwrap
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\test
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist\example
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\node_modules\minimist
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist\example
+	RmDir /r $INSTDIR\node_modules\node-windows\node_modules\optimist
+	RmDir /r $INSTDIR\node_modules\node-windows\lib
+	RmDir /r $INSTDIR\node_modules\node-windows\example
+	RmDir /r $INSTDIR\node_modules\node-windows\bin\winsw\x86
+	RmDir /r $INSTDIR\node_modules\node-windows\bin\winsw\x64
+	RmDir /r $INSTDIR\node_modules\node-windows\bin\sudowin
+	RmDir /r $INSTDIR\node_modules\node-windows\bin\elevate
+	RmDir /r $INSTDIR\node_modules\node-windows
+	RmDir /r $INSTDIR\node_modules\MD5\node_modules\crypt
+	RmDir /r $INSTDIR\node_modules\MD5\node_modules\charenc
+	RmDir /r $INSTDIR\node_modules\MD5
+	RmDir /r $INSTDIR\node_modules\express\node_modules\vary
+	RmDir /r $INSTDIR\node_modules\express\node_modules\utils-merge
+	RmDir /r $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\test
+	RmDir /r $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types\lib
+	RmDir /r $INSTDIR\node_modules\express\node_modules\type-is\node_modules\mime-types
+	RmDir /r $INSTDIR\node_modules\express\node_modules\type-is
+	RmDir /r $INSTDIR\node_modules\express\node_modules\serve-static
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send\node_modules\mime\types
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send\node_modules\mime
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send\node_modules\finished\node_modules\ee-first
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send\node_modules\finished
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send\lib
+	RmDir /r $INSTDIR\node_modules\express\node_modules\send
+	RmDir /r $INSTDIR\node_modules\express\node_modules\range-parser
+	RmDir /r $INSTDIR\node_modules\express\node_modules\qs
+	RmDir /r $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\test
+	RmDir /r $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\src
+	RmDir /r $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js\lib
+	RmDir /r $INSTDIR\node_modules\express\node_modules\proxy-addr\node_modules\ipaddr.js
+	RmDir /r $INSTDIR\node_modules\express\node_modules\proxy-addr
+	RmDir /r $INSTDIR\node_modules\express\node_modules\path-to-regexp
+	RmDir /r $INSTDIR\node_modules\express\node_modules\parseurl
+	RmDir /r $INSTDIR\node_modules\express\node_modules\methods\test
+	RmDir /r $INSTDIR\node_modules\express\node_modules\methods
+	RmDir /r $INSTDIR\node_modules\express\node_modules\merge-descriptors
+	RmDir /r $INSTDIR\node_modules\express\node_modules\fresh
+	RmDir /r $INSTDIR\node_modules\express\node_modules\escape-html
+	RmDir /r $INSTDIR\node_modules\express\node_modules\debug\node_modules\ms
+	RmDir /r $INSTDIR\node_modules\express\node_modules\debug
+	RmDir /r $INSTDIR\node_modules\express\node_modules\cookie-signature
+	RmDir /r $INSTDIR\node_modules\express\node_modules\cookie
+	RmDir /r $INSTDIR\node_modules\express\node_modules\buffer-crc32\tests
+	RmDir /r $INSTDIR\node_modules\express\node_modules\buffer-crc32
+	RmDir /r $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator\lib
+	RmDir /r $INSTDIR\node_modules\express\node_modules\accepts\node_modules\negotiator
+	RmDir /r $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types\lib
+	RmDir /r $INSTDIR\node_modules\express\node_modules\accepts\node_modules\mime-types
+	RmDir /r $INSTDIR\node_modules\express\node_modules\accepts
+	RmDir /r $INSTDIR\node_modules\express\lib\router
+	RmDir /r $INSTDIR\node_modules\express\lib\middleware
+	RmDir /r $INSTDIR\node_modules\express\lib
+	RmDir /r $INSTDIR\node_modules\express
+	RmDir /r $INSTDIR\node_modules\diskspace
+	RmDir /r $INSTDIR\node_modules\connect-basic-auth
+	RmDir /r $INSTDIR\node_modules\collectdout\lib
+	RmDir /r $INSTDIR\node_modules\collectdout\example
+	RmDir /r $INSTDIR\node_modules\collectdout
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\test
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types\lib
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\type-is\node_modules\mime-types
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\type-is
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\raw-body
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\qs
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\media-typer
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\lib
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings\tables
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\iconv-lite\encodings
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\iconv-lite
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\depd
+	RmDir /r $INSTDIR\node_modules\body-parser\node_modules\bytes
+	RmDir /r $INSTDIR\node_modules\body-parser\lib\types
+	RmDir /r $INSTDIR\node_modules\body-parser\lib
+	RmDir /r $INSTDIR\node_modules\body-parser
+	RmDir /r "$INSTDIR"
 
 SectionEnd

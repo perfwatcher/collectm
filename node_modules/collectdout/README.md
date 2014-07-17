@@ -2,6 +2,8 @@
 
 Periodically send values out to a [Collectd](http://collectd.org/) server for statistics.
 
+This piece of code has been sponsored by [Superfeedr](http://superfeedr.com/). They are awesome and you should really consider their service if you process RSS feeds!
+
 # Installation
 
 ```javascript

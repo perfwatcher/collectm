@@ -13,7 +13,7 @@ var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = "1.1.1";
+var collectwVersion = "1.1.2";
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
@@ -379,16 +379,19 @@ app.get('/jquery-2.1.1.min.js', function(req, res) {
 });
 
 app.get('/version', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	res.json({ version: collectwVersion	});
 });
 
 app.get('/allCounters', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	perfmon.list('', function(err, datas) {
 		res.json(datas.counters);
 	});
 });
 
 app.get('/counters', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	// Ugly thing cause a strange bug with res.send(plugins);
 	var txt = "";
 	for (i in plugins) {
@@ -398,6 +401,7 @@ app.get('/counters', function(req, res) {
 });
 
 app.delete('/counters/:name', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	regPlugins.remove(req.params.name, function () {
 		delete plugins[req.params.name];
 		res.json({message: "Counter deleted. Will take effect on next start"});
@@ -406,6 +410,7 @@ app.delete('/counters/:name', function(req, res) {
 });
 
 app.put('/counters', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	if(		typeof req.body.counter != 'undefined'
 		&&	typeof req.body.type != 'undefined' 
 		&&	typeof req.body.p != 'undefined' 
@@ -429,16 +434,19 @@ app.put('/counters', function(req, res) {
 });
 
 app.get('/server', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	res.json({ 
 		serverHost: collectdHost, serverPort: collectdPort 
 	});
 });
 
 app.post('/process/stop', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	process.exit();
 });
 
 app.post('/server', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	if(		typeof req.body.host != 'undefined'
 		&&	typeof req.body.port != 'undefined' 
 		&&	req.body.host != ''
@@ -455,6 +463,7 @@ app.post('/server', function(req, res) {
 });
 
 app.post('/account', function(req, res) {
+	res.set('Content-Type', 'application/json');
 	if(		typeof req.body.user != 'undefined'
 		&&	typeof req.body.password != 'undefined' 
 		&&	req.body.user != ''
