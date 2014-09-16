@@ -13,7 +13,7 @@ var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = "1.1.2-ym";
+var collectwVersion = "<%= pkg.version %>";
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
