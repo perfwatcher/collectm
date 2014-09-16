@@ -4,6 +4,21 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 	clean: ['build', 'release'],
+	jshint: {
+      options: {
+		'node': true,
+		'esnext': true,
+		'curly': false,
+		'smarttabs': true,
+		'indent': 2,
+		'quotmark': 'single',
+		'laxbreak': true,
+		'globals': {
+			'jQuery': true
+		}
+      },
+      all: ['Gruntfile.js', 'src/*.js']
+    },
     concat: {
       options: {
         stripBanners: true,
@@ -25,6 +40,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
   // Default task(s).
   grunt.registerTask('default', ['concat']);

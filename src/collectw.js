@@ -7,13 +7,13 @@ var cpu = require('windows-cpu');
 var Winreg = require('winreg');
 var express = require('express');
 var basicAuth = require('connect-basic-auth');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var process = require('process');
 var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = "<%= pkg.version %>";
+var collectwVersion = '<%= pkg.version %>';
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
@@ -27,12 +27,14 @@ var regPlugins = new Winreg({
 });
 
 regPlugins.values(function (err, items) {
+	var i;
 	if (err) {
+		var nothingfct = function () {};
 		for (i in plugins) {
-			regPlugins.set(i, 'REG_SZ', JSON.stringify(plugins[i]), function () {});
+			regPlugins.set(i, 'REG_SZ', JSON.stringify(plugins[i]), nothingfct);
 		}
 	} else {
-		for (var i in items) {
+		for (i in items) {
 			plugins[items[i].name] = JSON.parse(items[i].value);
 		}
 	}
@@ -94,11 +96,12 @@ regAccount.values(function (err, items) {
 var cnts = ['Memory', 'Processor', 'PhysicalDisk', 'Server', 'Cache', 'Process'];
 
 var each = function(obj, block) {
+  var attr;
   for(attr in obj) {
     if(obj.hasOwnProperty(attr))
       block(attr, obj[attr]);
   }
-}
+};
 
 function rename(name) {
 	return name.replace(/[ -\/]/g, '_');
@@ -106,7 +109,12 @@ function rename(name) {
 
 function get_cpu() {
 	var cpus = os.cpus();
-	var user = nice = sys = irq = idle = 0;
+	var user = 0;
+	var nice = 0;
+	var sys = 0;
+	var irq = 0;
+	var idle = 0;
+	
 	each(cpus, function (cpu) {
 		if (typeof counters['cpu-'+cpu] == 'undefined') {
 			counters['cpu-'+cpu] = client.plugin('cpu', cpu);
@@ -163,7 +171,7 @@ function get_disk() {
 		perfmon(datas.counters, function(err, data) {
 			var results = [];
 			each(data.counters, function (metric, value) {
-				var regex = /^PhysicalDisk\((.*)\)\\(.*)/
+				var regex = /^PhysicalDisk\((.*)\)\\(.*)/;
 				var result = metric.match(regex);
 				if (result[1] == '_Total') {
 					disk = 'total';
@@ -178,45 +186,45 @@ function get_disk() {
 				}
 				switch(result[2]) {
 					case 'Disk Read Bytes/sec':
-						results[disk]['disk_octet_read'] = value;
-						if (typeof results[disk]['disk_octet_write'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_octets', '', [results[disk]['disk_octet_read'], results[disk]['disk_octet_write']]);
-							delete results[disk]['disk_octet_write'];
+						results[disk].disk_octet_read = value;
+						if (typeof results[disk].disk_octet_write != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
+							delete results[disk].disk_octet_write;
 						}
 					break;
 					case 'Disk Write Bytes/sec':
-						results[disk]['disk_octet_write'] = value;
-						if (typeof results[disk]['disk_octet_read'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_octets', '', [results[disk]['disk_octet_read'], results[disk]['disk_octet_write']]);
-							delete results[disk]['disk_octet_read'];
+						results[disk].disk_octet_write = value;
+						if (typeof results[disk].disk_octet_read != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
+							delete results[disk].disk_octet_read;
 						}
 					break;
 					case '% Disk Read Time':
-						results[disk]['disk_read_time'] = Number(value / 100);
-						if (typeof results[disk]['disk_write_time'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_time', '', [results[disk]['disk_read_time'], results[disk]['disk_write_time']]);
-							delete results[disk]['disk_write_time'];
+						results[disk].disk_read_time = Number(value / 100);
+						if (typeof results[disk].disk_write_time != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
+							delete results[disk].disk_write_time;
 						}
 					break;
 					case '% Disk Write Time':
-						results[disk]['disk_write_time'] = Number(value / 100);
-						if (typeof results[disk]['disk_read_time'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_time', '', [results[disk]['disk_read_time'], results[disk]['disk_write_time']]);
-							delete results[disk]['disk_read_time'];
+						results[disk].disk_write_time = Number(value / 100);
+						if (typeof results[disk].disk_read_time != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
+							delete results[disk].disk_read_time;
 						}
 					break;
 					case 'Disk Reads/sec':
-						results[disk]['disk_read'] = value;
-						if (typeof results[disk]['disk_write'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_ops', '', [results[disk]['disk_read'], results[disk]['disk_write']]);
-							delete results[disk]['disk_write'];
+						results[disk].disk_read = value;
+						if (typeof results[disk].disk_write != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
+							delete results[disk].disk_write;
 						}
 					break;
 					case 'Disk Writes/sec':
-						results[disk]['disk_write'] = value;
-						if (typeof results[disk]['disk_read'] != 'undefined') {
-							counters['disk-'+disk].addCounter('disk_ops', '', [results[disk]['disk_read'], results[disk]['disk_write']]);
-							delete results[disk]['disk_read'];
+						results[disk].disk_write = value;
+						if (typeof results[disk].disk_read != 'undefined') {
+							counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
+							delete results[disk].disk_read;
 						}
 					break;
 				}
@@ -230,7 +238,7 @@ function get_interface() {
 		perfmon(datas.counters, function(err, data) {
 			var results = [];
 			each(data.counters, function (metric, value) {
-				var regex = /^Network Interface\((.*)\)\\(.*)/
+				var regex = /^Network Interface\((.*)\)\\(.*)/;
 				var result = metric.match(regex);
 				interface_name = rename(result[1]);
 				var plugin = client.plugin('interface', interface_name);
@@ -239,45 +247,45 @@ function get_interface() {
 				}
 				switch(result[2]) {
 					case 'Bytes Received/sec':
-						results[interface_name]['if_octets_rx'] = value;
-						if (typeof results[interface_name]['if_octets_tx'] != 'undefined') {
-							plugin.addCounter('if_octets', '', [results[interface_name]['if_octets_rx'], results[interface_name]['if_octets_tx']]);
-							delete results[interface_name]['if_octets_tx'];
+						results[interface_name].if_octets_rx = value;
+						if (typeof results[interface_name].if_octets_tx != 'undefined') {
+							plugin.addCounter('if_octets', '', [results[interface_name].if_octets_rx, results[interface_name].if_octets_tx]);
+							delete results[interface_name].if_octets_tx;
 						}
 					break;
 					case 'Bytes Sent/sec':
-						results[interface_name]['if_octets_tx'] = value;
-						if (typeof results[interface_name]['if_octets_rx'] != 'undefined') {
-							plugin.addCounter('if_octets', '', [results[interface_name]['if_octets_rx'], results[interface_name]['if_octets_tx']]);
-							delete results[interface_name]['if_octets_rx'];
+						results[interface_name].if_octets_tx = value;
+						if (typeof results[interface_name].if_octets_rx != 'undefined') {
+							plugin.addCounter('if_octets', '', [results[interface_name].if_octets_rx, results[interface_name].if_octets_tx]);
+							delete results[interface_name].if_octets_rx;
 						}
 					break;
 					case 'Packets Received/sec':
-						results[interface_name]['if_packets_rx'] = Number(value / 100);
-						if (typeof results[interface_name]['if_packets_tx'] != 'undefined') {
-							plugin.addCounter('if_packets', '', [results[interface_name]['if_packets_rx'], results[interface_name]['if_packets_tx']]);
-							delete results[interface_name]['if_packets_tx'];
+						results[interface_name].if_packets_rx = Number(value / 100);
+						if (typeof results[interface_name].if_packets_tx != 'undefined') {
+							plugin.addCounter('if_packets', '', [results[interface_name].if_packets_rx, results[interface_name].if_packets_tx]);
+							delete results[interface_name].if_packets_tx;
 						}
 					break;
 					case 'Packets Sent/sec':
-						results[interface_name]['if_packets_tx'] = Number(value / 100);
-						if (typeof results[interface_name]['if_packets_rx'] != 'undefined') {
-							plugin.addCounter('if_packets', '', [results[interface_name]['if_packets_rx'], results[interface_name]['if_packets_tx']]);
-							delete results[interface_name]['if_packets_rx'];
+						results[interface_name].if_packets_tx = Number(value / 100);
+						if (typeof results[interface_name].if_packets_rx != 'undefined') {
+							plugin.addCounter('if_packets', '', [results[interface_name].if_packets_rx, results[interface_name].if_packets_tx]);
+							delete results[interface_name].if_packets_rx;
 						}
 					break;
 					case 'Packets Received Errors':
-						results[interface_name]['if_error_rx'] = value;
-						if (typeof results[interface_name]['if_error_tx'] != 'undefined') {
-							plugin.addCounter('if_errors', '', [results[interface_name]['if_error_rx'], results[interface_name]['if_error_tx']]);
-							delete results[interface_name]['if_error_tx'];
+						results[interface_name].if_error_rx = value;
+						if (typeof results[interface_name].if_error_tx != 'undefined') {
+							plugin.addCounter('if_errors', '', [results[interface_name].if_error_rx, results[interface_name].if_error_tx]);
+							delete results[interface_name].if_error_tx;
 						}
 					break;
 					case 'Packets Outbound Errors':
-						results[interface_name]['if_error_tx'] = value;
-						if (typeof results[interface_name]['if_error_rx'] != 'undefined') {
-							plugin.addCounter('if_errors', '', [results[interface_name]['if_error_rx'], results[interface_name]['if_error_tx']]);
-							delete results[interface_name]['if_error_rx'];
+						results[interface_name].if_error_tx = value;
+						if (typeof results[interface_name].if_error_rx != 'undefined') {
+							plugin.addCounter('if_errors', '', [results[interface_name].if_error_rx, results[interface_name].if_error_tx]);
+							delete results[interface_name].if_error_rx;
 						}
 					break;
 				}
@@ -335,7 +343,7 @@ function start_monitoring() {
 }
 
 function add_counter(counter, type, p, pi, t, ti) {
-	counter = counter.replace(/\\\\/g, "\\");
+	counter = counter.replace(/\\\\/g, '\\');
 	if (typeof pi == 'undefined') { pi = ''; }
 	if (typeof ti == 'undefined') { ti = ''; }
 	if (typeof counters[p+'-'+pi] == 'undefined') {
@@ -360,7 +368,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(basicAuth(function(credentials, req, res, next) {
 	if (credentials.username != collectwUser || md5(credentials.password) != collectwPassword) {
 		res.statusCode = 401;
-		res.json({error: 'Invalid credential'})
+		res.json({error: 'Invalid credential'});
 	} else { next(); }
 }, 'Please enter your credentials.'));
 
@@ -396,20 +404,21 @@ app.get('/allCounters', function(req, res) {
 });
 
 app.get('/counters', function(req, res) {
+	var i;
+	var txt = '';
 	res.set('Content-Type', 'application/json');
 	// Ugly thing cause a strange bug with res.send(plugins);
-	var txt = "";
 	for (i in plugins) {
-		txt += ",\"" + i + "\": " + JSON.stringify(plugins[i]);
+		txt += ',"' + i + '": ' + JSON.stringify(plugins[i]);
 	}
-	res.send("{" + txt.substr(1) + "}");
+	res.send('{' + txt.substr(1) + '}');
 });
 
 app.delete('/counters/:name', function(req, res) {
 	res.set('Content-Type', 'application/json');
 	regPlugins.remove(req.params.name, function () {
 		delete plugins[req.params.name];
-		res.json({message: "Counter deleted. Will take effect on next start"});
+		res.json({message: 'Counter deleted. Will take effect on next start'});
 		res.send();
 	});
 });
@@ -420,10 +429,10 @@ app.put('/counters', function(req, res) {
 		&&	typeof req.body.type != 'undefined' 
 		&&	typeof req.body.p != 'undefined' 
 		&&	typeof req.body.t != 'undefined' 
-		&&	req.body.counter != ''
-		&&	req.body.type != ''
-		&&	req.body.p != ''
-		&&	req.body.t != ''
+		&&	req.body.counter !== ''
+		&&	req.body.type !== ''
+		&&	req.body.p !== ''
+		&&	req.body.t !== ''
 	) {
 		if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
 		if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
@@ -431,10 +440,10 @@ app.put('/counters', function(req, res) {
 		plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
 		regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
 			add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
-			res.json({message: "Counter added"});
+			res.json({message: 'Counter added'});
 		});
 	} else {
-		res.json({error: "Counter " + md5name + " not added. Some parameter is/are missing"});
+		res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
 	}
 });
 
@@ -454,16 +463,16 @@ app.post('/server', function(req, res) {
 	res.set('Content-Type', 'application/json');
 	if(		typeof req.body.host != 'undefined'
 		&&	typeof req.body.port != 'undefined' 
-		&&	req.body.host != ''
-		&&	req.body.port != ''
+		&&	req.body.host !== ''
+		&&	req.body.port !== ''
 	) {
 		collectdHost = req.body.host;
 		collectdPort = req.body.port;
 		regServer.set('host', 'REG_SZ', collectdHost, function () {});
 		regServer.set('port', 'REG_SZ', collectdPort, function () {});
-		res.json({message: "Host and port updated. Will take effect on next start"});
+		res.json({message: 'Host and port updated. Will take effect on next start'});
 	} else {
-		res.json({error: "Host and port not updated"});
+		res.json({error: 'Host and port not updated'});
 	}
 });
 
@@ -471,16 +480,16 @@ app.post('/account', function(req, res) {
 	res.set('Content-Type', 'application/json');
 	if(		typeof req.body.user != 'undefined'
 		&&	typeof req.body.password != 'undefined' 
-		&&	req.body.user != ''
-		&&	req.body.password != ''
+		&&	req.body.user !== ''
+		&&	req.body.password !== ''
 	) {
 		collectwUser = req.body.user;
 		collectwPassword = md5(req.body.password);
 		regAccount.set('user', 'REG_SZ', collectwUser, function () {});
 		regAccount.set('password', 'REG_SZ', collectwPassword, function () {});
-		res.json({message: "User and password updated"});
+		res.json({message: 'User and password updated'});
 	} else {
-		res.json({error: "User and password not updated"});
+		res.json({error: 'User and password not updated'});
 	}
 });
 
