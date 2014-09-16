@@ -1,6 +1,6 @@
-Name "CollectW"
+Name "Collectw"
 
-OutFile "CollectW-1.1.2-ym.exe"
+OutFile "out.exe"
 
 InstallDir $PROGRAMFILES\CollectW
 
@@ -12,8 +12,8 @@ UninstPage instfiles
 
 Section ""
 	SetOutPath $INSTDIR
-	File collectw.js
-	File service.js
+	File build\collectw.js
+	File build\service.js
 	SetOutPath $INSTDIR\bin
 	File bin\node.exe
 	SetOutPath $INSTDIR\frontend

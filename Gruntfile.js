@@ -1,9 +1,9 @@
 module.exports = function(grunt) {
-
+	var pkg = grunt.file.readJSON('package.json');
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-	clean: ['build', 'release'],
+    pkg: pkg,
+	clean: ['build', pkg.name+'-'+pkg.version+'.exe'],
 	jshint: {
       options: {
 		'node': true,
@@ -19,6 +19,24 @@ module.exports = function(grunt) {
       },
       all: ['Gruntfile.js', 'src/*.js']
     },
+	shell: {
+		makensis: {
+			command: 'makensis /NOCD build\\collectw.nsi'
+		}
+	},
+	copy: {
+		collectw_nsi: {
+			src: 'src/collectw.nsi',
+			dest: 'build/collectw.nsi',
+			options: {
+				process: function (content, srcpath) {
+					content = content.replace(/ *Name +".*" */g, 'Name "'+pkg.name+'"');
+					content = content.replace(/ *OutFile +".*" */g, 'OutFile "'+pkg.name+'-'+pkg.version+'.exe"');
+					return(content);
+				}
+			}
+		},
+	},
     concat: {
       options: {
         stripBanners: true,
@@ -41,8 +59,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-shell');
 
   // Default task(s).
+  grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'shell:makensis']);
   grunt.registerTask('default', ['concat']);
 
 };
