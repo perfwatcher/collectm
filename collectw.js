@@ -13,13 +13,13 @@ var fs = require('fs');
 
 var collectdHost = 'localhost';
 var collectdPort = 25826;
-var collectwVersion = "1.1.2";
+var collectwVersion = "1.1.2-ym";
 var collectwUser = 'admin';
 var collectwPassword = md5(collectwUser);
 var plugins = [];
 var counters = [];
 var client;
-var path = 'C:\\Program\ Files (x86)\\CollectW\\';
+var path = require('path').dirname(require.main.filename);
 
 var regPlugins = new Winreg({
       hive: Winreg.HKLM,
@@ -370,17 +370,22 @@ app.all('*', function(req, res, next) {
 
 app.get('/', function(req, res) {
 	res.set('Content-Type', 'text/html');
-	res.send(fs.readFileSync(path + 'frontend\\index.html'));
+	res.send(fs.readFileSync(path + '\\frontend\\index.html'));
 });
 
 app.get('/jquery-2.1.1.min.js', function(req, res) {
 	res.set('Content-Type', 'application/javascript');
-	res.send(fs.readFileSync(path + 'frontend\\jquery-2.1.1.min.js'));
+	res.send(fs.readFileSync(path + '\\frontend\\jquery-2.1.1.min.js'));
 });
 
 app.get('/version', function(req, res) {
 	res.set('Content-Type', 'application/json');
 	res.json({ version: collectwVersion	});
+});
+
+app.get('/collectw_pid', function(req, res) {
+	res.set('Content-Type', 'application/json');
+	res.json({ collectw_pid: process.pid	});
 });
 
 app.get('/allCounters', function(req, res) {

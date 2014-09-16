@@ -16,6 +16,9 @@
 				$.getJSON('/version', function(data) {
 					$('#version').html(data.version);
 				});
+				$.getJSON('/collectw_pid', function(data) {
+					$('#collectw_pid').html(data.collectw_pid);
+				});
 				$.getJSON('/allCounters', function(data) {
 					for(i in data) {
 						$('#all_counters').append('<option>\\' + data[i] + '</option>');
@@ -84,7 +87,7 @@
 	</head>
 	<body>
 		<div id="block_version">
-			<span>CollectW v</span><span id="version"></span> <span>is running and send data to</span> <span id="server"></span>
+			<span>CollectW v</span><span id="version"></span> <span>is running with PID</span> <span id="collectw_pid"></span> <span>and send data to</span> <span id="server"></span>
 		</div>
 		<hr />
 		<div id="block_authentification">

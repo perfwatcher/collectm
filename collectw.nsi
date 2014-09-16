@@ -1,6 +1,6 @@
 Name "CollectW"
 
-OutFile "CollectW-1.1.2.exe"
+OutFile "CollectW-1.1.2-ym.exe"
 
 InstallDir $PROGRAMFILES\CollectW
 

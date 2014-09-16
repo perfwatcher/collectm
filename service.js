@@ -1,9 +1,16 @@
 var Service = require('node-windows').Service;
+var svcpath = require('path').dirname(require.main.filename);
+
+if(process.argv[3]) {
+	svcpath = process.argv[3];
+}
 
 var svc = new Service({
   name:'CollectW',
   description: 'Collectd agent for Windows',
-  script: 'C:\\Program\ Files (x86)\\CollectW\\collectw.js',
+  script: svcpath + '\\collectw.js',
+  grow: 0,
+  wait: 10,
   maxRestarts: 30,
   maxRetries: 3
 });
@@ -36,7 +43,6 @@ svc.on('alreadyinstalled',function(){
 });
 
 //svc.uninstall();
-
 process.argv.forEach(function(val, index, array) {
   if(index == 2) {
 	switch (val) {
