@@ -20,7 +20,7 @@ C:\Program\ Files (x86)\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\s
 
 Installer options :
 * /S : silent install
-* /D=<C:\your\path> : install to C:\your\path
+* /D=&gt;C:\your\path&lt; : install to C:\your\path
 
 Example : install to C:\Program Files\CollectW
 
@@ -31,7 +31,7 @@ Collectw-<version>.exe /S /D="C:\Program Files\CollectW"
 Configure
 =========
 
-Use your browser to go to http://<your_server:25826/ (login: admin / password: admin)
+Use your browser to go to http://<your_server>:25826/ (login: admin / password: admin)
 
 
 FAQ
