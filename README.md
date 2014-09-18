@@ -20,7 +20,7 @@ C:\Program\ Files (x86)\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\s
 
 Installer options :
 * /S : silent install
-* /D=&gt;C:\your\path&lt; : install to C:\your\path
+* /D=&lt;C:\your\path&gt; : install to C:\your\path
 
 Example : install to C:\Program Files\CollectW
 
