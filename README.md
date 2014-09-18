@@ -11,7 +11,7 @@ Installation
 
 CollectW would be added as service and started. If not :
 ```
-C:\Program\ Files\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\service.js [install|installAndStart|uninstall|stopAndUninstall|start|stop]
+C:\Program\ Files\CollectW\bin\node.exe C:\Program\ Files\CollectW\service.js [install|installAndStart|uninstall|stopAndUninstall|start|stop]
 ```
 or
 ```
