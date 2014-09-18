@@ -6,10 +6,14 @@ Collectd agent for Windows
 Installation
 ============
 
-* Download https://github.com/perfwatcher/collectw/blob/master/CollectW-1.1.2.exe
+* Download https://github.com/perfwatcher/collectw/raw/master/releases/CollectW-1.1.2.exe
 * run `CollectW-1.1.2.exe`
 
 CollectW would be added as service and started. If not :
+```
+C:\Program\ Files\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\service.js [install|installAndStart|uninstall|stopAndUninstall|start|stop]
+```
+or
 ```
 C:\Program\ Files (x86)\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\service.js [install|installAndStart|uninstall|stopAndUninstall|start|stop]
 ```
