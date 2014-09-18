@@ -1,0 +1,27 @@
+{
+  "name": "CollectW",
+  "version": "0.1.2.20140918",
+  "author": "Cyril Feraudet",
+  "license": "GPLv2",
+  "dependancies": {
+    "MD5": "~1.2.1",
+    "collectdout": "~0.0.4",
+    "diskspace": "~0.1.6",
+    "perfmon": "~0.2.0",
+    "windows-cpu": "~0.1.1",
+    "body-parser": "",
+    "connect-basic-auth": "~0.1.0",
+    "express": "~4.4.5",
+    "node-windows": "~0.1.5",
+    "process": "~0.7.0",
+    "winreg": "~0.0.12"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-shell": "^1.1.1"
+  }
+}
