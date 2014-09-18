@@ -3,5 +3,6 @@ Version next
 - No more hard-coded path
 - "Compile" with Grunt (http://gruntjs.com/)
 - Moving existing exe files to 'releases' dir
+- Use node.js 64bits version 0.10.32
 
 Version 1.1.2
