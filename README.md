@@ -18,6 +18,16 @@ or
 C:\Program\ Files (x86)\CollectW\bin\node.exe C:\Program\ Files (x86)\CollectW\service.js [install|installAndStart|uninstall|stopAndUninstall|start|stop]
 ```
 
+Installer options :
+* /S : silent install
+* /D=<C:\your\path> : install to C:\your\path
+
+Example : install to C:\Program Files\CollectW
+
+```
+Collectw-<version>.exe /S /D="C:\Program Files\CollectW"
+```
+
 Configure
 =========
 
