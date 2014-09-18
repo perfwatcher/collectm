@@ -15,7 +15,7 @@ Section ""
 	File build\collectw.js
 	File build\service.js
 	SetOutPath $INSTDIR\bin
-	File bin\node.exe
+	File build\node.exe
 	SetOutPath $INSTDIR\frontend
 	File frontend\index.html
 	File frontend\jquery-2.1.1.min.js

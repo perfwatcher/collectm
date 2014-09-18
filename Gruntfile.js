@@ -25,6 +25,10 @@ module.exports = function(grunt) {
 		}
 	},
 	copy: {
+		node: {
+			src: 'bin/node-0.10.32-x64.exe',
+			dest: 'build/node.exe',
+		},
 		collectw_nsi: {
 			src: 'src/collectw.nsi',
 			dest: 'build/collectw.nsi',
@@ -63,8 +67,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
 
   // Default task(s).
-  grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'shell:makensis']);
-  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'copy:node', 'shell:makensis']);
+  grunt.registerTask('default', ['jshint']);
 
 };
 
