@@ -368,148 +368,150 @@ function cw_config_update(newcfg) {
     }
 }
 
-var app = express();
-app.use(bodyParser.urlencoded({extended: true}));
-
-app.use(basicAuth(function(credentials, req, res, next) {
-    if (credentials.username != collectwUser || md5(credentials.password) != collectwPassword) {
-        res.statusCode = 401;
-        res.json({error: 'Invalid credential'});
-    } else { next(); }
-}, 'Please enter your credentials.'));
-
-app.all('*', function(req, res, next) {
-  req.requireAuthorization(req, res, next);
-});
-
-app.get('/', function(req, res) {
-    res.set('Content-Type', 'text/html');
-    res.send(fs.readFileSync(path + '\\frontend\\index.html'));
-});
-
-app.get('/jquery-2.1.1.min.js', function(req, res) {
-    res.set('Content-Type', 'application/javascript');
-    res.send(fs.readFileSync(path + '\\frontend\\jquery-2.1.1.min.js'));
-});
-
-app.get('/version', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    res.json({ version: collectwVersion    });
-});
-
-app.get('/show_config', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    res.json({ 'config': cfg });
-});
-
-app.get('/collectw_pid', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    res.json({ collectw_pid: process.pid    });
-});
-
-app.get('/allCounters', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    perfmon.list('', function(err, datas) {
-        res.json(datas.counters);
+if(cfg.get('HttpConfig.enable')) {
+    var app = express();
+    app.use(bodyParser.urlencoded({extended: true}));
+    
+    app.use(basicAuth(function(credentials, req, res, next) {
+        if (credentials.username != collectwUser || md5(credentials.password) != collectwPassword) {
+            res.statusCode = 401;
+            res.json({error: 'Invalid credential'});
+        } else { next(); }
+    }, 'Please enter your credentials.'));
+    
+    app.all('*', function(req, res, next) {
+      req.requireAuthorization(req, res, next);
     });
-});
-
-app.get('/counters', function(req, res) {
-    var i;
-    var txt = '';
-    res.set('Content-Type', 'application/json');
-    // Ugly thing cause a strange bug with res.send(plugins);
-    for (i in plugins) {
-        txt += ',"' + i + '": ' + JSON.stringify(plugins[i]);
-    }
-    res.send('{' + txt.substr(1) + '}');
-});
-
-app.delete('/counters/:name', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    regPlugins.remove(req.params.name, function () {
-        delete plugins[req.params.name];
-        res.json({message: 'Counter deleted. Will take effect on next start'});
-        res.send();
+    
+    app.get('/', function(req, res) {
+        res.set('Content-Type', 'text/html');
+        res.send(fs.readFileSync(path + '\\frontend\\index.html'));
     });
-});
-
-app.put('/counters', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    if(        typeof req.body.counter != 'undefined'
-        &&    typeof req.body.type != 'undefined' 
-        &&    typeof req.body.p != 'undefined' 
-        &&    typeof req.body.t != 'undefined' 
-        &&    req.body.counter !== ''
-        &&    req.body.type !== ''
-        &&    req.body.p !== ''
-        &&    req.body.t !== ''
-    ) {
-        if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
-        if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
-        var md5name = md5(req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti);
-        plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
-        regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
-            add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
-            res.json({message: 'Counter added'});
+    
+    app.get('/jquery-2.1.1.min.js', function(req, res) {
+        res.set('Content-Type', 'application/javascript');
+        res.send(fs.readFileSync(path + '\\frontend\\jquery-2.1.1.min.js'));
+    });
+    
+    app.get('/version', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        res.json({ version: collectwVersion    });
+    });
+    
+    app.get('/show_config', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        res.json({ 'config': cfg });
+    });
+    
+    app.get('/collectw_pid', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        res.json({ collectw_pid: process.pid    });
+    });
+    
+    app.get('/allCounters', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        perfmon.list('', function(err, datas) {
+            res.json(datas.counters);
         });
-    } else {
-        res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
-    }
-});
-
-app.get('/server', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    res.json({ 
-        serverHost: collectdHost, serverPort: collectdPort 
     });
-});
+    
+    app.get('/counters', function(req, res) {
+        var i;
+        var txt = '';
+        res.set('Content-Type', 'application/json');
+        // Ugly thing cause a strange bug with res.send(plugins);
+        for (i in plugins) {
+            txt += ',"' + i + '": ' + JSON.stringify(plugins[i]);
+        }
+        res.send('{' + txt.substr(1) + '}');
+    });
+    
+    app.delete('/counters/:name', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        regPlugins.remove(req.params.name, function () {
+            delete plugins[req.params.name];
+            res.json({message: 'Counter deleted. Will take effect on next start'});
+            res.send();
+        });
+    });
+    
+    app.put('/counters', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        if(        typeof req.body.counter != 'undefined'
+            &&    typeof req.body.type != 'undefined' 
+            &&    typeof req.body.p != 'undefined' 
+            &&    typeof req.body.t != 'undefined' 
+            &&    req.body.counter !== ''
+            &&    req.body.type !== ''
+            &&    req.body.p !== ''
+            &&    req.body.t !== ''
+        ) {
+            if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
+            if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
+            var md5name = md5(req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti);
+            plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
+            regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
+                add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
+                res.json({message: 'Counter added'});
+            });
+        } else {
+            res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
+        }
+    });
+    
+    app.get('/server', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        res.json({ 
+            serverHost: collectdHost, serverPort: collectdPort 
+        });
+    });
+    
+    app.post('/process/stop', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        process.exit();
+    });
+    
+    app.post('/server', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        if(        typeof req.body.host != 'undefined'
+            &&    typeof req.body.port != 'undefined' 
+            &&    req.body.host !== ''
+            &&    req.body.port !== ''
+        ) {
+            collectdHost = req.body.host;
+            collectdPort = parseInt(req.body.port);
+            cw_config_update({ 'HttpConfig': {'listenPort' : collectdPort}});
+            cw_config_update({ 'Hostname': collectdHost});
+            cw_config_write();
+            res.json({message: 'Host and port updated. Will take effect on next start'});
+        } else {
+            res.json({error: 'Host and port not updated'});
+        }
+    });
+    
+    app.post('/account', function(req, res) {
+        res.set('Content-Type', 'application/json');
+        if(        typeof req.body.user != 'undefined'
+            &&    typeof req.body.password != 'undefined' 
+            &&    req.body.user !== ''
+            &&    req.body.password !== ''
+        ) {
+            collectwUser = req.body.user;
+            collectwPassword = md5(req.body.password);
+            cw_config_update({ 'HttpConfig': {'login' : collectwUser }});
+            cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
+            cw_config_write();
+            res.json({message: 'User and password updated'});
+        } else {
+            res.json({error: 'User and password not updated'});
+        }
+    });
 
-app.post('/process/stop', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    process.exit();
-});
-
-app.post('/server', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    if(        typeof req.body.host != 'undefined'
-        &&    typeof req.body.port != 'undefined' 
-        &&    req.body.host !== ''
-        &&    req.body.port !== ''
-    ) {
-        collectdHost = req.body.host;
-        collectdPort = parseInt(req.body.port);
-        cw_config_update({ 'HttpConfig': {'listenPort' : collectdPort}});
-        cw_config_update({ 'Hostname': collectdHost});
-        cw_config_write();
-        res.json({message: 'Host and port updated. Will take effect on next start'});
-    } else {
-        res.json({error: 'Host and port not updated'});
-    }
-});
-
-app.post('/account', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    if(        typeof req.body.user != 'undefined'
-        &&    typeof req.body.password != 'undefined' 
-        &&    req.body.user !== ''
-        &&    req.body.password !== ''
-    ) {
-        collectwUser = req.body.user;
-        collectwPassword = md5(req.body.password);
-        cw_config_update({ 'HttpConfig': {'login' : collectwUser }});
-        cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
-        cw_config_write();
-        res.json({message: 'User and password updated'});
-    } else {
-        res.json({error: 'User and password not updated'});
-    }
-});
+    var server = app.listen(collectdPort);
+}
 
 
 client = new Collectd(1000, collectdHost, collectdPort);
-
-var server = app.listen(collectdPort);
 
 start_monitoring();
 
