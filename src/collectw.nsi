@@ -16,6 +16,8 @@ Section ""
 	File build\service.js
 	SetOutPath $INSTDIR\bin
 	File build\node.exe
+	SetOutPath $INSTDIR\config
+	File config\default.json
 	SetOutPath $INSTDIR\frontend
 	File frontend\index.html
 	File frontend\jquery-2.1.1.min.js
@@ -861,6 +863,18 @@ Section ""
 	File node_modules\winreg\README.md
 	SetOutPath $INSTDIR\node_modules\winreg
 	File node_modules\winreg\test.js
+	SetOutPath $INSTDIR\node_modules\config
+	File node_modules\config\.npmignore
+	File node_modules\config\.travis.yml
+	File node_modules\config\History.md
+	File node_modules\config\LICENSE
+	File node_modules\config\package.json
+	File node_modules\config\README.md
+	SetOutPath $INSTDIR\node_modules\config\lib
+	File node_modules\config\lib\config.js
+	SetOutPath $INSTDIR\node_modules\config\tools
+	File node_modules\config\tools\contributors.js
+	File node_modules\config\tools\gen-docs.sh
 
 	WriteUninstaller uninstall.exe
 

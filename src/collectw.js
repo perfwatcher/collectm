@@ -1,3 +1,7 @@
+
+var process = require('process');
+process.env.ALLOW_CONFIG_MUTATIONS = 1;
+
 var md5 = require('MD5');
 var os = require('os');
 var Collectd = require('collectdout');
@@ -8,14 +12,14 @@ var Winreg = require('winreg');
 var express = require('express');
 var basicAuth = require('connect-basic-auth');
 var bodyParser = require('body-parser');
-var process = require('process');
 var fs = require('fs');
+var cfg = require('config');
 
-var collectdHost = 'localhost';
-var collectdPort = 25826;
 var collectwVersion = '<%= pkg.version %>';
-var collectwUser = 'admin';
-var collectwPassword = md5(collectwUser);
+var collectdHost = 'localhost';
+var collectdPort = cfg.get('HttpConfig.listenPort');
+var collectwUser = cfg.get('HttpConfig.login');
+var collectwPassword = md5(cfg.get('HttpConfig.password'));
 var plugins = [];
 var counters = [];
 var client;
@@ -45,56 +49,9 @@ regPlugins.values(function (err, items) {
 });
 
 
-var regServer = new Winreg({
-      hive: Winreg.HKLM,
-      key:  '\\Software\\Perfwatcher\\CollectW\\Server'
-});
-
-regServer.values(function (err, items) {
-	if (err) {
-		regServer.set('host', 'REG_SZ', collectdHost, function () {});
-		regServer.set('port', 'REG_SZ', collectdPort, function () {});
-	} else {
-		for (var i in items) {
-			switch(items[i].name) {
-				case 'host': 
-					collectdHost = items[i].value;
-				break;
-				case 'port': 
-					collectdPort = items[i].value;
-				break;
-			}
-		}
-	}
-	client = new Collectd(1000, collectdHost, collectdPort);
-	start_monitoring();
-});
-
-var regAccount = new Winreg({
-      hive: Winreg.HKLM,
-      key:  '\\Software\\Perfwatcher\\CollectW\\Account'
-});
-
-regAccount.values(function (err, items) {
-	if (err) {
-		regAccount.set('user', 'REG_SZ', collectwUser, function () {});
-		regAccount.set('password', 'REG_SZ', collectwPassword, function () {});
-	} else {
-		for (var i in items) {
-			switch(items[i].name) {
-				case 'user': 
-					collectwUser = items[i].value;
-				break;
-				case 'password': 
-					collectwPassword = items[i].value;
-				break;
-			}
-		}
-	}
-});
-
-var cnts = ['Memory', 'Processor', 'PhysicalDisk', 'Server', 'Cache', 'Process'];
-
+// FIXME : USELESS CODE ?
+//var cnts = ['Memory', 'Processor', 'PhysicalDisk', 'Server', 'Cache', 'Process'];
+//
 var each = function(obj, block) {
   var attr;
   for(attr in obj) {
@@ -103,7 +60,7 @@ var each = function(obj, block) {
   }
 };
 
-function rename(name) {
+function collectd_sanitize(name) {
 	return name.replace(/[ -\/]/g, '_');
 }
 
@@ -240,7 +197,7 @@ function get_interface() {
 			each(data.counters, function (metric, value) {
 				var regex = /^Network Interface\((.*)\)\\(.*)/;
 				var result = metric.match(regex);
-				interface_name = rename(result[1]);
+				interface_name = collectd_sanitize(result[1]);
 				var plugin = client.plugin('interface', interface_name);
 				if (typeof results[interface_name] == 'undefined') {
 					results[interface_name] = [];
@@ -362,6 +319,55 @@ function add_counter(counter, type, p, pi, t, ti) {
 	});
 }
 
+function cw_config_write() {
+	var failed = 0;
+	var outputDir;
+	var outputFilename;
+	var hostname;
+	var d = new Date();
+	var oldFilename;
+	var outputObj = {
+		'HostnameCase': cfg.get('HostnameCase'),
+
+		'HttpConfig': {
+			'enable': cfg.get('HttpConfig.enable'),
+			'listenPort': cfg.get('HttpConfig.listenPort'),
+			'login': cfg.get('HttpConfig.login'),
+			'password': cfg.get('HttpConfig.password'),
+		}
+	};
+	if(cfg.has('Hostname')) {
+		outputObj.Hostname = cfg.get('Hostname');
+	}
+
+	outputDir = process.cwd() + '/config';
+	hostname = os.hostname();
+	hostname = hostname ? hostname.split('.')[0] : 'localhost';
+	outputFilename = outputDir + '/' + hostname + '.json';
+	oldFilename = outputFilename + '-' 
+		+ ('0'+d.getFullYear()).slice(-4)
+		+ ('0'+(d.getMonth()+1)).slice(-2)
+		+ ('0'+d.getDate()).slice(-2)
+		+ '_'
+		+ ('0'+d.getHours()).slice(-2)
+		+ ('0'+d.getMinutes()).slice(-2)
+		+ ('0'+d.getSeconds()).slice(-2)
+		;
+	
+	fs.rename(outputFilename, oldFilename, function(err) {
+		fs.writeFile(outputFilename, JSON.stringify(outputObj), function(err) {
+			if(err) failed = 1;
+		});
+	});
+	return(failed);
+}
+
+function cw_config_update(newcfg) {
+	if(newcfg) {
+		cfg.util.extendDeep(cfg, newcfg);
+	}
+}
+
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -389,6 +395,11 @@ app.get('/jquery-2.1.1.min.js', function(req, res) {
 app.get('/version', function(req, res) {
 	res.set('Content-Type', 'application/json');
 	res.json({ version: collectwVersion	});
+});
+
+app.get('/show_config', function(req, res) {
+	res.set('Content-Type', 'application/json');
+	res.json({ 'config': cfg });
 });
 
 app.get('/collectw_pid', function(req, res) {
@@ -467,9 +478,10 @@ app.post('/server', function(req, res) {
 		&&	req.body.port !== ''
 	) {
 		collectdHost = req.body.host;
-		collectdPort = req.body.port;
-		regServer.set('host', 'REG_SZ', collectdHost, function () {});
-		regServer.set('port', 'REG_SZ', collectdPort, function () {});
+		collectdPort = parseInt(req.body.port);
+		cw_config_update({ 'HttpConfig': {'listenPort' : collectdPort}});
+		cw_config_update({ 'Hostname': collectdHost});
+		cw_config_write();
 		res.json({message: 'Host and port updated. Will take effect on next start'});
 	} else {
 		res.json({error: 'Host and port not updated'});
@@ -485,14 +497,19 @@ app.post('/account', function(req, res) {
 	) {
 		collectwUser = req.body.user;
 		collectwPassword = md5(req.body.password);
-		regAccount.set('user', 'REG_SZ', collectwUser, function () {});
-		regAccount.set('password', 'REG_SZ', collectwPassword, function () {});
+		cw_config_update({ 'HttpConfig': {'login' : collectwUser }});
+		cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
+		cw_config_write();
 		res.json({message: 'User and password updated'});
 	} else {
 		res.json({error: 'User and password not updated'});
 	}
 });
 
+
+client = new Collectd(1000, collectdHost, collectdPort);
+
 var server = app.listen(collectdPort);
 
+start_monitoring();
 

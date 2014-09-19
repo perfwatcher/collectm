@@ -9,6 +9,10 @@ var svc = new Service({
   name:'CollectW',
   description: 'Collectd agent for Windows',
   script: svcpath + '\\collectw.js',
+  env: {
+    name: 'NODE_CONFIG_DIR',
+    value: svcpath + '\\config'
+  },
   grow: 0,
   wait: 10,
   maxRestarts: 30,

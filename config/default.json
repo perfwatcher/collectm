@@ -1,0 +1,11 @@
+{
+//  "Hostname":"orion", // should not be set in default.json
+  "HostnameCase": "lower", // "lower", "upper" or "default"
+
+  "HttpConfig": {
+  	"enable": 1,
+	"listenPort": 25826,
+	"login": "admin",
+	"password": "admin"
+  }
+}

@@ -4,5 +4,6 @@ Version next
 - "Compile" with Grunt (http://gruntjs.com/)
 - Moving existing exe files to 'releases' dir
 - Use node.js 64bits version 0.10.32
+- Use a configuration file
 
 Version 1.1.2

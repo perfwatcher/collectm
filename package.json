@@ -1,6 +1,6 @@
 {
   "name": "CollectW",
-  "version": "0.1.2-20140918",
+  "version": "0.1.2-20140919",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
@@ -14,7 +14,8 @@
     "express": "~4.4.5",
     "node-windows": "~0.1.5",
     "process": "~0.7.0",
-    "winreg": "~0.0.12"
+    "winreg": "~0.0.12",
+    "config": "~1.2.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
