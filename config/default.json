@@ -7,5 +7,27 @@
 	"listenPort": 25826,
 	"login": "admin",
 	"password": "admin"
+  },
+
+  "Network": {
+	"server": {
+		"hostname": "localhost",
+		"port": 25826
+		}
+  },
+
+  "Plugin": {
+    "perfmon": {
+      "counters" : [
+          {
+            "counter": "\\LogicalDisk(C:)\\% Free Space",
+            "enable": 1,
+            "plugin": "perfmon_LogicalDisk",
+            "plugin_instance": "C",
+            "type": "percent",
+            "type_instance": "Free Space"
+          }
+      ]
+    }
   }
 }

@@ -16,11 +16,12 @@ var fs = require('fs');
 var cfg = require('config');
 
 var collectwVersion = '<%= pkg.version %>';
-var collectdHost = 'localhost';
+var collectdHost = cfg.get('Network.server.hostname') || 'localhost';
 var collectdPort = cfg.get('HttpConfig.listenPort');
 var collectwUser = cfg.get('HttpConfig.login');
 var collectwPassword = md5(cfg.get('HttpConfig.password'));
-var plugins = [];
+var plugins = []; //FIXME : remove this var
+var perfmonCounters = [];
 var counters = [];
 var client;
 var path = require('path').dirname(require.main.filename);
@@ -31,34 +32,6 @@ if (configDir.indexOf('.') === 0) {
     configDir = process.cwd() + '/' + CONFIG_DIR;
 }
 
-
-var regPlugins = new Winreg({
-    hive: Winreg.HKLM,
-    key:  '\\Software\\Perfwatcher\\CollectW\\Plugins'
-});
-
-regPlugins.values(function (err, items) {
-    var i;
-    if (err) {
-        var nothingfct = function () {};
-        for (i in plugins) {
-            regPlugins.set(i, 'REG_SZ', JSON.stringify(plugins[i]), nothingfct);
-        }
-    } else {
-        for (i in items) {
-            plugins[items[i].name] = JSON.parse(items[i].value);
-        }
-    }
-    for (i in plugins) {
-        add_counter(plugins[i].counter, plugins[i].type, plugins[i].p, plugins[i].pi, plugins[i].t, plugins[i].ti);
-    }
-
-});
-
-
-// FIXME : USELESS CODE ?
-//var cnts = ['Memory', 'Processor', 'PhysicalDisk', 'Server', 'Cache', 'Process'];
-//
 var each = function(obj, block) {
   var attr;
   for(attr in obj) {
@@ -68,7 +41,72 @@ var each = function(obj, block) {
 };
 
 function collectd_sanitize(name) {
-    return name.replace(/[ -\/]/g, '_');
+    return name.replace(/[ -\/\(\)]/g, '_');
+}
+
+function pluginPerfmon() {
+    var config = {};
+    var counters = {};
+    var me = this;
+
+    function add_counter(counter, type, p, pi, t, ti) {
+        counter = counter.replace(/\\\\/g, '\\');
+        if (typeof pi == 'undefined') { pi = ''; }
+        if (typeof ti == 'undefined') { ti = ''; }
+        if (typeof counters[p+'-'+pi] == 'undefined') {
+            counters[p+'-'+pi] = client.plugin(p, pi);
+        }
+
+        console.log('DEBUG add_counter() : Adding "'+counter+'" as '+p+'-'+pi+'/'+t+'-'+ti+'\n');
+        perfmon(counter, function(err, data) {
+            console.log('DEBUG add_counter() : data='+JSON.stringify(data)+'\n');
+            if (typeof data === 'undefined' || typeof data.counters === 'undefined') { return; }
+            console.log('DEBUG add_counter() : type='+type+'\n');
+            console.log('DEBUG add_counter() : val='+data.counters[counter]+'\n');
+            switch (type) {
+                case 'counter':
+                    counters[p+'-'+pi].addCounter(t, ti, data.counters[counter]);
+                break;
+                case 'gauge':
+                    counters[p+'-'+pi].setGauge(t, ti, data.counters[counter]);
+                break;
+            }
+        });
+    }
+
+    this.toString = function() {
+        return(JSON.stringify(config));
+    };
+
+    this.reloadConfig = function(c) {
+        for (var i in c.counters) {
+            var pm = c.counters[i];
+            if(pm.enable) {
+                //FIXME : ensure that pm.* is defined and sanitized
+                pm.plugin = collectd_sanitize(pm.plugin);
+                pm.plugin_instance = collectd_sanitize(pm.plugin_instance);
+                pm.type = collectd_sanitize(pm.type);
+                pm.type_instance = collectd_sanitize(pm.type_instance);
+                pm.collectdType = 'gauge'; //FIXME : use Collectd Types.db instead of hardcoded gauge.
+                config[pm.counter] = pm;
+            }
+        }
+        return(this);
+    };
+
+    this.reInit = function() {
+        //FIXME : remove all Perfmon counters
+        config = {};
+        return(this);
+    };
+
+    this.monitor = function() {
+        for (var i in config) {
+            pm = config[i];
+            add_counter(pm.counter, pm.collectdType, pm.plugin, pm.plugin_instance, pm.type, pm.type_instance);
+        }
+        return(this);
+    };
 }
 
 function get_cpu() {
@@ -304,26 +342,12 @@ function start_monitoring() {
     setInterval(get_uptime, 60000);
     get_process();
     get_swap();
-}
 
-function add_counter(counter, type, p, pi, t, ti) {
-    counter = counter.replace(/\\\\/g, '\\');
-    if (typeof pi == 'undefined') { pi = ''; }
-    if (typeof ti == 'undefined') { ti = ''; }
-    if (typeof counters[p+'-'+pi] == 'undefined') {
-        counters[p+'-'+pi] = client.plugin(p, pi);
-    }
-    perfmon(counter, function(err, data) {
-        if (typeof data === 'undefined' || typeof data.counters === 'undefined') { return; }
-        switch (type) {
-            case 'counter':
-                counters[p+'-'+pi].addCounter(t, ti, data.counters[counter]);
-            break;
-            case 'gauge':
-                counters[p+'-'+pi].setGauge(t, ti, data.counters[counter]);
-            break;
-        }
-    });
+    var get_perfmon = new pluginPerfmon();
+    get_perfmon.reInit();
+    get_perfmon.reloadConfig(cfg.get('Plugin.perfmon'));
+    get_perfmon.monitor();
+
 }
 
 function cw_config_write() {
@@ -435,35 +459,41 @@ if(cfg.get('HttpConfig.enable')) {
     
     app.delete('/counters/:name', function(req, res) {
         res.set('Content-Type', 'application/json');
-        regPlugins.remove(req.params.name, function () {
-            delete plugins[req.params.name];
-            res.json({message: 'Counter deleted. Will take effect on next start'});
-            res.send();
-        });
+//FIXME : add a way to remove a counter
+//        regPlugins.remove(req.params.name, function () {
+//            delete plugins[req.params.name];
+//            res.json({message: 'Counter deleted. Will take effect on next start'});
+//            res.send();
+//        });
+        res.json({message: 'Obsolete and removed feature.'});
+        res.send();
     });
     
     app.put('/counters', function(req, res) {
         res.set('Content-Type', 'application/json');
-        if(        typeof req.body.counter != 'undefined'
-            &&    typeof req.body.type != 'undefined' 
-            &&    typeof req.body.p != 'undefined' 
-            &&    typeof req.body.t != 'undefined' 
-            &&    req.body.counter !== ''
-            &&    req.body.type !== ''
-            &&    req.body.p !== ''
-            &&    req.body.t !== ''
-        ) {
-            if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
-            if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
-            var md5name = md5(req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti);
-            plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
-            regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
-                add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
-                res.json({message: 'Counter added'});
-            });
-        } else {
-            res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
-        }
+//FIXME : add a way to add a new counter
+//        if(        typeof req.body.counter != 'undefined'
+//            &&    typeof req.body.type != 'undefined' 
+//            &&    typeof req.body.p != 'undefined' 
+//            &&    typeof req.body.t != 'undefined' 
+//            &&    req.body.counter !== ''
+//            &&    req.body.type !== ''
+//            &&    req.body.p !== ''
+//            &&    req.body.t !== ''
+//        ) {
+//            if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
+//            if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
+//            var md5name = md5(req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti);
+//            plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
+//            regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
+//                add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
+//                res.json({message: 'Counter added'});
+//            });
+//        } else {
+//            res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
+//        }
+        res.json({message: 'Obsolete and removed feature.'});
+        res.send();
     });
     
     app.get('/server', function(req, res) {
