@@ -25,6 +25,13 @@ var counters = [];
 var client;
 var path = require('path').dirname(require.main.filename);
 
+// Initialize configuration directory in the same way that node-config does.
+var configDir = cfg.util.initParam('NODE_CONFIG_DIR', process.cwd() + '/config');
+if (configDir.indexOf('.') === 0) {
+    configDir = process.cwd() + '/' + CONFIG_DIR;
+}
+
+
 var regPlugins = new Winreg({
     hive: Winreg.HKLM,
     key:  '\\Software\\Perfwatcher\\CollectW\\Plugins'
@@ -340,7 +347,7 @@ function cw_config_write() {
         outputObj.Hostname = cfg.get('Hostname');
     }
 
-    outputDir = process.cwd() + '/config';
+    outputDir = configDir;
     hostname = os.hostname();
     hostname = hostname ? hostname.split('.')[0] : 'localhost';
     outputFilename = outputDir + '/' + hostname + '.json';
