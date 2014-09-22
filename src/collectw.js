@@ -57,12 +57,8 @@ function pluginPerfmon() {
             counters[p+'-'+pi] = client.plugin(p, pi);
         }
 
-        console.log('DEBUG add_counter() : Adding "'+counter+'" as '+p+'-'+pi+'/'+t+'-'+ti+'\n');
         perfmon(counter, function(err, data) {
-            console.log('DEBUG add_counter() : data='+JSON.stringify(data)+'\n');
             if (typeof data === 'undefined' || typeof data.counters === 'undefined') { return; }
-            console.log('DEBUG add_counter() : type='+type+'\n');
-            console.log('DEBUG add_counter() : val='+data.counters[counter]+'\n');
             switch (type) {
                 case 'counter':
                     counters[p+'-'+pi].addCounter(t, ti, data.counters[counter]);
