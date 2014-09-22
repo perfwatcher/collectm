@@ -68,6 +68,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'copy:node', 'shell:makensis']);
+  grunt.registerTask('test', ['jshint', 'concat']);
   grunt.registerTask('default', ['jshint']);
 
 };
