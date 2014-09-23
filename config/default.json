@@ -3,17 +3,19 @@
   "HostnameCase": "lower", // "lower", "upper" or "default"
 
   "HttpConfig": {
-  	"enable": 1,
-	"listenPort": 25826,
-	"login": "admin",
-	"password": "admin"
+    "enable": 1,
+    "listenPort": 25826,
+    "login": "admin",
+    "password": "admin"
   },
 
   "Network": {
-	"server": {
-		"hostname": "localhost",
-		"port": 25826
-		}
+    "servers": [
+        {
+          "hostname": "localhost",
+          "port": 25826
+        }
+      ]
   },
 
   "Plugin": {

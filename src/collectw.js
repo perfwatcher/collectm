@@ -1,3 +1,5 @@
+var collectdHost = 'localhost'; //FIXME : remove this var
+var collectdPort = 25826; //FIXME : remove this var
 
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
@@ -8,7 +10,6 @@ var Collectd = require('collectdout');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
 var cpu = require('windows-cpu');
-var Winreg = require('winreg');
 var express = require('express');
 var basicAuth = require('connect-basic-auth');
 var bodyParser = require('body-parser');
@@ -16,15 +17,15 @@ var fs = require('fs');
 var cfg = require('config');
 
 var collectwVersion = '<%= pkg.version %>';
-var collectdHost = cfg.get('Network.server.hostname') || 'localhost';
-var collectdPort = cfg.get('HttpConfig.listenPort');
-var collectwUser = cfg.get('HttpConfig.login');
-var collectwPassword = md5(cfg.get('HttpConfig.password'));
-var plugins = []; //FIXME : remove this var
-var perfmonCounters = [];
+
+var collectwHTTPPort = 25826;
+var collectwHTTPUser = cfg.get('HttpConfig.login');
+var CollectwHTTPPassword = md5(cfg.get('HttpConfig.password'));
 var counters = [];
 var client;
 var path = require('path').dirname(require.main.filename);
+
+var get_perfmon = new pluginPerfmon();
 
 // Initialize configuration directory in the same way that node-config does.
 var configDir = cfg.util.initParam('NODE_CONFIG_DIR', process.cwd() + '/config');
@@ -69,6 +70,10 @@ function pluginPerfmon() {
             }
         });
     }
+
+    this.configShow = function() {
+        return(config);
+    };
 
     this.toString = function() {
         return(JSON.stringify(config));
@@ -339,7 +344,6 @@ function start_monitoring() {
     get_process();
     get_swap();
 
-    var get_perfmon = new pluginPerfmon();
     get_perfmon.reInit();
     get_perfmon.reloadConfig(cfg.get('Plugin.perfmon'));
     get_perfmon.monitor();
@@ -400,7 +404,7 @@ if(cfg.get('HttpConfig.enable')) {
     app.use(bodyParser.urlencoded({extended: true}));
     
     app.use(basicAuth(function(credentials, req, res, next) {
-        if (credentials.username != collectwUser || md5(credentials.password) != collectwPassword) {
+        if (credentials.username != collectwHTTPUser || md5(credentials.password) != CollectwHTTPPassword) {
             res.statusCode = 401;
             res.json({error: 'Invalid credential'});
         } else { next(); }
@@ -420,6 +424,11 @@ if(cfg.get('HttpConfig.enable')) {
         res.send(fs.readFileSync(path + '\\frontend\\jquery-2.1.1.min.js'));
     });
     
+    app.get('/collectw.css', function(req, res) {
+        res.set('Content-Type', 'text/css');
+        res.send(fs.readFileSync(path + '\\frontend\\collectw.css'));
+    });
+    
     app.get('/version', function(req, res) {
         res.set('Content-Type', 'application/json');
         res.json({ version: collectwVersion    });
@@ -435,68 +444,15 @@ if(cfg.get('HttpConfig.enable')) {
         res.json({ collectw_pid: process.pid    });
     });
     
-    app.get('/allCounters', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        perfmon.list('', function(err, datas) {
-            res.json(datas.counters);
-        });
-    });
-    
-    app.get('/counters', function(req, res) {
-        var i;
-        var txt = '';
-        res.set('Content-Type', 'application/json');
-        // Ugly thing cause a strange bug with res.send(plugins);
-        for (i in plugins) {
-            txt += ',"' + i + '": ' + JSON.stringify(plugins[i]);
+    app.get('/collectd_network', function(req, res) {
+        var netconf = [];
+        var servers = cfg.get('Network.servers') || [];
+        for (var i in servers) {
+            netconf[netconf.length] = { 'host': servers[i].hostname, 'port': servers[i].port };
         }
-        res.send('{' + txt.substr(1) + '}');
-    });
-    
-    app.delete('/counters/:name', function(req, res) {
+        
         res.set('Content-Type', 'application/json');
-//FIXME : add a way to remove a counter
-//        regPlugins.remove(req.params.name, function () {
-//            delete plugins[req.params.name];
-//            res.json({message: 'Counter deleted. Will take effect on next start'});
-//            res.send();
-//        });
-        res.json({message: 'Obsolete and removed feature.'});
-        res.send();
-    });
-    
-    app.put('/counters', function(req, res) {
-        res.set('Content-Type', 'application/json');
-//FIXME : add a way to add a new counter
-//        if(        typeof req.body.counter != 'undefined'
-//            &&    typeof req.body.type != 'undefined' 
-//            &&    typeof req.body.p != 'undefined' 
-//            &&    typeof req.body.t != 'undefined' 
-//            &&    req.body.counter !== ''
-//            &&    req.body.type !== ''
-//            &&    req.body.p !== ''
-//            &&    req.body.t !== ''
-//        ) {
-//            if (typeof req.body.pi == 'undefined') { req.body.pi = ''; }
-//            if (typeof req.body.ti == 'undefined') { req.body.ti = ''; }
-//            var md5name = md5(req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti);
-//            plugins[md5name] = {counter: req.body.counter, p: req.body.p, pi: req.body.pi, t: req.body.t, ti: req.body.ti, type: req.body.type};
-//            regPlugins.set(md5name, 'REG_SZ', JSON.stringify(plugins[md5name]), function () {
-//                add_counter(req.body.counter, req.body.type, req.body.p, req.body.pi, req.body.t, req.body.ti);
-//                res.json({message: 'Counter added'});
-//            });
-//        } else {
-//            res.json({error: 'Counter "' + req.body.p+'-'+req.body.pi+'/'+req.body.t+'-'+req.body.ti + '" not added. Some parameter is/are missing'});
-//        }
-        res.json({message: 'Obsolete and removed feature.'});
-        res.send();
-    });
-    
-    app.get('/server', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        res.json({ 
-            serverHost: collectdHost, serverPort: collectdPort 
-        });
+        res.json(netconf);
     });
     
     app.post('/process/stop', function(req, res) {
@@ -504,17 +460,17 @@ if(cfg.get('HttpConfig.enable')) {
         process.exit();
     });
     
-    app.post('/server', function(req, res) {
+    app.get('/httpconfig/port', function(req, res) {
         res.set('Content-Type', 'application/json');
-        if(        typeof req.body.host != 'undefined'
-            &&    typeof req.body.port != 'undefined' 
-            &&    req.body.host !== ''
-            &&    req.body.port !== ''
-        ) {
-            collectdHost = req.body.host;
-            collectdPort = parseInt(req.body.port);
-            cw_config_update({ 'HttpConfig': {'listenPort' : collectdPort}});
-            cw_config_update({ 'Hostname': collectdHost});
+        res.json({ collectwHTTPPort: (cfg.get('HttpConfig.listenPort') || 25826) });
+    });
+    
+    app.post('/httpconfig/port', function(req, res) {
+        var port = 25826;
+        res.set('Content-Type', 'application/json');
+        if((typeof req.body.port != 'undefined') && (req.body.port !== '')) {
+            port = parseInt(req.body.port);
+            cw_config_update({ 'HttpConfig': {'listenPort' : port}});
             cw_config_write();
             res.json({message: 'Host and port updated. Will take effect on next start'});
         } else {
@@ -522,16 +478,16 @@ if(cfg.get('HttpConfig.enable')) {
         }
     });
     
-    app.post('/account', function(req, res) {
+    app.post('/httpconfig/account', function(req, res) {
         res.set('Content-Type', 'application/json');
         if(        typeof req.body.user != 'undefined'
             &&    typeof req.body.password != 'undefined' 
             &&    req.body.user !== ''
             &&    req.body.password !== ''
         ) {
-            collectwUser = req.body.user;
-            collectwPassword = md5(req.body.password);
-            cw_config_update({ 'HttpConfig': {'login' : collectwUser }});
+            collectwHTTPUser = req.body.user;
+            CollectwHTTPPassword = md5(req.body.password);
+            cw_config_update({ 'HttpConfig': {'login' : collectwHTTPUser }});
             cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
             cw_config_write();
             res.json({message: 'User and password updated'});
@@ -540,7 +496,22 @@ if(cfg.get('HttpConfig.enable')) {
         }
     });
 
-    var server = app.listen(collectdPort);
+    app.get('/plugin/perfmon/counters', function(req, res) {
+        var i;
+        var txt = '';
+        var pc = get_perfmon.configShow();
+        res.set('Content-Type', 'application/json');
+        // Ugly thing cause a strange bug with res.send(...);
+        for (i in pc) {
+            if(pc[i].enable) {
+                txt += ', ' + JSON.stringify(pc[i]);
+            }
+        }
+        res.send('[' + txt.substr(1) + ']');
+    });
+    
+
+    var server = app.listen(cfg.get('HttpConfig.listenPort') || 25826);
 }
 
 

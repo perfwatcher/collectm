@@ -2,6 +2,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>CollectW admin</title>
+    <link rel="stylesheet" type="text/css" href="collectw.css">
 		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 		<script type="text/javascript">
 			function notify (data) {
@@ -19,111 +20,80 @@
 				$.getJSON('/collectw_pid', function(data) {
 					$('#collectw_pid').html(data.collectw_pid);
 				});
-				$.getJSON('/allCounters', function(data) {
+				$.getJSON('/plugin/perfmon/counters', function(data) {
 					for(i in data) {
-						$('#all_counters').append('<option>\\' + data[i] + '</option>');
-					}
-				});
-				$.getJSON('/counters', function(data) {
-					for(i in data) {
-						$('#list_counter').append('<tr><td>' 
-						+ data[i].p
-						+ (typeof data[i].pi != 'undefined' && data[i].pi != '' ? '-' + data[i].pi : '')
-						+ '/' + data[i].t
-						+ (typeof data[i].ti != 'undefined' && data[i].ti != ''  ? '-' + data[i].ti : '')
+						$('#perfmon_counters__list').append('<tr><td>' 
+						+ data[i].plugin
+						+ (typeof data[i].plugin_instance != 'undefined' && data[i].plugin_instance != '' ? '-' + data[i].plugin_instance : '')
+						+ '/' + data[i].type
+						+ (typeof data[i].type_instance != 'undefined' && data[i].type_instance != ''  ? '-' + data[i].type_instance : '')
 						+ '</td>'
 						+ '<td>' + data[i].counter + '</td>'
-						+ '<td>' + data[i].type + '</td>'
-						+ '<td><a href="#" cid="' + i + '" action="delete">delete</a></td>'
+						+ '<td>' + data[i].collectdType + '</td>'
 						+ '</tr>');
 					}
-					$('#list_counter a').click(function (data) {
-						var cid = $(this).attr('cid');
-						switch($(this).attr('action')) {
-							case 'delete':
-								$.ajax({
-									url: '/counters/' + cid,
-									method: 'DELETE',
-									success : function (data) {
-										notify(data);
-									}
-								});
-							break;
-						}
-					});
 				});
-				$.getJSON('/server', function(data) {
-					$('#server').html(data.serverHost + ':' + data.serverPort);
-					$('#host').val(data.serverHost);
-					$('#port').val(data.serverPort);
+				$.getJSON('/collectd_network', function(data) {
+          $(data).each(function(i,n) {
+            $('<tr><td>'+n.host+'</td><td>'+n.port+'</td></tr>').appendTo('#collectd_network__servers');
+          });
 				});
-				$('#submit_authentification').click(function () {
-					$.post('/account', { user: $('#user').val(), password: $('#password').val() }, function( data ) {
+				$.getJSON('/httpconfig/port', function(data) {
+					$('#collectw_httpconfig__port').val(data.collectwHTTPPort);
+				});
+				$('#submit__collectw_httpconfig__authentication').click(function () {
+					$.post('/httpconfig/account', { user: $('#collectw_httpconfig__user').val(), password: $('#collectw_httpconfig__password').val() }, function( data ) {
 						notify(data);
 					});
 				});
-				$('#submit_server').click(function () {
-					$.post('/server', { host: $('#host').val(), port: $('#port').val() }, function( data ) {
+				$('#submit__collectw_httpconfig__port').click(function () {
+					$.post('/httpconfig/port', { port: $('#collectw_httpconfig__port').val() }, function( data ) {
 						notify(data);
 					});
 				});
-				$('#submit_stop').click(function () {
+				$('#submit__process__stop').click(function () {
 					$.post('/process/stop', function( data ) {
 						notify(data);
-					});
-				});
-				$('#submit_counter').click(function () {
-					$.ajax({
-						url: '/counters',
-						method: 'PUT',
-						data: {counter: $('#all_counters').val(), p: $('#p').val(), pi: $('#pi').val(), t: $('#t').val(), ti: $('#ti').val(), type: $('#type').val() },
-						success : function (data) {
-							notify(data);
-						}
 					});
 				});
 			});
 		</script>
 	</head>
 	<body>
-		<div id="block_version">
-			<span>CollectW v</span><span id="version"></span> <span>is running with PID</span> <span id="collectw_pid"></span> <span>and send data to</span> <span id="server"></span>
+		<div id="block_information">
+      <h1>CollectW information</h1>
+      <table>
+        <tr><th>Version</th><td><span id="version" /></td></tr>
+        <tr><th>PID</th><td><span id="collectw_pid" /></td></tr>
+      </table>
 		</div>
-		<hr />
-		<div id="block_authentification">
-			<span>User :</span> <span><input type="text" name="user" id="user" /></span>
-			<span>password</span> <span><input type="password" name="password" id="password" /></span>
-			<input type="submit" name="submit_authentification" id="submit_authentification" />
+		<div id="block_collectd_network">
+      <h1>CollectW network configuration</h1>
+      <p>Collectw is sending metrics to those servers :</p>
+      <table id="collectd_network__servers">
+        <tr><th>Collectd server</th><th>port</th></tr>
+      </table>
 		</div>
-		<hr />
-		<div id="block_server">
-			<span>Host :</span> <span><input type="text" name="host" id="host" /></span>
-			<span>Port</span> <span><input type="text" name="port" id="port" /></span>
-			<input type="submit" name="submit_server" id="submit_server" />
+		<div id="block_collectw_httpconfig">
+      <h1>CollectW HTTP configuration tool</h1>
+      <h2>Admin user</h2>
+			<span>User :</span> <span><input type="text" name="collectw_httpconfig__user" id="collectw_httpconfig__user" /></span>
+			<span>password</span> <span><input type="text" name="collectw_httpconfig__password" id="collectw_httpconfig__password" /></span>
+			<input type="submit" name="submit__collectw_httpconfig__authentication" id="submit__collectw_httpconfig__authentication" />
+      <h2>Server port</h2>
+			<span>Port</span> <span><input type="text" name="port" id="collectw_httpconfig__port" /></span>
+			<input type="submit" name="submit__collectw_httpconfig__port" id="submit__collectw_httpconfig__port" />
 		</div>
 		<hr />
 		<div id="block_action">
-			<input type="submit" name="submit_stop" id="submit_stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectW Windows service to make it restart on stop)</span>
+      <h1>CollectW Service</h1>
+			<input type="submit" name="submit__process__stop" id="submit__process__stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectW Windows service to make it restart on stop)</span>
 		</div>
-		<hr />
-		<div id="block_list_counter">
-			<table id="list_counter" border="1">
-				<tr><th>Collectd</th><th>Windows</th><th>Type</th><th>Actions</th></tr>
+		<div id="block_perfmon_counters">
+      <h1>Perfmon counters</h1>
+			<table id="perfmon_counters__list" border="1">
+				<tr><th>Collectd</th><th>Windows</th><th>Type</th></tr>
 			</table>
 		</div>
-		<hr />
-		Counter : <div id="block_add_counter">
-			<select name="all_counters" id="all_counters" style="width:200px;"></select>
-		</div>
-		-&gt;
-		Plugin : <input type="text" name="p" id="p" />
-		Plugin-Instance : <input type="text" name="pi" id="pi" />
-		Type : <input type="text" name="t" id="t" />
-		Type-Intance : <input type="text" name="ti" id="ti" />
-		<select name="type" id="type">
-			<option>gauge</option>
-			<option>counter</option>
-		</select>
-		<input type="submit" name="submit_counter" id="submit_counter" value="Add" />
 	</body>
 </html>

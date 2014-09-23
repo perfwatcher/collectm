@@ -853,16 +853,6 @@ Section ""
 	File node_modules\windows-cpu\test\cpu.js
 	SetOutPath $INSTDIR\node_modules\windows-cpu\test
 	File node_modules\windows-cpu\test\mocha.opts
-	SetOutPath $INSTDIR\node_modules\winreg
-	File node_modules\winreg\.npmignore
-	SetOutPath $INSTDIR\node_modules\winreg\lib
-	File node_modules\winreg\lib\registry.js
-	SetOutPath $INSTDIR\node_modules\winreg
-	File node_modules\winreg\package.json
-	SetOutPath $INSTDIR\node_modules\winreg
-	File node_modules\winreg\README.md
-	SetOutPath $INSTDIR\node_modules\winreg
-	File node_modules\winreg\test.js
 	SetOutPath $INSTDIR\node_modules\config
 	File node_modules\config\.npmignore
 	File node_modules\config\.travis.yml
@@ -887,11 +877,6 @@ Section "Uninstall"
 	ExecWait '"$INSTDIR\bin\node.exe" "$INSTDIR\service.js" stopAndUninstall'
 	ExecWait '"$INSTDIR\bin\node.exe" "$INSTDIR\service.js" stopAndUninstall'
 
-	Delete $INSTDIR\node_modules\winreg\test.js
-	Delete $INSTDIR\node_modules\winreg\README.md
-	Delete $INSTDIR\node_modules\winreg\package.json
-	Delete $INSTDIR\node_modules\winreg\.npmignore
-	Delete $INSTDIR\node_modules\winreg\lib\registry.js
 	Delete $INSTDIR\node_modules\windows-cpu\test\mocha.opts
 	Delete $INSTDIR\node_modules\windows-cpu\test\cpu.js
 	Delete $INSTDIR\node_modules\windows-cpu\README.md
@@ -1311,8 +1296,6 @@ Section "Uninstall"
 	Delete $INSTDIR\node_modules\body-parser\index.js
 	Delete $INSTDIR\node_modules\body-parser\HISTORY.md
 
-	RmDir /r $INSTDIR\node_modules\winreg\lib
-	RmDir /r $INSTDIR\node_modules\winreg
 	RmDir /r $INSTDIR\node_modules\windows-cpu\test
 	RmDir /r $INSTDIR\node_modules\windows-cpu
 	RmDir /r $INSTDIR\node_modules\process
