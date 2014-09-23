@@ -1,6 +1,14 @@
+// IMPORTANT IMPORTANT
+// You should not edit this file.
+// You should edit a file named {hostname}.js or local.js
+// (other possibilities best described in the Node node-config module documentation)
+// You can overwrite some values, including Network.servers.* and HostnameCase
+// 
 {
 //  "Hostname":"orion", // should not be set in default.json
-  "HostnameCase": "lower", // "lower", "upper" or "default"
+//  "HostnameCase": "default", // "lower", "upper" or "default"
+
+  "Interval": 10,
 
   "HttpConfig": {
     "enable": 1,
@@ -21,7 +29,8 @@
   "Plugin": {
     "perfmon": {
       "counters" : [
-          {
+// This is an example :
+	  {
             "counter": "\\LogicalDisk(C:)\\% Free Space",
             "enable": 1,
             "plugin": "perfmon_LogicalDisk",

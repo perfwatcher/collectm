@@ -5,5 +5,8 @@ Version next
 - Moving existing exe files to 'releases' dir
 - Use node.js 64bits version 0.10.32
 - Use a configuration file
+- Send to one or more Collectd servers
 
 Version 1.1.2
+
+- start this file

@@ -1,11 +1,11 @@
 {
   "name": "CollectW",
-  "version": "0.1.2-20140919",
+  "version": "0.1.2-20140923",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
     "MD5": "~1.2.1",
-    "collectdout": "~0.0.4",
+    "collectdout": ">=0.0.5",
     "diskspace": "~0.1.6",
     "perfmon": "~0.2.0",
     "windows-cpu": "~0.1.1",

@@ -1,5 +1,3 @@
-var collectdHost = 'localhost'; //FIXME : remove this var
-var collectdPort = 25826; //FIXME : remove this var
 
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
@@ -18,7 +16,6 @@ var cfg = require('config');
 
 var collectwVersion = '<%= pkg.version %>';
 
-var collectwHTTPPort = 25826;
 var collectwHTTPUser = cfg.get('HttpConfig.login');
 var CollectwHTTPPassword = md5(cfg.get('HttpConfig.password'));
 var counters = [];
@@ -41,14 +38,35 @@ var each = function(obj, block) {
   }
 };
 
+function get_hostname_with_case() {
+    var h = cfg.has('Hostname') ? cfg.get('Hostname') : os.hostname();
+    var hcase = cfg.has('HostnameCase') ? cfg.get('HostnameCase') : 'default';
+    switch(hcase) {
+        case 'upper': h = h.toUpperCase(); break;
+        case 'lower': h = h.toLowerCase(); break;
+    }
+    return(h);
+}
+
+function get_collectd_servers_and_ports() {
+    var servers = cfg.has('Network.servers') ? cfg.get('Network.servers') : {};
+    var res = [];
+    for (var i in servers) {
+        res.push( [ servers[i].hostname, (servers[i].port || 25826) ] );
+    }
+    return(res);
+}
+
+function get_interval() {
+    return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 10000);
+}
+
 function collectd_sanitize(name) {
     return name.replace(/[ -\/\(\)]/g, '_');
 }
 
 function pluginPerfmon() {
     var config = {};
-    var counters = {};
-    var me = this;
 
     function add_counter(counter, type, p, pi, t, ti) {
         counter = counter.replace(/\\\\/g, '\\');
@@ -515,7 +533,7 @@ if(cfg.get('HttpConfig.enable')) {
 }
 
 
-client = new Collectd(1000, collectdHost, collectdPort);
+client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, get_hostname_with_case());
 
 start_monitoring();
 
