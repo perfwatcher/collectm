@@ -2,7 +2,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>CollectW admin</title>
-    <link rel="stylesheet" type="text/css" href="collectw.css">
+		<link rel="stylesheet" type="text/css" href="collectw.css">
 		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 		<script type="text/javascript">
 			function notify (data) {
@@ -34,9 +34,9 @@
 					}
 				});
 				$.getJSON('/collectd_network', function(data) {
-          $(data).each(function(i,n) {
-            $('<tr><td>'+n.host+'</td><td>'+n.port+'</td></tr>').appendTo('#collectd_network__servers');
-          });
+					$(data).each(function(i,n) {
+						$('<tr><td>'+n.host+'</td><td>'+n.port+'</td></tr>').appendTo('#collectd_network__servers');
+					});
 				});
 				$.getJSON('/httpconfig/port', function(data) {
 					$('#collectw_httpconfig__port').val(data.collectwHTTPPort);
@@ -61,36 +61,36 @@
 	</head>
 	<body>
 		<div id="block_information">
-      <h1>CollectW information</h1>
-      <table>
-        <tr><th>Version</th><td><span id="version" /></td></tr>
-        <tr><th>PID</th><td><span id="collectw_pid" /></td></tr>
-      </table>
+			<h1>CollectW information</h1>
+			<table>
+				<tr><th>Version</th><td><span id="version" /></td></tr>
+				<tr><th>PID</th><td><span id="collectw_pid" /></td></tr>
+			</table>
 		</div>
 		<div id="block_collectd_network">
-      <h1>CollectW network configuration</h1>
-      <p>Collectw is sending metrics to those servers :</p>
-      <table id="collectd_network__servers">
-        <tr><th>Collectd server</th><th>port</th></tr>
-      </table>
+			<h1>CollectW network configuration</h1>
+			<p>Collectw is sending metrics to those servers :</p>
+			<table id="collectd_network__servers">
+				<tr><th>Collectd server</th><th>port</th></tr>
+			</table>
 		</div>
 		<div id="block_collectw_httpconfig">
-      <h1>CollectW HTTP configuration tool</h1>
-      <h2>Admin user</h2>
+			<h1>CollectW HTTP configuration tool</h1>
+			<h2>Admin user</h2>
 			<span>User :</span> <span><input type="text" name="collectw_httpconfig__user" id="collectw_httpconfig__user" /></span>
 			<span>password</span> <span><input type="text" name="collectw_httpconfig__password" id="collectw_httpconfig__password" /></span>
 			<input type="submit" name="submit__collectw_httpconfig__authentication" id="submit__collectw_httpconfig__authentication" />
-      <h2>Server port</h2>
+			<h2>Server port</h2>
 			<span>Port</span> <span><input type="text" name="port" id="collectw_httpconfig__port" /></span>
 			<input type="submit" name="submit__collectw_httpconfig__port" id="submit__collectw_httpconfig__port" />
 		</div>
 		<hr />
 		<div id="block_action">
-      <h1>CollectW Service</h1>
+			<h1>CollectW Service</h1>
 			<input type="submit" name="submit__process__stop" id="submit__process__stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectW Windows service to make it restart on stop)</span>
 		</div>
 		<div id="block_perfmon_counters">
-      <h1>Perfmon counters</h1>
+			<h1>Perfmon counters</h1>
 			<table id="perfmon_counters__list" border="1">
 				<tr><th>Collectd</th><th>Windows</th><th>Type</th></tr>
 			</table>
