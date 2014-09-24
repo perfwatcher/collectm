@@ -21,6 +21,7 @@ Section ""
 	SetOutPath $INSTDIR\frontend
 	File frontend\index.html
 	File frontend\jquery-2.1.1.min.js
+	File frontend\collectw.css
 	
 	SetOutPath $INSTDIR\node_modules\body-parser
 	File node_modules\body-parser\.npmignore
