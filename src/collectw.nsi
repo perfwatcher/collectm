@@ -652,19 +652,13 @@ Section ""
 	File node_modules\MD5\test.js
 	SetOutPath $INSTDIR\node_modules\node-windows
 	File node_modules\node-windows\.npmignore
-	SetOutPath $INSTDIR\node_modules\node-windows
-	File node_modules\node-windows\.project
 	SetOutPath $INSTDIR\node_modules\node-windows\bin\elevate
 	File node_modules\node-windows\bin\elevate\elevate.cmd
-	SetOutPath $INSTDIR\node_modules\node-windows\bin\elevate
 	File node_modules\node-windows\bin\elevate\elevate.vbs
 	SetOutPath $INSTDIR\node_modules\node-windows\bin\sudowin
 	File node_modules\node-windows\bin\sudowin\LICENSE.txt
-	SetOutPath $INSTDIR\node_modules\node-windows\bin\sudowin
 	File node_modules\node-windows\bin\sudowin\sudo.exe
-	SetOutPath $INSTDIR\node_modules\node-windows\bin\sudowin
 	File node_modules\node-windows\bin\sudowin\sudo.exe.config
-	SetOutPath $INSTDIR\node_modules\node-windows\bin\sudowin
 	File node_modules\node-windows\bin\sudowin\Sudowin.Common.dll
 	SetOutPath $INSTDIR\node_modules\node-windows\bin\winsw\x64
 	File node_modules\node-windows\bin\winsw\x64\winsw.exe

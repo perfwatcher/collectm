@@ -1,6 +1,6 @@
 {
   "name": "CollectW",
-  "version": "0.1.2-20140923",
+  "version": "0.1.2-20140925",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
@@ -12,7 +12,7 @@
     "body-parser": "",
     "connect-basic-auth": "~0.1.0",
     "express": "~4.4.5",
-    "node-windows": "~0.1.5",
+    "node-windows": ">=0.1.7",
     "process": "~0.7.0",
     "config": "~1.2.0"
   },
