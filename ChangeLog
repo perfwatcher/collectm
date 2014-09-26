@@ -1,4 +1,4 @@
-Version next
+Version 1.2.1
 
 - Bug fixed in installer (would not uninstall all files)
 
