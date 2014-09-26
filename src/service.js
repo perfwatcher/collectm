@@ -1,3 +1,5 @@
+/*! CollectW - v1.2.1-20140926 - 2014-09-26 */
+
 var Service = require('node-windows').Service;
 var svcpath = require('path').dirname(require.main.filename);
 
@@ -32,13 +34,11 @@ svc.on('start', function() {
 
 svc.on('stop', function() {
 	console.log('Service stopped');
-  if (process.argv[2] == 'stopAndUninstall') {
-	svc.uninstall();
-  }
 });
 
 svc.on('uninstall', function() {
   console.log('Service uninstalled.');
+  console.log('The service exists: ', svc.exists);
 });
 
 
@@ -58,7 +58,7 @@ process.argv.forEach(function(val, index, array) {
 			svc.uninstall();
 		break;
 		case 'stopAndUninstall':
-			svc.stop();
+			svc.uninstall();
 		break;
 		case 'start':
 			svc.start();
@@ -73,4 +73,3 @@ process.argv.forEach(function(val, index, array) {
 if (process.argv.length < 3) {
 	console.log('Usage :' + process.argv[0] + ' ' + process.argv[1] + ' [install|installAndStart|uninstall|stopAndUninstall|start|stop]');
 }
-

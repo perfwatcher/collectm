@@ -63,6 +63,9 @@ Section "Uninstall"
 	Delete $INSTDIR\collectw.js
 	Delete $INSTDIR\service.js
 	Delete $INSTDIR\config\default.json
+	Delete $INSTDIR\uninstall.exe
+	RmDir $INSTDIR\config
+	RmDir $INSTDIR
 
 
 SectionEnd
