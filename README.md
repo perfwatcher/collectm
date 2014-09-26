@@ -31,7 +31,7 @@ Collectw-<version>.exe /S /D="C:\Program Files\CollectW"
 Configure
 =========
 
-Use your browser to go to http://<your_server>:25826/ (login: admin / password: admin)
+Use your browser to go to http://localhost:25826/ (login: admin / password: admin)
 
 
 FAQ
