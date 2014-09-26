@@ -1,3 +1,7 @@
+Version next
+
+- Bug fixed in installer (would not uninstall all files)
+
 Version 1.2.0
 
 - No more hard-coded path
