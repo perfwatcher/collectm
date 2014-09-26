@@ -60,9 +60,9 @@ Section "Uninstall"
 	RmDir /r $INSTDIR\bin
 	RmDir /r $INSTDIR\daemon
 	RmDir /r $INSTDIR\frontend
-	Delete collectw.js
-	Delete service.js
-	Delete config\default.json
+	Delete $INSTDIR\collectw.js
+	Delete $INSTDIR\service.js
+	Delete $INSTDIR\config\default.json
 
 
 SectionEnd
