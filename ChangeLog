@@ -1,4 +1,4 @@
-Version next
+Version 1.2.0
 
 - No more hard-coded path
 - "Compile" with Grunt (http://gruntjs.com/)
