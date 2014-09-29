@@ -1,6 +1,6 @@
 {
   "name": "CollectW",
-  "version": "1.2.1",
+  "version": "1.2.2-dev",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
