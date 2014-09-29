@@ -1,4 +1,13 @@
+
 module.exports = function(grunt) {
+  var appendGenericBanner = function (content, srcpath) {
+    content = '/*! <%= pkg.name %> - v<%= pkg.version %> - '
+            + 'Built <%= grunt.template.today("yyyy-mm-dd") %> */'
+            + '\n\n'
+            + content;
+    return(grunt.template.process(content));
+  };
+
   var pkg = grunt.file.readJSON('package.json');
   // Project configuration.
   grunt.initConfig({
@@ -29,19 +38,23 @@ module.exports = function(grunt) {
       src: 'bin/node-0.10.32-x64.exe',
       dest: 'build/node.exe',
     },
+    sources: {
+      options: {
+        process: appendGenericBanner,
+      },
+      files: [
+          { src: 'src/collectw.js', dest: 'build/collectw.js', },
+          { src: 'src/httpconfig.js', dest: 'build/httpconfig.js', },
+          { src: 'src/service.js', dest: 'build/service.js', },
+        ]
+    },
     plugins: {
       expand: true,
       flatten: true,
       src: 'src/plugins/*',
       dest: 'build/plugins/',
       options: {
-        process: function (content, srcpath) {
-          content = '/*! <%= pkg.name %> - v<%= pkg.version %> - '
-                  + '<%= grunt.template.today("yyyy-mm-dd") %> */'
-                  + '\n\n'
-                  + content;
-          return(grunt.template.process(content));
-        }
+        process: appendGenericBanner,
       }
     },
     collectw_nsi: {
@@ -60,29 +73,16 @@ module.exports = function(grunt) {
       dest: 'build/',
     },
   },
-  concat: {
-    options: {
-      stripBanners: true,
-      process: true,
-      banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - '
-            + '<%= grunt.template.today("yyyy-mm-dd") %> */'
-            + '\n\n',
-      },
-      collectw: { src: ['src/collectw.js'], dest: 'build/collectw.js', },
-      httpconfig: { src: ['src/httpconfig.js'], dest: 'build/httpconfig.js', },
-      service: { src: ['src/service.js'], dest: 'build/service.js', },
-    }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-shell');
 
   // Default task(s).
-  grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'copy:node', 'copy:plugins', 'shell:makensis']);
-  grunt.registerTask('test', ['jshint', 'concat', 'copy:frontend', 'copy:plugins']);
+  grunt.registerTask('distexe', ['copy:collectw_nsi', 'copy:sources', 'copy:node', 'copy:plugins', 'shell:makensis']);
+  grunt.registerTask('test', ['jshint', 'copy:sources', 'copy:frontend', 'copy:plugins']);
   grunt.registerTask('default', ['jshint']);
 
 };
