@@ -27,7 +27,11 @@
   },
 
   "Plugin": {
+    "collectdCompat": {
+	  "enable": 1
+	},
     "perfmon": {
+	  "enable": 1,
       "counters" : [
 // This is an example :
 	  {
