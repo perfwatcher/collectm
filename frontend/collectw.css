@@ -7,6 +7,16 @@ table, th, td {
 	border: 1px solid black;
 }
 
+div.configuration_block {
+	background-color: #E0FFFF;
+	border: 1px solid #40FFFF;
+	margin: 5px;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
 #perfmon_counters__list {
 	width: 100%;
 }

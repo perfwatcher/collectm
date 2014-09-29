@@ -104,6 +104,15 @@ exports.start = function() {
         res.json({ 'config': httpcfg.cfg });
     });
     
+    app.get('/loaded_plugins_list', function(req, res) {
+        var p = [];
+        res.set('Content-Type', 'application/json');
+        for (var i in httpcfg.plugins) {
+            p.push(i);
+        }
+        res.json(p);
+    });
+    
     app.get('/collectw_pid', function(req, res) {
         res.set('Content-Type', 'application/json');
         res.json({ collectw_pid: process.pid    });
