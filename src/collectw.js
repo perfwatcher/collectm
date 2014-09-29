@@ -2,22 +2,16 @@
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
 
-var md5 = require('MD5');
 var os = require('os');
 var Collectd = require('collectdout');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
 var cpu = require('windows-cpu');
-var express = require('express');
-var basicAuth = require('connect-basic-auth');
-var bodyParser = require('body-parser');
-var fs = require('fs');
 var cfg = require('config');
+var collectwHTTPConfig = require('./httpconfig.js');
 
 var collectwVersion = '<%= pkg.version %>';
 
-var collectwHTTPUser = cfg.get('HttpConfig.login');
-var CollectwHTTPPassword = md5(cfg.get('HttpConfig.password'));
 var counters = [];
 var client;
 var path = require('path').dirname(require.main.filename);
@@ -368,172 +362,21 @@ function start_monitoring() {
 
 }
 
-function cw_config_write() {
-    var failed = 0;
-    var outputDir;
-    var outputFilename;
-    var hostname;
-    var d = new Date();
-    var oldFilename;
-    var outputObj = {
-        'HostnameCase': cfg.get('HostnameCase'),
-
-        'HttpConfig': {
-            'enable': cfg.get('HttpConfig.enable'),
-            'listenPort': cfg.get('HttpConfig.listenPort'),
-            'login': cfg.get('HttpConfig.login'),
-            'password': cfg.get('HttpConfig.password'),
-        }
-    };
-    if(cfg.has('Hostname')) {
-        outputObj.Hostname = cfg.get('Hostname');
-    }
-
-    outputDir = configDir;
-    hostname = os.hostname();
-    hostname = hostname ? hostname.split('.')[0] : 'localhost';
-    outputFilename = outputDir + '/' + hostname + '.json';
-    oldFilename = outputFilename + '-' 
-        + ('0'+d.getFullYear()).slice(-4)
-        + ('0'+(d.getMonth()+1)).slice(-2)
-        + ('0'+d.getDate()).slice(-2)
-        + '_'
-        + ('0'+d.getHours()).slice(-2)
-        + ('0'+d.getMinutes()).slice(-2)
-        + ('0'+d.getSeconds()).slice(-2)
-        ;
-    
-    fs.rename(outputFilename, oldFilename, function(err) {
-        fs.writeFile(outputFilename, JSON.stringify(outputObj), function(err) {
-            if(err) failed = 1;
-        });
-    });
-    return(failed);
-}
-
-function cw_config_update(newcfg) {
-    if(newcfg) {
-        cfg.util.extendDeep(cfg, newcfg);
-    }
-}
+client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, get_hostname_with_case());
 
 if(cfg.get('HttpConfig.enable')) {
-    var app = express();
-    app.use(bodyParser.urlencoded({extended: true}));
-    
-    app.use(basicAuth(function(credentials, req, res, next) {
-        if (credentials.username != collectwHTTPUser || md5(credentials.password) != CollectwHTTPPassword) {
-            res.statusCode = 401;
-            res.json({error: 'Invalid credential'});
-        } else { next(); }
-    }, 'Please enter your credentials.'));
-    
-    app.all('*', function(req, res, next) {
-      req.requireAuthorization(req, res, next);
-    });
-    
-    app.get('/', function(req, res) {
-        res.set('Content-Type', 'text/html');
-        res.send(fs.readFileSync(path + '\\frontend\\index.html'));
-    });
-    
-    app.get('/jquery-2.1.1.min.js', function(req, res) {
-        res.set('Content-Type', 'application/javascript');
-        res.send(fs.readFileSync(path + '\\frontend\\jquery-2.1.1.min.js'));
-    });
-    
-    app.get('/collectw.css', function(req, res) {
-        res.set('Content-Type', 'text/css');
-        res.send(fs.readFileSync(path + '\\frontend\\collectw.css'));
-    });
-    
-    app.get('/version', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        res.json({ version: collectwVersion    });
-    });
-    
-    app.get('/show_config', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        res.json({ 'config': cfg });
-    });
-    
-    app.get('/collectw_pid', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        res.json({ collectw_pid: process.pid    });
-    });
-    
-    app.get('/collectd_network', function(req, res) {
-        var netconf = [];
-        var servers = cfg.get('Network.servers') || [];
-        for (var i in servers) {
-            netconf[netconf.length] = { 'host': servers[i].hostname, 'port': servers[i].port };
-        }
-        
-        res.set('Content-Type', 'application/json');
-        res.json(netconf);
-    });
-    
-    app.post('/process/stop', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        process.exit();
-    });
-    
-    app.get('/httpconfig/port', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        res.json({ collectwHTTPPort: (cfg.get('HttpConfig.listenPort') || 25826) });
-    });
-    
-    app.post('/httpconfig/port', function(req, res) {
-        var port = 25826;
-        res.set('Content-Type', 'application/json');
-        if((typeof req.body.port != 'undefined') && (req.body.port !== '')) {
-            port = parseInt(req.body.port);
-            cw_config_update({ 'HttpConfig': {'listenPort' : port}});
-            cw_config_write();
-            res.json({message: 'Host and port updated. Will take effect on next start'});
-        } else {
-            res.json({error: 'Host and port not updated'});
-        }
-    });
-    
-    app.post('/httpconfig/account', function(req, res) {
-        res.set('Content-Type', 'application/json');
-        if(        typeof req.body.user != 'undefined'
-            &&    typeof req.body.password != 'undefined' 
-            &&    req.body.user !== ''
-            &&    req.body.password !== ''
-        ) {
-            collectwHTTPUser = req.body.user;
-            CollectwHTTPPassword = md5(req.body.password);
-            cw_config_update({ 'HttpConfig': {'login' : collectwHTTPUser }});
-            cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
-            cw_config_write();
-            res.json({message: 'User and password updated'});
-        } else {
-            res.json({error: 'User and password not updated'});
-        }
-    });
-
-    app.get('/plugin/perfmon/counters', function(req, res) {
-        var i;
-        var txt = '';
-        var pc = get_perfmon.configShow();
-        res.set('Content-Type', 'application/json');
-        // Ugly thing cause a strange bug with res.send(...);
-        for (i in pc) {
-            if(pc[i].enable) {
-                txt += ', ' + JSON.stringify(pc[i]);
-            }
-        }
-        res.send('[' + txt.substr(1) + ']');
-    });
-    
-
-    var server = app.listen(cfg.get('HttpConfig.listenPort') || 25826);
+    collectwHTTPConfig.init({
+            cfg: cfg,
+            path: path,
+            configDir: configDir,
+            collectwVersion: collectwVersion,
+            plugins: {
+                perfmon: get_perfmon
+                }
+            });
+    collectwHTTPConfig.start();
 }
 
-
-client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, get_hostname_with_case());
 
 start_monitoring();
 

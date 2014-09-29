@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: pkg,
-	clean: ['build', pkg.name+'-'+pkg.version+'.exe'],
+	clean: ['build/frontend', 'build', pkg.name+'-'+pkg.version+'.exe'],
 	jshint: {
       options: {
 		'node': true,
@@ -40,6 +40,10 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		frontend: {
+			src: 'frontend/*',
+			dest: 'build/',
+		},
 	},
     concat: {
       options: {
@@ -49,14 +53,9 @@ module.exports = function(grunt) {
         + '<%= grunt.template.today("yyyy-mm-dd") %> */'
 		+ '\n\n',
       },
-      collectw: {
-        src: ['src/collectw.js'],
-        dest: 'build/collectw.js',
-      },
-      service: {
-        src: ['src/service.js'],
-        dest: 'build/service.js',
-      }
+      collectw: { src: ['src/collectw.js'], dest: 'build/collectw.js', },
+      httpconfig: { src: ['src/httpconfig.js'], dest: 'build/httpconfig.js', },
+      service: { src: ['src/service.js'], dest: 'build/service.js', }
     }
   });
 
@@ -68,7 +67,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('distexe', ['concat', 'copy:collectw_nsi', 'copy:node', 'shell:makensis']);
-  grunt.registerTask('test', ['jshint', 'concat']);
+  grunt.registerTask('test', ['jshint', 'concat', 'copy:frontend']);
   grunt.registerTask('default', ['jshint']);
 
 };

@@ -13,6 +13,7 @@ UninstPage instfiles
 Section ""
 	SetOutPath $INSTDIR
 	File build\collectw.js
+	File build\httpconfig.js
 	File build\service.js
 	SetOutPath $INSTDIR\bin
 	File build\node.exe

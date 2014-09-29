@@ -1,3 +1,7 @@
+Version next
+
+- Split the code into more than one file
+
 Version 1.2.1
 
 - Bug fixed in installer (would not uninstall all files)
