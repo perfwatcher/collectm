@@ -15,6 +15,8 @@ Section ""
 	File build\collectw.js
 	File build\httpconfig.js
 	File build\service.js
+	SetOutPath $INSTDIR\plugins
+	File /r /x .git /x .gitignore /x .npmignore build\plugins\*.*
 	SetOutPath $INSTDIR\bin
 	File build\node.exe
 	SetOutPath $INSTDIR\config

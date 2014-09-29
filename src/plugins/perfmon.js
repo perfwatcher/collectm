@@ -52,13 +52,11 @@ exports.reloadConfig = function(c) {
             pmCfg[pm.counter] = pm;
         }
     }
-    return();
 };
 
 exports.reInit = function() {
     //FIXME : remove all Perfmon counters
     pmCfg = {};
-    return();
 };
 
 exports.monitor = function() {
@@ -66,7 +64,6 @@ exports.monitor = function() {
         pm = pmCfg[i];
         add_counter(pm.counter, pm.collectdType, pm.plugin, pm.plugin_instance, pm.type, pm.type_instance);
     }
-    return();
 };
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
