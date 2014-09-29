@@ -1,14 +1,10 @@
 
 var perfmon = require('perfmon');
+var cu = require('../collectw_utils.js');
 
 var counters;
 var client;
 var pmCfg = {};
-
-function collectd_sanitize(name) {
-    return name.replace(/[ -\/\(\)]/g, '_');
-}
-
 
 function add_counter(counter, type, p, pi, t, ti) {
     counter = counter.replace(/\\\\/g, '\\');
@@ -44,10 +40,10 @@ exports.reloadConfig = function(c) {
         var pm = cfg.counters[i];
         if(pm.enable) {
             //FIXME : ensure that pm.* is defined and sanitized
-            pm.plugin = collectd_sanitize(pm.plugin);
-            pm.plugin_instance = collectd_sanitize(pm.plugin_instance);
-            pm.type = collectd_sanitize(pm.type);
-            pm.type_instance = collectd_sanitize(pm.type_instance);
+            pm.plugin = cu.collectd_sanitize(pm.plugin);
+            pm.plugin_instance = cu.collectd_sanitize(pm.plugin_instance);
+            pm.type = cu.collectd_sanitize(pm.type);
+            pm.type_instance = cu.collectd_sanitize(pm.type_instance);
             pm.collectdType = 'gauge'; //FIXME : use Collectd Types.db instead of hardcoded gauge.
             pmCfg[pm.counter] = pm;
         }

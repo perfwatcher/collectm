@@ -13,6 +13,7 @@ UninstPage instfiles
 Section ""
 	SetOutPath $INSTDIR
 	File build\collectw.js
+	File build\collectw_utils.js
 	File build\httpconfig.js
 	File build\service.js
 	SetOutPath $INSTDIR\plugins
@@ -63,7 +64,10 @@ Section "Uninstall"
 	RmDir /r $INSTDIR\bin
 	RmDir /r $INSTDIR\daemon
 	RmDir /r $INSTDIR\frontend
+	RmDir /r $INSTDIR\plugins
 	Delete $INSTDIR\collectw.js
+	Delete $INSTDIR\collectw_utils.js
+	Delete $INSTDIR\httpconfig.js
 	Delete $INSTDIR\service.js
 	Delete $INSTDIR\config\default.json
 	Delete $INSTDIR\uninstall.exe

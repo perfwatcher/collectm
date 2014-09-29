@@ -3,6 +3,7 @@ var os = require('os');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
 var cpu = require('windows-cpu');
+var cu = require('../collectw_utils.js');
 
 var counters = [];
 var client;
@@ -15,10 +16,6 @@ var each = function(obj, block) {
       block(attr, obj[attr]);
   }
 };
-
-function collectd_sanitize(name) {
-    return name.replace(/[ -\/\(\)]/g, '_');
-}
 
 function get_cpu() {
     var cpus = os.cpus();
@@ -153,7 +150,7 @@ function get_interface() {
             each(data.counters, function (metric, value) {
                 var regex = /^Network Interface\((.*)\)\\(.*)/;
                 var result = metric.match(regex);
-                interface_name = collectd_sanitize(result[1]);
+                interface_name = cu.collectd_sanitize(result[1]);
                 var plugin = client.plugin('interface', interface_name);
                 if (typeof results[interface_name] == 'undefined') {
                     results[interface_name] = [];

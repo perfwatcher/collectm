@@ -1,6 +1,9 @@
 
 /* This is an example of a CollectW plugin */
 
+/* Load some utilities */
+var cu = require('../collectw_utils.js');
+
 var counters;
 var client;
 var cfg;

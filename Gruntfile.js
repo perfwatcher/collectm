@@ -44,6 +44,7 @@ module.exports = function(grunt) {
       },
       files: [
           { src: 'src/collectw.js', dest: 'build/collectw.js', },
+          { src: 'src/collectw_utils.js', dest: 'build/collectw_utils.js', },
           { src: 'src/httpconfig.js', dest: 'build/httpconfig.js', },
           { src: 'src/service.js', dest: 'build/service.js', },
         ]
