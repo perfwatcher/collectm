@@ -238,6 +238,10 @@ function get_swap() {
     });
 }
 
+exports.configShow = function() {
+    return({});
+};
+
 exports.reInit = function() {
 
 };
