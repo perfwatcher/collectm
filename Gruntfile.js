@@ -35,8 +35,11 @@ module.exports = function(grunt) {
   },
   copy: {
     node: {
-      src: 'bin/node-0.10.32-x64.exe',
-      dest: 'build/node.exe',
+      files: [
+          { src: 'bin/node-0.10.32-x64.exe', dest: 'build/node.exe', },
+          { src: 'bin/node-0.10.29-x86.exe', dest: 'build/node32.exe', },
+          { src: 'bin/node-0.10.32-x64.exe', dest: 'build/node64.exe', },
+        ]
     },
     sources: {
       options: {
