@@ -1,17 +1,23 @@
 !include x64.nsh
 
-Name "Collectw"
+!define PROJECTNAME "Collectw - updated within grunt"
+!define VERSION "version - updated within grunt"
 
-OutFile "out.exe"
+Name "${PROJECTNAME}"
+
+OutFile "${PROJECTNAME}-${VERSION}.install.exe"
+
+LicenseText "${PROJECTNAME} is distributed under the GNU General Public License." 
+LicenseData "LICENSE" 
 
 Function .onInit
-  StrCpy $instdir $programfiles32\CollectW
+  StrCpy $instdir $programfiles32\${PROJECTNAME}
   ${If} ${RunningX64}
-    StrCpy $instdir $programfiles64\CollectW
+    StrCpy $instdir $programfiles64\${PROJECTNAME}
   ${EndIf}
 FunctionEnd
 
-
+Page license
 Page directory
 Page instfiles
 
@@ -24,6 +30,7 @@ Section ""
   File build\collectw_utils.js
   File build\httpconfig.js
   File build\service.js
+  File LICENSE
   SetOutPath $INSTDIR\plugins
   File /r /x .git /x .gitignore /x .npmignore build\plugins\*.*
   SetOutPath $INSTDIR\bin
@@ -63,6 +70,16 @@ Section ""
   SetOutPath $INSTDIR\node_modules\config
   File /r /x .git /x .gitignore /x .npmignore node_modules\config\*.*
 
+  ; Write the uninstall keys for Windows
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "DisplayName" "${PROJECTNAME} ${VERSION}"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "Publisher" "Cyril Feraudet, https://github.com/perfwatcher/collectw"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "HelpLink" "https://github.com/perfwatcher/collectw"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLInfoAbout" "https://github.com/perfwatcher/collectw"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLUpdateInfo" "https://github.com/perfwatcher/collectw/releases"
+  WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "NoModify" 1
+  WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "NoRepair" 1
   WriteUninstaller uninstall.exe
 
   ExecWait '"$INSTDIR\bin\node.exe" "$INSTDIR\service.js" installAndStart'

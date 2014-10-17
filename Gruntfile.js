@@ -66,8 +66,8 @@ module.exports = function(grunt) {
       dest: 'build/collectw.nsi',
       options: {
         process: function (content, srcpath) {
-          content = content.replace(/ *Name +".*" */g, 'Name "'+pkg.name+'"');
-          content = content.replace(/ *OutFile +".*" */g, 'OutFile "'+pkg.name+'-'+pkg.version+'.exe"');
+		  content = content.replace(/ *\!define PROJECTNAME +".*" */g, '!define PROJECTNAME "'+pkg.name+'"');
+		  content = content.replace(/ *\!define VERSION +".*" */g, '!define VERSION "'+pkg.version+'"');
           return(content);
         }
       }
