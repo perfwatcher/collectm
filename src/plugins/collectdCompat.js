@@ -279,24 +279,25 @@ exports.reInit = function() {
 
 exports.reloadConfig = function(c) {
     client = c.client;
-    cfg = c.cfg;
+    cfg = c.config;
     counters = c.counters;
 };
 
 exports.monitor = function () {
+    var default_interval = cfg.interval || client.interval || 60000;
     get_cpu();
-    setInterval(get_cpu, 10000);
+    setInterval(get_cpu, default_interval);
     get_memory();
-    setInterval(get_memory, 10000);
+    setInterval(get_memory, default_interval);
     get_df();
-    setInterval(get_df, 10000);
+    setInterval(get_df, default_interval);
     get_disk();
-    setInterval(get_disk, 10000);
+    setInterval(get_disk, default_interval);
     get_interface();
     get_load();
-    setInterval(get_load, 10000);
+    setInterval(get_load, default_interval);
     get_uptime();
-    setInterval(get_uptime, 60000);
+    setInterval(get_uptime, default_interval);
     get_process();
     get_swap();
 };
