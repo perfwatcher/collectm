@@ -7,6 +7,7 @@ var cu = require('../collectw_utils.js');
 
 var counters = [];
 var known_disks = [];
+var known_disks_letters = [];
 var known_interfaces = [];
 var client;
 var cfg;
@@ -62,20 +63,37 @@ function get_memory() {
 }
 
 function get_df() {
-    var disks = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
-    each(disks, function (disk) {
-        if (typeof counters['df-'+disks[disk]] == 'undefined') {
-            counters['df-'+disks[disk]] = client.plugin('df', disks[disk]);
+    each(known_disks_letters, function (disk) {
+        if (typeof counters['df-'+known_disks_letters[disk]] == 'undefined') {
+            counters['df-'+known_disks_letters[disk]] = client.plugin('df', known_disks_letters[disk]);
         }
-        diskspace.check(disks[disk], function (total, free, status) {
+        diskspace.check(known_disks_letters[disk], function (total, free, status) {
             if (typeof status != 'undefined' && total > 0) {
-                counters['df-'+disks[disk]].setGauge('df_complex', 'reserved', 0 );
-                counters['df-'+disks[disk]].setGauge('df_complex', 'free', parseInt(free));
-                counters['df-'+disks[disk]].setGauge('df_complex', 'used', (parseInt(total) - parseInt(free)));
+                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'reserved', 0 );
+                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'free', parseInt(free));
+                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'used', (parseInt(total) - parseInt(free)));
             }
         });
     });
 
+}
+
+function refresh_known_disk_letters() {
+    var regex;
+    var result;
+    var disk;
+    var unique_letters = {};
+
+    for(i=0; i<known_disks.length; i++) {
+        regex = /^PhysicalDisk\((.*)\)\\/;
+        result = known_disks[i].match(regex);
+        if (result[1] != '_Total') {
+            disk = result[1].substr(2,1);
+            unique_letters[disk] = 1;
+        }
+    }
+    known_disks_letters = [];
+    for(var k in unique_letters) known_disks_letters.push(k.toLowerCase());
 }
 
 function get_disk() {
@@ -84,6 +102,8 @@ function get_disk() {
         if((newcounters.length!=known_disks.length)
                 || ! (newcounters.every(function(v,i) { return (v === known_disks[i]); } ))) {
             known_disks = newcounters;
+
+            refresh_known_disk_letters();
 
             perfmon(known_disks, function(err, data) {
                 var results = [];
