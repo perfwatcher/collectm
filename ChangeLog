@@ -5,6 +5,7 @@ Version next
 - Runs on 32 and 64 bits (install 32 or 64bits node.exe)
 - Detect new drives or new interfaces (CollectdCompat plugin)
 - new switchs for command-line install (run with /? and without /S to get the help)
+- no more run 26 (a to z) drivespace commands to check all drives
 
 Version 1.2.1
 
