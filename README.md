@@ -6,8 +6,8 @@ Collectd agent for Windows
 Installation
 ============
 
-* Download https://github.com/perfwatcher/collectw/raw/master/releases/CollectW-1.1.2.exe
-* run `CollectW-1.1.2.exe`
+* Download from https://github.com/perfwatcher/collectw/raw/master/releases/
+* run `CollectW-<version>.install.exe`
 
 CollectW would be added as service and started. If not :
 ```
@@ -33,15 +33,27 @@ Configure
 
 Use your browser to go to http://localhost:25826/ (login: admin / password: admin)
 
-
 FAQ
 ===
-* Wich Windows version are suported ? It was only tested on Windows 2008, don't know for other version.
+* Which Windows version are suported ? It was only tested on Windows 2008, don't know for other version.
+
+Developers
+==========
+build your own installer :
+-> install nsis (http://nsis.sourceforge.net/)
+-> install node (http://nodejs.org/)
+-> install grunt (http://gruntjs.com/ - "npm install -g grunt-cli" should do it)
+-> clone CollectW (git clone...)
+-> run :
+```
+cd collectw
+npm install --dev
+grunt distexe
+```
 
 TODO
 ====
 * Write more documentation
 * Add SSL on management port
-* Have the possibility to disable plugins
 * Set server host at install
 * Stop to write what you'll never do
