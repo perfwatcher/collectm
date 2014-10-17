@@ -40,11 +40,11 @@ FAQ
 Developers
 ==========
 build your own installer :
--> install nsis (http://nsis.sourceforge.net/)
--> install node (http://nodejs.org/)
--> install grunt (http://gruntjs.com/ - "npm install -g grunt-cli" should do it)
--> clone CollectW (git clone...)
--> run :
+* install nsis (http://nsis.sourceforge.net/)
+* install node (http://nodejs.org/)
+* install grunt (http://gruntjs.com/ - "npm install -g grunt-cli" should do it)
+* git clone CollectW (git clone...)
+* run :
 ```
 cd collectw
 npm install --dev
