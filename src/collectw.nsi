@@ -92,6 +92,8 @@ Section "Uninstall"
 
   ExecWait '"$InstDir\bin\node.exe" "$InstDir\service.js" stopAndUninstall'
 
+  DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}"
+  
   RmDir /r $InstDir\node_modules
   RmDir /r $InstDir\bin
   RmDir /r $InstDir\daemon
