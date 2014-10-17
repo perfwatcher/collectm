@@ -25,8 +25,10 @@ Installer options :
 Example : install to C:\Program Files\CollectW
 
 ```
-Collectw-<version>.exe /S /D="C:\Program Files\CollectW"
+Collectw-<version>.exe /S /D=C:\Program Files\CollectW
 ```
+Note (from NSIS doc) :
+/D sets the default installation directory. It must be the last parameter used in the command line and must not contain any quotes, even if the path contains spaces. Only absolute paths are supported.
 
 Configure
 =========
