@@ -11,9 +11,9 @@ var httpcfg = {
     cfg: undefined,
     path: undefined,
     configDir: undefined,
-    collectwVersion: undefined,
-    collectwHTTPUser: undefined,
-    collectwHTTPPassword: undefined,
+    collectmVersion: undefined,
+    collectmHTTPUser: undefined,
+    collectmHTTPPassword: undefined,
     plugins: undefined
 };
 
@@ -69,7 +69,7 @@ exports.start = function() {
     app.use(bodyParser.urlencoded({extended: true}));
     
     app.use(basicAuth(function(credentials, req, res, next) {
-        if (credentials.username != httpcfg.collectwHTTPUser || md5(credentials.password) != httpcfg.collectwHTTPPassword) {
+        if (credentials.username != httpcfg.collectmHTTPUser || md5(credentials.password) != httpcfg.collectmHTTPPassword) {
             res.statusCode = 401;
             res.json({error: 'Invalid credential'});
         } else { next(); }
@@ -89,14 +89,14 @@ exports.start = function() {
         res.send(fs.readFileSync(httpcfg.path + '\\frontend\\jquery-2.1.1.min.js'));
     });
     
-    app.get('/collectw.css', function(req, res) {
+    app.get('/collectm.css', function(req, res) {
         res.set('Content-Type', 'text/css');
-        res.send(fs.readFileSync(httpcfg.path + '\\frontend\\collectw.css'));
+        res.send(fs.readFileSync(httpcfg.path + '\\frontend\\collectm.css'));
     });
     
     app.get('/version', function(req, res) {
         res.set('Content-Type', 'application/json');
-        res.json({ version: httpcfg.collectwVersion    });
+        res.json({ version: httpcfg.collectmVersion    });
     });
     
     app.get('/show_config', function(req, res) {
@@ -113,9 +113,9 @@ exports.start = function() {
         res.json(p);
     });
     
-    app.get('/collectw_pid', function(req, res) {
+    app.get('/collectm_pid', function(req, res) {
         res.set('Content-Type', 'application/json');
-        res.json({ collectw_pid: process.pid    });
+        res.json({ collectm_pid: process.pid    });
     });
     
     app.get('/collectd_network', function(req, res) {
@@ -136,7 +136,7 @@ exports.start = function() {
     
     app.get('/httpconfig/port', function(req, res) {
         res.set('Content-Type', 'application/json');
-        res.json({ collectwHTTPPort: (httpcfg.cfg.get('HttpConfig.listenPort') || 25826) });
+        res.json({ collectmHTTPPort: (httpcfg.cfg.get('HttpConfig.listenPort') || 25826) });
     });
     
     app.post('/httpconfig/port', function(req, res) {
@@ -159,9 +159,9 @@ exports.start = function() {
             &&    req.body.user !== ''
             &&    req.body.password !== ''
         ) {
-            httpcfg.collectwHTTPUser = req.body.user;
-            httpcfg.collectwHTTPPassword = md5(req.body.password);
-            cw_config_update({ 'HttpConfig': {'login' : httpcfg.collectwHTTPUser }});
+            httpcfg.collectmHTTPUser = req.body.user;
+            httpcfg.collectmHTTPPassword = md5(req.body.password);
+            cw_config_update({ 'HttpConfig': {'login' : httpcfg.collectmHTTPUser }});
             cw_config_update({ 'HttpConfig': {'password' : req.body.password}});
             cw_config_write();
             res.json({message: 'User and password updated'});
@@ -200,9 +200,9 @@ exports.init = function(c) {
     httpcfg.cfg = c.cfg;
     httpcfg.path = c.path;
     httpcfg.configDir = c.configDir;
-    httpcfg.collectwVersion = c.collectwVersion;
-    httpcfg.collectwHTTPUser = httpcfg.cfg.get('HttpConfig.login');
-    httpcfg.collectwHTTPPassword = md5(httpcfg.cfg.get('HttpConfig.password'));
+    httpcfg.collectmVersion = c.collectmVersion;
+    httpcfg.collectmHTTPUser = httpcfg.cfg.get('HttpConfig.login');
+    httpcfg.collectmHTTPPassword = md5(httpcfg.cfg.get('HttpConfig.password'));
     httpcfg.plugins = c.plugins;
 };
 

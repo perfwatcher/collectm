@@ -3,7 +3,7 @@ var os = require('os');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
 var cpu = require('windows-cpu');
-var cu = require('../collectw_utils.js');
+var cu = require('../collectm_utils.js');
 
 var counters = [];
 var known_disks = [];

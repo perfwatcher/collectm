@@ -5,7 +5,7 @@
 !insertmacro GetOptions
 
 
-!define PROJECTNAME "Collectw - updated within grunt"
+!define PROJECTNAME "Collectm - updated within grunt"
 !define VERSION "version - updated within grunt"
 !define OUTPUTFILE "${PROJECTNAME}-${VERSION}.install.exe"
 
@@ -65,12 +65,12 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
-SectionGroup /e "CollectW"
+SectionGroup /e "CollectM"
   Section "core"
     SectionIn RO
     SetOutPath $InstDir
-    File build\collectw.js
-    File build\collectw_utils.js
+    File build\collectm.js
+    File build\collectm_utils.js
     File build\httpconfig.js
     File build\service.js
     File LICENSE
@@ -86,7 +86,7 @@ SectionGroup /e "CollectW"
     SetOutPath $InstDir\frontend
     File frontend\index.html
     File frontend\jquery-2.1.1.min.js
-    File frontend\collectw.css
+    File frontend\collectm.css
     
     SetOutPath $InstDir\node_modules\body-parser
     File /r /x .git /x .gitignore /x .npmignore node_modules\body-parser\*.*
@@ -115,10 +115,10 @@ SectionGroup /e "CollectW"
     WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "DisplayVersion" "${VERSION}"
     WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "DisplayName" "${PROJECTNAME} ${VERSION}"
     WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "UninstallString" '"$InstDir\uninstall.exe"'
-    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "Publisher" "Cyril Feraudet, https://github.com/perfwatcher/collectw"
-    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "HelpLink" "https://github.com/perfwatcher/collectw"
-    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLInfoAbout" "https://github.com/perfwatcher/collectw"
-    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLUpdateInfo" "https://github.com/perfwatcher/collectw/releases"
+    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "Publisher" "Cyril Feraudet, https://github.com/perfwatcher/collectm"
+    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "HelpLink" "https://github.com/perfwatcher/collectm"
+    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLInfoAbout" "https://github.com/perfwatcher/collectm"
+    WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "URLUpdateInfo" "https://github.com/perfwatcher/collectm/releases"
     WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "NoModify" 1
     WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "NoRepair" 1
     WriteUninstaller uninstall.exe
@@ -131,7 +131,7 @@ SectionGroup /e "CollectW"
       File config\default.json
 	${EndIf}
   SectionEnd
-  Section "create and start the Collectw service"
+  Section "create and start the Collectm service"
     ${If} $option_INSTALLSERVICE == 1
       ExecWait '"$InstDir\bin\node.exe" "$InstDir\service.js" installAndStart'
 	${EndIf}
@@ -149,8 +149,8 @@ Section "Uninstall"
   RmDir /r $InstDir\daemon
   RmDir /r $InstDir\frontend
   RmDir /r $InstDir\plugins
-  Delete $InstDir\collectw.js
-  Delete $InstDir\collectw_utils.js
+  Delete $InstDir\collectm.js
+  Delete $InstDir\collectm_utils.js
   Delete $InstDir\httpconfig.js
   Delete $InstDir\service.js
   Delete $InstDir\config\default.json

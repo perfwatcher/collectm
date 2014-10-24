@@ -30,14 +30,14 @@ module.exports = function(grunt) {
     },
   shell: {
     makensis: {
-      command: 'makensis /NOCD build\\collectw.nsi'
+      command: 'makensis /NOCD build\\collectm.nsi'
     }
   },
   copy: {
     node: {
       files: [
           { src: 'bin/node-0.10.32-x64.exe', dest: 'build/node.exe', },
-          { src: 'bin/node-0.10.29-x86.exe', dest: 'build/node32.exe', },
+          { src: 'bin/node-0.10.32-x86.exe', dest: 'build/node32.exe', },
           { src: 'bin/node-0.10.32-x64.exe', dest: 'build/node64.exe', },
         ]
     },
@@ -46,8 +46,8 @@ module.exports = function(grunt) {
         process: appendGenericBanner,
       },
       files: [
-          { src: 'src/collectw.js', dest: 'build/collectw.js', },
-          { src: 'src/collectw_utils.js', dest: 'build/collectw_utils.js', },
+          { src: 'src/collectm.js', dest: 'build/collectm.js', },
+          { src: 'src/collectm_utils.js', dest: 'build/collectm_utils.js', },
           { src: 'src/httpconfig.js', dest: 'build/httpconfig.js', },
           { src: 'src/service.js', dest: 'build/service.js', },
         ]
@@ -61,9 +61,9 @@ module.exports = function(grunt) {
         process: appendGenericBanner,
       }
     },
-    collectw_nsi: {
-      src: 'src/collectw.nsi',
-      dest: 'build/collectw.nsi',
+    collectm_nsi: {
+      src: 'src/collectm.nsi',
+      dest: 'build/collectm.nsi',
       options: {
         process: function (content, srcpath) {
 		  content = content.replace(/ *\!define PROJECTNAME +".*" */g, '!define PROJECTNAME "'+pkg.name+'"');
@@ -85,7 +85,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
 
   // Default task(s).
-  grunt.registerTask('distexe', ['copy:collectw_nsi', 'copy:sources', 'copy:node', 'copy:plugins', 'shell:makensis']);
+  grunt.registerTask('distexe', ['copy:collectm_nsi', 'copy:sources', 'copy:node', 'copy:plugins', 'shell:makensis']);
   grunt.registerTask('test', ['jshint', 'copy:sources', 'copy:frontend', 'copy:plugins']);
   grunt.registerTask('default', ['jshint']);
 

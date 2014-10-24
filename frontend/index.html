@@ -2,8 +2,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<title>CollectW admin</title>
-		<link rel="stylesheet" type="text/css" href="collectw.css">
+		<title>CollectM admin</title>
+		<link rel="stylesheet" type="text/css" href="collectm.css">
 		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 		<script type="text/javascript">
 			function notify (data) {
@@ -18,8 +18,8 @@
 				$.getJSON('/version', function(data) {
 					$('#version').html(data.version);
 				});
-				$.getJSON('/collectw_pid', function(data) {
-					$('#collectw_pid').html(data.collectw_pid);
+				$.getJSON('/collectm_pid', function(data) {
+					$('#collectm_pid').html(data.collectm_pid);
 				});
 				$.getJSON('/plugin/perfmon/counters', function(data) {
 					for(i in data) {
@@ -41,19 +41,19 @@
 				});
 				$.getJSON('/loaded_plugins_list', function(data) {
 					$(data).each(function(i,n) {
-						$('<li>'+n+'</li>').appendTo('#collectw_plugins__loaded');
+						$('<li>'+n+'</li>').appendTo('#collectm_plugins__loaded');
 					});
 				});
 				$.getJSON('/httpconfig/port', function(data) {
-					$('#collectw_httpconfig__port').val(data.collectwHTTPPort);
+					$('#collectm_httpconfig__port').val(data.collectmHTTPPort);
 				});
-				$('#submit__collectw_httpconfig__authentication').click(function () {
-					$.post('/httpconfig/account', { user: $('#collectw_httpconfig__user').val(), password: $('#collectw_httpconfig__password').val() }, function( data ) {
+				$('#submit__collectm_httpconfig__authentication').click(function () {
+					$.post('/httpconfig/account', { user: $('#collectm_httpconfig__user').val(), password: $('#collectm_httpconfig__password').val() }, function( data ) {
 						notify(data);
 					});
 				});
-				$('#submit__collectw_httpconfig__port').click(function () {
-					$.post('/httpconfig/port', { port: $('#collectw_httpconfig__port').val() }, function( data ) {
+				$('#submit__collectm_httpconfig__port').click(function () {
+					$.post('/httpconfig/port', { port: $('#collectm_httpconfig__port').val() }, function( data ) {
 						notify(data);
 					});
 				});
@@ -67,36 +67,36 @@
 	</head>
 	<body>
 		<div id="block_information" class="configuration_block">
-			<h1>CollectW information</h1>
+			<h1>CollectM information</h1>
 			<table>
 				<tr><th>Version</th><td><span id="version" /></td></tr>
-				<tr><th>PID</th><td><span id="collectw_pid" /></td></tr>
+				<tr><th>PID</th><td><span id="collectm_pid" /></td></tr>
 			</table>
 		</div>
 		<div id="block_action" class="configuration_block">
-			<h1>CollectW Service</h1>
-			<input type="submit" name="submit__process__stop" id="submit__process__stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectW Windows service to make it restart on stop)</span>
+			<h1>CollectM Service</h1>
+			<input type="submit" name="submit__process__stop" id="submit__process__stop" value="Stop / Restart" /> <span>(Configure recovery option in CollectM Windows service to make it restart on stop)</span>
 		</div>
-		<div id="block_collectw_httpconfig" class="configuration_block">
-			<h1>CollectW HTTP configuration tool</h1>
+		<div id="block_collectm_httpconfig" class="configuration_block">
+			<h1>CollectM HTTP configuration tool</h1>
 			<h2>Admin user</h2>
-			<span>User :</span> <span><input type="text" name="collectw_httpconfig__user" id="collectw_httpconfig__user" /></span>
-			<span>password</span> <span><input type="text" name="collectw_httpconfig__password" id="collectw_httpconfig__password" /></span>
-			<input type="submit" name="submit__collectw_httpconfig__authentication" id="submit__collectw_httpconfig__authentication" />
+			<span>User :</span> <span><input type="text" name="collectm_httpconfig__user" id="collectm_httpconfig__user" /></span>
+			<span>password</span> <span><input type="text" name="collectm_httpconfig__password" id="collectm_httpconfig__password" /></span>
+			<input type="submit" name="submit__collectm_httpconfig__authentication" id="submit__collectm_httpconfig__authentication" />
 			<h2>Server port</h2>
-			<span>Port</span> <span><input type="text" name="port" id="collectw_httpconfig__port" /></span>
-			<input type="submit" name="submit__collectw_httpconfig__port" id="submit__collectw_httpconfig__port" />
+			<span>Port</span> <span><input type="text" name="port" id="collectm_httpconfig__port" /></span>
+			<input type="submit" name="submit__collectm_httpconfig__port" id="submit__collectm_httpconfig__port" />
 		</div>
 		<div id="block_collectd_network" class="configuration_block">
-			<h1>CollectW network configuration</h1>
-			<p>Collectw is sending metrics to those servers :</p>
+			<h1>CollectM network configuration</h1>
+			<p>Collectm is sending metrics to those servers :</p>
 			<table id="collectd_network__servers">
 				<tr><th>Collectd server</th><th>port</th></tr>
 			</table>
 		</div>
-		<div id="block_collectw_plugins" class="configuration_block">
+		<div id="block_collectm_plugins" class="configuration_block">
 			<h1>Plugins in use</h1>
-			<ul id="collectw_plugins__loaded">
+			<ul id="collectm_plugins__loaded">
 			</ul>
 		</div>
 		<div id="block_perfmon_counters" class="configuration_block">

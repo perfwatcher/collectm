@@ -1,8 +1,8 @@
 
-/* This is an example of a CollectW plugin */
+/* This is an example of a CollectM plugin */
 
 /* Load some utilities */
-var cu = require('../collectw_utils.js');
+var cu = require('../collectm_utils.js');
 
 var counters;
 var client;

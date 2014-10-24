@@ -5,9 +5,9 @@ process.env.ALLOW_CONFIG_MUTATIONS = 1;
 var os = require('os');
 var Collectd = require('collectdout');
 var cfg = require('config');
-var collectwHTTPConfig = require('./httpconfig.js');
+var collectmHTTPConfig = require('./httpconfig.js');
 
-var collectwVersion = '<%= pkg.version %>';
+var collectmVersion = '<%= pkg.version %>';
 
 var counters = [];
 var client;
@@ -103,14 +103,14 @@ each(plugin, function(p) {
 
 /* Load the httpconfig User Interface */
 if(cfg.get('HttpConfig.enable')) {
-    collectwHTTPConfig.init({
+    collectmHTTPConfig.init({
             cfg: cfg,
             path: path,
             configDir: configDir,
-            collectwVersion: collectwVersion,
+            collectmVersion: collectmVersion,
             plugins: plugin,
             });
-    collectwHTTPConfig.start();
+    collectmHTTPConfig.start();
 }
 
 

@@ -1,4 +1,4 @@
-/*! CollectW - v1.2.1-20140926 - 2014-09-26 */
+/*! CollectM - v1.2.1-20140926 - 2014-09-26 */
 
 var Service = require('node-windows').Service;
 var svcpath = require('path').dirname(require.main.filename);
@@ -8,9 +8,9 @@ if(process.argv[3]) {
 }
 
 var svc = new Service({
-  name:'CollectW',
+  name:'CollectM',
   description: 'Collectd agent for Windows',
-  script: svcpath + '\\collectw.js',
+  script: svcpath + '\\collectm.js',
   env: {
     name: 'NODE_CONFIG_DIR',
     value: svcpath + '\\config'
