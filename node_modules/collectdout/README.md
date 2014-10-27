@@ -37,6 +37,8 @@ plugin.addCounter('uptime', '0', 1);
 ```
 
 # Change log
+- v0.0.6
+  * Possibility to send notification
 - v0.0.5
   * Add this changelog
   * Possibility to send data to more than one server

@@ -223,6 +223,56 @@ Collectd.prototype.send = function() {
     pkt.send();
 };
 
+/* Define constants */
+Collectd.prototype.NOTIF_FAILURE=1;
+Collectd.prototype.NOTIF_WARNING=2;
+Collectd.prototype.NOTIF_OKAY=4;
+
+/**
+ * Users call sendNotif to send notifications
+ * notif is an object :
+ {
+   severity: '<failure|warning|okay>',                    <- mandatory
+   message: 'a short string that fit the network packet', <- mandatory
+   h  : <hostname>,                                       <- optional
+   p  : <plugin>,                                         <- optional
+   pi : <plugin instance>,                                <- optional
+   t  : <type>,                                           <- optional
+   ti : <type instance>                                   <- optional
+ }
+ *
+ * Note : if notif.h is not defined, it will not be sent.
+ * Note : if notif.h is defined and its value is false, the default hostname will be sent
+ */
+Collectd.prototype.sendNotif = function(notif) {
+
+    var pkt = new Packet(this.write.bind(this));
+    var hostname = this.hostname;
+    var time = Math.floor(new Date().getTime() / 1000);
+
+    try {
+        pkt.addNumericPart(1, time);
+        pkt.addNumericPart(0x101, notif.severity || this.NOTIF_OKAY);
+
+        if ('h' in notif) { pkt.addStringPart(0, notif.h || hostname); }
+        if (('p' in notif  ) && notif.p ) { pkt.addStringPart(2, notif.p ); }
+        if (('pi' in notif ) && notif.pi) { pkt.addStringPart(3, notif.pi); }
+        if (('t' in notif  ) && notif.t ) { pkt.addStringPart(4, notif.t ); }
+        if (('ti' in notif ) && notif.ti) { pkt.addStringPart(5, notif.ti); }
+        pkt.addStringPart(0x100, notif.message);
+    } catch (e) {
+        if (e.constructor === PacketOverflow) {
+            // Drop the packet ; maybe we can do something else ?
+            console.warn('Dropped packet (message "'+notif.message.substr(0,100)+(notif.message.length >= 100 ? '...':'')+'")');
+        } else {
+            // Drop the packet ; other event
+            throw e;
+        }
+    }
+
+    pkt.send();
+};
+
 Collectd.prototype.write = function(buf) {
     for (var i=0; i < this.serverHosts.length; i++) {
         this.serverHosts[i].sock.send(buf, 0, buf.length, this.serverHosts[i].port, this.serverHosts[i].host);
