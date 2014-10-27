@@ -87,6 +87,9 @@ SectionGroup /e "CollectM"
     File frontend\index.html
     File frontend\jquery-2.1.1.min.js
     File frontend\collectm.css
+
+    SetOutPath $InstDir\config
+    File /oname=default.json-dist config\default.json
     
     SetOutPath $InstDir\node_modules\body-parser
     File /r /x .git /x .gitignore /x .npmignore node_modules\body-parser\*.*
@@ -153,7 +156,7 @@ Section "Uninstall"
   Delete $InstDir\collectm_utils.js
   Delete $InstDir\httpconfig.js
   Delete $InstDir\service.js
-  Delete $InstDir\config\default.json
+  Delete $InstDir\config\default.json-dist
   Delete $InstDir\LICENSE
   Delete $InstDir\uninstall.exe
   RmDir $InstDir\config
