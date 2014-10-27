@@ -5,7 +5,7 @@
   "license": "GPLv2",
   "dependancies": {
     "MD5": "~1.2.1",
-    "collectdout": ">=0.0.5",
+    "collectdout": ">=0.0.6",
     "diskspace": "~0.1.6",
     "perfmon": "~0.2.0",
     "windows-cpu": "~0.1.1",
