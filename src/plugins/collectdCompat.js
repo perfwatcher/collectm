@@ -2,7 +2,6 @@
 var os = require('os');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
-var cpu = require('windows-cpu');
 var cu = require('../collectm_utils.js');
 
 var counters = [];
@@ -240,13 +239,8 @@ function get_interface() {
 
 function get_load() {
     var plugin = client.plugin('load', '');
-    cpu.totalLoad(function (error, results) {
-        if (error) { return; }
-        var total = 0;
-        each(results ,function(cpunb) {
-            total += parseInt(results[cpunb]);
-        });
-        plugin.setGauge('percent', '', total/results.length);
+    perfmon('\\processor(_total)\\% processor time', function(err, data) {
+        plugin.setGauge('percent', '', data.counters['\\processor(_total)\\% processor time']);
     });
 }
 
