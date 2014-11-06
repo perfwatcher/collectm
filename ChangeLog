@@ -1,6 +1,7 @@
 Version 1.3.2
 
 - Move from windows-cpu to perfmon due to crashs with windows-cpu (wmic cpu get loadpercentage)
+- Added some probes in collectdCompat plugin
 
 Version 1.3.1
 

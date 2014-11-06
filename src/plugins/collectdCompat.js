@@ -19,6 +19,22 @@ var each = function(obj, block) {
   }
 };
 
+var perfmonCounterToPlugin = function(pm, p, pi, t, ti) {
+    // Note : do not use this function if you have more than one pm for the same (p,pi)
+    var plugin = client.plugin(p, pi);
+    perfmon(pm, function(err, data) {
+        plugin.addCounter(t, ti, data.counters[pm]);
+    });
+};
+
+var perfmonGaugeToPlugin = function(pm, p, pi, t, ti) {
+    // Note : do not use this function if you have more than one pm for the same (p,pi)
+    var plugin = client.plugin(p, pi);
+    perfmon(pm, function(err, data) {
+        plugin.setGauge(t, ti, data.counters[pm]);
+    });
+};
+
 function get_cpu() {
     var cpus = os.cpus();
     var user = 0;
@@ -59,6 +75,8 @@ function get_memory() {
     var free = os.freemem();
     plugin.setGauge('memory', 'free', parseInt(free));
     plugin.setGauge('memory', 'used', parseInt(os.totalmem()) - parseInt(free));
+    perfmonGaugeToPlugin('\\Memory\\Pool Nonpaged Allocs', 'memory', '', 'memory', 'pool_nonpaged_allocs');
+    perfmonCounterToPlugin('\\Server\\Pool Paged Failures', 'memory', '', 'swap_io', 'pool_paged_failures');
 }
 
 function get_df() {
@@ -238,10 +256,7 @@ function get_interface() {
 }
 
 function get_load() {
-    var plugin = client.plugin('load', '');
-    perfmon('\\processor(_total)\\% processor time', function(err, data) {
-        plugin.setGauge('percent', '', data.counters['\\processor(_total)\\% processor time']);
-    });
+    perfmonGaugeToPlugin('\\processor(_total)\\% processor time', 'load', '', 'percent', '');
 }
 
 function get_uptime() {
@@ -250,17 +265,14 @@ function get_uptime() {
 }
 
 function get_process() {
-    var plugin = client.plugin('processes', '');
-    perfmon('\\Thread(_Total/_Total)\\Context Switches/sec', function(err, data) {
-        plugin.addCounter('contextswitch', '', data.counters['\\Thread(_Total/_Total)\\Context Switches/sec']);
-    });
+    perfmonCounterToPlugin('\\Thread(_Total/_Total)\\Context Switches/sec', 'processes', '', 'contextswitch', '');
+    perfmonGaugeToPlugin('\\Process(_Total)\\Pool Nonpaged Bytes', 'processes', '', 'bytes', 'pool_nonpaged');
+    perfmonGaugeToPlugin('\\Process(services)\\% Privileged Time', 'processes', 'services', 'percent', 'privileged_time');
+    perfmonGaugeToPlugin('\\Process(csrss)\\% Privileged Time', 'processes', 'csrss', 'percent', 'privileged_time');
 }
 
 function get_swap() {
-    var plugin = client.plugin('swap', '');
-    perfmon('\\Paging File(_Total)\\% Usage', function(err, data) {
-        plugin.setGauge('percent', '', data.counters['\\Paging File(_Total)\\% Usage']);
-    });
+    perfmonGaugeToPlugin('\\Paging File(_Total)\\% Usage', 'swap', '', 'percent', '');
 }
 
 exports.configShow = function() {
