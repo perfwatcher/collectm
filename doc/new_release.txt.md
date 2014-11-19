@@ -45,7 +45,7 @@ $ git push origin refs/tags/v1.3.2
 
 ### On Github
 
-Click on the [Releases] tab. Then find the new tag (in the [Tags] tab) and add a new release note.
+Click on the `[Releases]` tab. Then find the new tag (in the `[Tags]` tab) and add a new release note.
 
 Release title : `Version <version number>`
 
@@ -56,7 +56,7 @@ Replace the dashs with stars (markdown syntax)
 
 Send to perfwatcher@lists.perfwatcher.org a mail like this :
 
-Subject : [CollectM] New release CollectM-<version>
+Subject : `[CollectM] New release CollectM-<version>`
 
 ```
 Hello,
@@ -74,9 +74,8 @@ More information on CollectM : https://github.com/perfwatcher/collectm
 
 ChangeLog  (https://github.com/perfwatcher/collectm/releases) :
 
-```
-Copy the ChangeLog section related to the last release
-```
+*Copy the ChangeLog section related to the last release*
+
 Regards,
 the authors
 ```
