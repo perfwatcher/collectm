@@ -6,7 +6,7 @@ Collectd agent for Windows
 Installation
 ============
 
-* Download from https://github.com/perfwatcher/collectm/raw/master/releases/
+* Download from https://github.com/perfwatcher/collectm/releases/latest
 * run `CollectM-<version>.install.exe`
 
 CollectM would be added as service and started. If not :
