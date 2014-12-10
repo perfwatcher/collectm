@@ -77,7 +77,7 @@ CollectM is developped by the same authors as Perfwatcher. This is why Perfwatch
 Download CollectM from https://github.com/perfwatcher/collectm/releases/latest
 More information on CollectM : https://github.com/perfwatcher/collectm
 
-ChangeLog  (https://github.com/perfwatcher/collectm/releases) :
+ChangeLog  (https://github.com/perfwatcher/collectm/releases/tag/v<version>) :
 
 *Copy the ChangeLog section related to the last release*
 
@@ -85,5 +85,6 @@ Regards,
 the authors
 ```
 
-
+* do not forget to change <version> with the version (3 occurrences)
+* do not forget to copy/paste the ChangeLog section in the mail
 
