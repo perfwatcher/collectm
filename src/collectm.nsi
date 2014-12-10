@@ -109,8 +109,6 @@ SectionGroup /e "CollectM"
     File /r /x .git /x .gitignore /x .npmignore node_modules\perfmon\*.*
     SetOutPath $InstDir\node_modules\process
     File /r /x .git /x .gitignore /x .npmignore node_modules\process\*.*
-    SetOutPath $InstDir\node_modules\windows-cpu
-    File /r /x .git /x .gitignore /x .npmignore node_modules\windows-cpu\*.*
     SetOutPath $InstDir\node_modules\config
     File /r /x .git /x .gitignore /x .npmignore node_modules\config\*.*
   
