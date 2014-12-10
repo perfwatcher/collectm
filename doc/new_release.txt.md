@@ -19,6 +19,9 @@ $ mv collectm*install.exe releases
 $ git add releases/collectm...install.exe
 ```
 
+Note : Last release to be added : 1.3.3.
+We will now try to upload the installer to the "Release" section instead (check https://github.com/perfwatcher/collectm/releases/latest)
+
 ## Double check that we have all good
 
 ```
@@ -52,6 +55,8 @@ Release title : `Version <version number>`
 Copy/paste the last changes from the ChangeLog file.
 Replace the dashs with stars (markdown syntax)
 
+Upload the installer so it can be available on https://github.com/perfwatcher/collectm/releases/latest
+
 ### On the Mailing-list
 
 Send to perfwatcher@lists.perfwatcher.org a mail like this :
@@ -69,7 +74,7 @@ When we feel that CollectM should have its own mailing list, we will create it.
 CollectM is developped by the same authors as Perfwatcher. This is why Perfwatcher Project hosts CollectM.
 
 
-Download CollectM from https://github.com/perfwatcher/collectm/tree/master/releases
+Download CollectM from https://github.com/perfwatcher/collectm/releases/latest
 More information on CollectM : https://github.com/perfwatcher/collectm
 
 ChangeLog  (https://github.com/perfwatcher/collectm/releases) :
