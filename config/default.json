@@ -8,7 +8,7 @@
 //  "Hostname":"orion", // should not be set in default.json
 //  "HostnameCase": "default", // "lower", "upper" or "default"
 
-  "Interval": 10,
+  "Interval": 60,
 
   "HttpConfig": {
     "enable": 1,

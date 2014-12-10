@@ -50,7 +50,7 @@ function get_collectd_servers_and_ports() {
 }
 
 function get_interval() {
-    return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 10000);
+    return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
 }
 
 client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, get_hostname_with_case());
