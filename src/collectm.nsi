@@ -1,6 +1,6 @@
 !include "LogicLib.nsh"
-!include "x64.nsh"
 !include "FileFunc.nsh"
+!include "x64.nsh"
 !insertmacro GetParameters
 !insertmacro GetOptions
 
@@ -85,7 +85,18 @@ UninstPage instfiles
 SectionGroup /e "CollectM"
   Section "core"
     SectionIn RO
+    ExecWait "sc stop CollectM"
+    ExecWait "sc stop CollectM.exe"
+    ExecWait "sc delete CollectM"
+    ExecWait "sc delete CollectM.exe"
+
     SetOutPath $InstDir
+
+    IfFileExists $InstDir\daemon\*.* 0 L_file_missing_daemon
+      ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
+      Rename $InstDir\daemon "$InstDir\daemon-$2$1$0_$4$5$6"
+L_file_missing_daemon:
+
     File build\collectm.js
     File build\collectm_utils.js
     File build\httpconfig.js
@@ -146,6 +157,10 @@ SectionGroup /e "CollectM"
   Section "default configuration file"
   ${If} $option_INSTALLDEFAULTCONFIGFILE == 1
       SetOutPath $InstDir\config
+      IfFileExists 0 L_file_missing_default_json
+      ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
+      Rename default.json "default.json-$2$1$0_$4$5$6"
+L_file_missing_default_json:
       File config\default.json
   ${EndIf}
   SectionEnd
