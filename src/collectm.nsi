@@ -42,21 +42,21 @@ Function .onInit
   ${If} $0 = 0
     MessageBox MB_OK "Command line options: $\r$\n\
     ${OUTPUTFILE} [/S] [options] [/D=<installation path>]$\r$\n\
-	$\r$\n\
-	/S :$\t$\t$\tsilent install$\r$\n\
-	/nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
-	/noservice :$\t$\tdo not install the service$\r$\n\
-	/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
-	" /SD IDOK
+$\r$\n\
+/S :$\t$\t$\tsilent install$\r$\n\
+/nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
+/noservice :$\t$\tdo not install the service$\r$\n\
+/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
+" /SD IDOK
   ${Else}
     FileWrite $0 "Command line options: $\r$\n\
     ${OUTPUTFILE} [/S] [options] [/D=<installation path>]$\r$\n\
-	$\r$\n\
-	/S :$\t$\t$\t$\tsilent install$\r$\n\
-	/nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
-	/noservice :$\t$\t$\tdo not install the service$\r$\n\
-	/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
-	"
+$\r$\n\
+/S :$\t$\t$\t$\tsilent install$\r$\n\
+/nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
+/noservice :$\t$\t$\tdo not install the service$\r$\n\
+/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
+"
     FileClose $0
   ${EndIf}
   Abort
@@ -144,15 +144,15 @@ SectionGroup /e "CollectM"
   SectionEnd
   
   Section "default configuration file"
-	${If} $option_INSTALLDEFAULTCONFIGFILE == 1
+  ${If} $option_INSTALLDEFAULTCONFIGFILE == 1
       SetOutPath $InstDir\config
       File config\default.json
-	${EndIf}
+  ${EndIf}
   SectionEnd
   Section "create and start the Collectm service"
     ${If} $option_INSTALLSERVICE == 1
       ExecWait '"$InstDir\bin\node.exe" "$InstDir\service.js" installAndStart'
-	${EndIf}
+  ${EndIf}
   SectionEnd
 SectionGroupEnd
 
