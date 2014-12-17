@@ -35,8 +35,12 @@ Function .onInit
   ${GetParameters} $cmdLineParams
   ClearErrors
   ${GetOptions} $cmdLineParams '/?' $R0
-  IfErrors +3 0
-  MessageBox MB_OK "Command line options: $\r$\n\
+  IfErrors L_nohelp 0
+
+  System::Call 'kernel32::GetStdHandle(i -11)i.r0' 
+  System::Call 'kernel32::AttachConsole(i -1)' 
+  ${If} $0 = 0
+    MessageBox MB_OK "Command line options: $\r$\n\
     ${OUTPUTFILE} [/S] [options] [/D=<installation path>]$\r$\n\
 	$\r$\n\
 	/S :$\t$\t$\tsilent install$\r$\n\
@@ -44,7 +48,20 @@ Function .onInit
 	/noservice :$\t$\tdo not install the service$\r$\n\
 	/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
 	" /SD IDOK
+  ${Else}
+    FileWrite $0 "Command line options: $\r$\n\
+    ${OUTPUTFILE} [/S] [options] [/D=<installation path>]$\r$\n\
+	$\r$\n\
+	/S :$\t$\t$\t$\tsilent install$\r$\n\
+	/nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
+	/noservice :$\t$\t$\tdo not install the service$\r$\n\
+	/D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
+	"
+    FileClose $0
+  ${EndIf}
   Abort
+
+L_nohelp:
   Pop $R0
   
   ${GetOptions} $cmdLineParams /nodefaultconfig $R0
