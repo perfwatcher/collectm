@@ -69,12 +69,22 @@ function get_cpu() {
     counters['cpu-total'].setGauge('nbcpu', '', cpus.length);
 }
 
+function launch_collector_cpu(interval) {
+    get_cpu();
+    setInterval(get_cpu, interval);
+}
 
 function get_memory() {
     var plugin = client.plugin('memory', '');
     var free = os.freemem();
     plugin.setGauge('memory', 'free', parseInt(free));
     plugin.setGauge('memory', 'used', parseInt(os.totalmem()) - parseInt(free));
+}
+
+function launch_collector_memory(interval) {
+    get_memory();
+    setInterval(get_memory, interval);
+
     perfmonGaugeToPlugin('\\Memory\\Pool Nonpaged Allocs', 'memory', '', 'memory', 'pool_nonpaged_allocs');
     perfmonCounterToPlugin('\\Server\\Pool Paged Failures', 'memory', '', 'swap_io', 'pool_paged_failures');
 }
@@ -93,6 +103,11 @@ function get_df() {
         });
     });
 
+}
+
+function launch_collector_df(interval) {
+    get_df();
+    setInterval(get_df, interval);
 }
 
 function refresh_known_disk_letters() {
@@ -188,6 +203,11 @@ function get_disk() {
     });
 }
 
+function launch_collector_disk(interval) {
+    get_disk();
+    setInterval(get_disk, interval);
+}
+
 function get_interface() {
     perfmon.list('Network Interface', function(err, datas) {
         var newcounters = datas.counters.sort();
@@ -255,7 +275,12 @@ function get_interface() {
     });
 }
 
-function get_load() {
+function launch_collector_interface(interval) {
+    get_interface();
+    setInterval(get_interface, interval);
+}
+
+function launch_collector_load() {
     perfmonGaugeToPlugin('\\processor(_total)\\% processor time', 'load', '', 'percent', '');
 }
 
@@ -264,14 +289,19 @@ function get_uptime() {
     plugin.setGauge('uptime', '', os.uptime());
 }
 
-function get_process() {
+function launch_collector_uptime(interval) {
+    get_uptime();
+    setInterval(get_uptime, interval);
+}
+
+function launch_collector_process() {
     perfmonCounterToPlugin('\\Thread(_Total/_Total)\\Context Switches/sec', 'processes', '', 'contextswitch', '');
     perfmonGaugeToPlugin('\\Process(_Total)\\Pool Nonpaged Bytes', 'processes', '', 'bytes', 'pool_nonpaged');
     perfmonGaugeToPlugin('\\Process(services)\\% Privileged Time', 'processes', 'services', 'percent', 'privileged_time');
     perfmonGaugeToPlugin('\\Process(csrss)\\% Privileged Time', 'processes', 'csrss', 'percent', 'privileged_time');
 }
 
-function get_swap() {
+function launch_collector_swap() {
     perfmonGaugeToPlugin('\\Paging File(_Total)\\% Usage', 'swap', '', 'percent', '');
 }
 
@@ -291,21 +321,15 @@ exports.reloadConfig = function(c) {
 
 exports.monitor = function () {
     var default_interval = cfg.interval || client.interval || 60000;
-    get_cpu();
-    setInterval(get_cpu, default_interval);
-    get_memory();
-    setInterval(get_memory, default_interval);
-    get_df();
-    setInterval(get_df, default_interval);
-    get_disk();
-    setInterval(get_disk, default_interval);
-    get_interface();
-    get_load();
-    setInterval(get_load, default_interval);
-    get_uptime();
-    setInterval(get_uptime, default_interval);
-    get_process();
-    get_swap();
+    launch_collector_cpu       (default_interval);
+    launch_collector_memory    (default_interval);
+    launch_collector_df        (default_interval);
+    launch_collector_disk      (default_interval);
+    launch_collector_interface (default_interval);
+    launch_collector_load      (default_interval);
+    launch_collector_uptime    (default_interval);
+    launch_collector_process   (default_interval);
+    launch_collector_swap      (default_interval);
 };
 
 
