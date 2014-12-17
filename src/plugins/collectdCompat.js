@@ -11,31 +11,31 @@ var known_interfaces = [];
 var client;
 var cfg;
 
-var each = function(obj, block) {
+var each = function(obj, block) { // {{{
   var attr;
   for(attr in obj) {
     if(obj.hasOwnProperty(attr))
       block(attr, obj[attr]);
   }
-};
+}; // }}}
 
-var perfmonCounterToPlugin = function(pm, p, pi, t, ti) {
+var perfmonCounterToPlugin = function(pm, p, pi, t, ti) { // {{{
     // Note : do not use this function if you have more than one pm for the same (p,pi)
     var plugin = client.plugin(p, pi);
     perfmon(pm, function(err, data) {
         plugin.addCounter(t, ti, data.counters[pm]);
     });
-};
+}; // }}}
 
-var perfmonGaugeToPlugin = function(pm, p, pi, t, ti) {
+var perfmonGaugeToPlugin = function(pm, p, pi, t, ti) { // {{{
     // Note : do not use this function if you have more than one pm for the same (p,pi)
     var plugin = client.plugin(p, pi);
     perfmon(pm, function(err, data) {
         plugin.setGauge(t, ti, data.counters[pm]);
     });
-};
+}; // }}}
 
-function get_cpu() {
+function get_cpu() { // {{{
     var cpus = os.cpus();
     var user = 0;
     var nice = 0;
@@ -67,29 +67,27 @@ function get_cpu() {
     counters['cpu-total'].setCounter('cpu', 'irq', irq / 10 / cpus.length);
     counters['cpu-total'].setCounter('cpu', 'idle', idle / 10 / cpus.length);
     counters['cpu-total'].setGauge('nbcpu', '', cpus.length);
-}
-
-function launch_collector_cpu(interval) {
+} // }}}
+function launch_collector_cpu(interval) { // {{{
     get_cpu();
     setInterval(get_cpu, interval);
-}
+} // }}}
 
-function get_memory() {
+function get_memory() { // {{{
     var plugin = client.plugin('memory', '');
     var free = os.freemem();
     plugin.setGauge('memory', 'free', parseInt(free));
     plugin.setGauge('memory', 'used', parseInt(os.totalmem()) - parseInt(free));
-}
-
-function launch_collector_memory(interval) {
+} // }}}
+function launch_collector_memory(interval) { // {{{
     get_memory();
     setInterval(get_memory, interval);
 
     perfmonGaugeToPlugin('\\Memory\\Pool Nonpaged Allocs', 'memory', '', 'memory', 'pool_nonpaged_allocs');
     perfmonCounterToPlugin('\\Server\\Pool Paged Failures', 'memory', '', 'swap_io', 'pool_paged_failures');
-}
+} // }}}
 
-function get_df() {
+function get_df() { // {{{
     each(known_disks_letters, function (disk) {
         if (typeof counters['df-'+known_disks_letters[disk]] == 'undefined') {
             counters['df-'+known_disks_letters[disk]] = client.plugin('df', known_disks_letters[disk]);
@@ -103,14 +101,13 @@ function get_df() {
         });
     });
 
-}
-
-function launch_collector_df(interval) {
+} // }}}
+function launch_collector_df(interval) { // {{{
     get_df();
     setInterval(get_df, interval);
-}
+} // }}}
 
-function refresh_known_disk_letters() {
+function refresh_known_disk_letters() { // {{{
     var regex;
     var result;
     var disk;
@@ -126,9 +123,9 @@ function refresh_known_disk_letters() {
     }
     known_disks_letters = [];
     for(var k in unique_letters) known_disks_letters.push(k.toLowerCase());
-}
+} // }}}
 
-function get_disk() {
+function get_disk() { // {{{
     perfmon.list('PhysicalDisk', function(err, datas) {
         var newcounters = datas.counters.sort();
         if((newcounters.length!=known_disks.length)
@@ -201,14 +198,13 @@ function get_disk() {
         });
         }
     });
-}
-
-function launch_collector_disk(interval) {
+} // }}}
+function launch_collector_disk(interval) { // {{{
     get_disk();
     setInterval(get_disk, interval);
-}
+} // }}}
 
-function get_interface() {
+function get_interface() { // {{{
     perfmon.list('Network Interface', function(err, datas) {
         var newcounters = datas.counters.sort();
         if((newcounters.length!=known_interfaces.length)
@@ -273,51 +269,49 @@ function get_interface() {
             });
         }
     });
-}
-
-function launch_collector_interface(interval) {
+} // }}}
+function launch_collector_interface(interval) { // {{{
     get_interface();
     setInterval(get_interface, interval);
-}
+} // }}}
 
-function launch_collector_load() {
+function launch_collector_load() { // {{{
     perfmonGaugeToPlugin('\\processor(_total)\\% processor time', 'load', '', 'percent', '');
-}
-
-function get_uptime() {
+} // }}}
+function get_uptime() { // {{{
     var plugin = client.plugin('uptime', '');
     plugin.setGauge('uptime', '', os.uptime());
-}
+} // }}}
 
-function launch_collector_uptime(interval) {
+function launch_collector_uptime(interval) { // {{{
     get_uptime();
     setInterval(get_uptime, interval);
-}
+} // }}}
 
-function launch_collector_process() {
+function launch_collector_process() { // {{{
     perfmonCounterToPlugin('\\Thread(_Total/_Total)\\Context Switches/sec', 'processes', '', 'contextswitch', '');
     perfmonGaugeToPlugin('\\Process(_Total)\\Pool Nonpaged Bytes', 'processes', '', 'bytes', 'pool_nonpaged');
     perfmonGaugeToPlugin('\\Process(services)\\% Privileged Time', 'processes', 'services', 'percent', 'privileged_time');
     perfmonGaugeToPlugin('\\Process(csrss)\\% Privileged Time', 'processes', 'csrss', 'percent', 'privileged_time');
-}
+} // }}}
 
-function launch_collector_swap() {
+function launch_collector_swap() { // {{{
     perfmonGaugeToPlugin('\\Paging File(_Total)\\% Usage', 'swap', '', 'percent', '');
-}
+} // }}}
 
-exports.configShow = function() {
+exports.configShow = function() { // {{{
     return({});
-};
+}; // }}}
 
-exports.reInit = function() {
+exports.reInit = function() { // {{{
 
-};
+}; // }}}
 
-exports.reloadConfig = function(c) {
+exports.reloadConfig = function(c) { // {{{
     client = c.client;
     cfg = c.config;
     counters = c.counters;
-};
+}; // }}}
 
 exports.monitor = function () {
     var default_interval = cfg.interval || client.interval || 60000;
