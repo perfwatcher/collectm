@@ -39,6 +39,9 @@ module.exports = function(grunt) {
           { src: 'bin/node-0.10.32-x64.exe', dest: 'build/bin/node.exe', },
           { src: 'bin/node-0.10.32-x86.exe', dest: 'build/bin/node32.exe', },
           { src: 'bin/node-0.10.32-x64.exe', dest: 'build/bin/node64.exe', },
+          { src: 'bin/nssm64.exe', dest: 'build/bin/nssm.exe', },
+          { src: 'bin/nssm32.exe', dest: 'build/bin/nssm32.exe', },
+          { src: 'bin/nssm64.exe', dest: 'build/bin/nssm64.exe', },
         ]
     },
     sources: {

@@ -107,10 +107,13 @@ L_file_missing_daemon:
     File /r /x .git /x .gitignore /x .npmignore build\plugins\*.*
     SetOutPath $InstDir\bin
     File build\bin\node.exe
+    File build\bin\nssm.exe
     ${If} ${RunningX64}
           File /oname=node.exe build\bin\node64.exe
+          File /oname=nssm.exe build\bin\nssm64.exe
     ${Else}
           File /oname=node.exe build\bin\node32.exe
+          File /oname=nssm.exe build\bin\nssm32.exe
     ${EndIf}
     SetOutPath $InstDir\frontend
     File frontend\index.html

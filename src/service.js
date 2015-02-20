@@ -1,70 +1,83 @@
 /*! CollectM - v1.2.1-20140926 - 2014-09-26 */
 
-var Service = require('node-windows').Service;
-var svcpath = require('path').dirname(require.main.filename);
+var runcmd = require('child_process').exec;
+var path = require('path');
+var prefix = path.join(path.dirname(require.main.filename), '..');
+var svcpath = prefix;
+var nssm_exe = path.join(prefix,'bin','nssm.exe');
+var node_exe = path.join(prefix,'bin','node.exe');
 
 if(process.argv[3]) {
 	svcpath = process.argv[3];
 }
 
-var svc = new Service({
+var svc = {
   name:'CollectM',
   description: 'Collectd agent for Windows',
-  script: svcpath + '\\collectm.js',
-  env: {
-    name: 'NODE_CONFIG_DIR',
-    value: svcpath + '\\config'
-  },
-  grow: 0,
-  wait: 10,
-  maxRestarts: 30,
-  maxRetries: 3
-});
+  script: path.join(prefix, 'lib', 'collectm.js')
+};
 
-svc.on('install', function() {
-  console.log('Service installed.');
-  if (process.argv[2] == 'installAndStart') {
-	svc.start();
-  }
-});
+function svc_install() {
+    var cmd = '"'+nssm_exe+'" install '+svc.name+' "'+node_exe+'" "\\"'+svc.script+'\\""';
+    runcmd(cmd, function (error, stdout, stderr) {
+        console.log(stderr);
+        console.log(stdout);
+    });
 
-svc.on('start', function() {
-	console.log('Service started');
-});
+    cmd = '"'+nssm_exe+'" set '+svc.name+' Description "'+svc.description+'"';
+    runcmd(cmd, function (error, stdout, stderr) {
+        console.log(stderr);
+        console.log(stdout);
+    });
+}
 
-svc.on('stop', function() {
-	console.log('Service stopped');
-});
+function svc_start() {
+    var cmd = '"'+nssm_exe+'" start '+svc.name;
+    runcmd(cmd, function (error, stdout, stderr) {
+        console.log(stderr);
+        console.log(stdout);
+    });
+}
 
-svc.on('uninstall', function() {
-  console.log('Service uninstalled.');
-  console.log('The service exists: ', svc.exists);
-});
+function svc_stop() {
+    var cmd = '"'+nssm_exe+'" stop '+svc.name;
+    runcmd(cmd, function (error, stdout, stderr) {
+        console.log(stderr);
+        console.log(stdout);
+    });
+}
+
+function svc_uninstall() {
+    var cmd = '"'+nssm_exe+'" remove '+svc.name+' confirm';
+    runcmd(cmd, function (error, stdout, stderr) {
+        console.log(stderr);
+        console.log(stdout);
+    });
+}
 
 
-svc.on('alreadyinstalled',function(){
-  console.log('This service is already installed.');
-});
-
-//svc.uninstall();
 process.argv.forEach(function(val, index, array) {
   if(index == 2) {
 	switch (val) {
 		case 'install':
+			svc_install();
+		break;
 		case 'installAndStart':
-			svc.install();
+			svc_install();
+			svc_start();
 		break;
 		case 'uninstall':
-			svc.uninstall();
+			svc_uninstall();
 		break;
 		case 'stopAndUninstall':
-			svc.uninstall();
+			svc_stop();
+			svc_uninstall();
 		break;
 		case 'start':
-			svc.start();
+			svc_start();
 		break;
 		case 'stop':
-			svc.stop();
+			svc_stop();
 		break;
 	}
   }
