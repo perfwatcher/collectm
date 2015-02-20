@@ -2,7 +2,7 @@
 /* This is an example of a CollectM plugin */
 
 /* Load some utilities */
-var cu = require('../collectm_utils.js');
+var cu = require('../lib/collectm_utils.js');
 
 var counters;
 var client;

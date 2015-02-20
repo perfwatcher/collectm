@@ -1,6 +1,6 @@
 
 var perfmon = require('perfmon');
-var cu = require('../collectm_utils.js');
+var cu = require('../lib/collectm_utils.js');
 
 var counters;
 var client;

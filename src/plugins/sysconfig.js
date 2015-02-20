@@ -1,6 +1,6 @@
 
 /* Load some utilities */
-var cu = require('../collectm_utils.js');
+var cu = require('../lib/collectm_utils.js');
 var os = require('os');
 
 var counters;

@@ -91,25 +91,26 @@ SectionGroup /e "CollectM"
     ExecWait "sc delete CollectM.exe"
 
     SetOutPath $InstDir
+    File LICENSE
 
     IfFileExists $InstDir\daemon\*.* 0 L_file_missing_daemon
       ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
       Rename $InstDir\daemon "$InstDir\daemon-$2$1$0_$4$5$6"
 L_file_missing_daemon:
 
-    File build\collectm.js
-    File build\collectm_utils.js
-    File build\httpconfig.js
-    File build\service.js
-    File LICENSE
+    SetOutPath $InstDir\lib
+    File build\lib\collectm.js
+    File build\lib\collectm_utils.js
+    File build\lib\httpconfig.js
+    File build\lib\service.js
     SetOutPath $InstDir\plugins
     File /r /x .git /x .gitignore /x .npmignore build\plugins\*.*
     SetOutPath $InstDir\bin
-    File build\node.exe
+    File build\bin\node.exe
     ${If} ${RunningX64}
-          File /oname=node.exe build\node64.exe
+          File /oname=node.exe build\bin\node64.exe
     ${Else}
-          File /oname=node.exe build\node32.exe
+          File /oname=node.exe build\bin\node32.exe
     ${EndIf}
     SetOutPath $InstDir\frontend
     File frontend\index.html
@@ -131,8 +132,6 @@ L_file_missing_daemon:
     File /r /x .git /x .gitignore /x .npmignore node_modules\express\*.*
     SetOutPath $InstDir\node_modules\MD5
     File /r /x .git /x .gitignore /x .npmignore node_modules\MD5\*.*
-    SetOutPath $InstDir\node_modules\node-windows
-    File /r /x .git /x .gitignore /x .npmignore node_modules\node-windows\*.*
     SetOutPath $InstDir\node_modules\perfmon
     File /r /x .git /x .gitignore /x .npmignore node_modules\perfmon\*.*
     SetOutPath $InstDir\node_modules\process
@@ -166,14 +165,14 @@ L_file_missing_default_json:
   SectionEnd
   Section "create and start the Collectm service"
     ${If} $option_INSTALLSERVICE == 1
-      ExecWait '"$InstDir\bin\node.exe" "$InstDir\service.js" installAndStart'
+      ExecWait '"$InstDir\bin\node.exe" "$InstDir\lib\service.js" installAndStart'
   ${EndIf}
   SectionEnd
 SectionGroupEnd
 
 Section "Uninstall"
 
-  ExecWait '"$InstDir\bin\node.exe" "$InstDir\service.js" stopAndUninstall'
+  ExecWait '"$InstDir\bin\node.exe" "$InstDir\lib\service.js" stopAndUninstall'
 
   DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}"
   
@@ -181,6 +180,7 @@ Section "Uninstall"
   RmDir /r $InstDir\bin
   RmDir /r $InstDir\daemon
   RmDir /r $InstDir\frontend
+  RmDir /r $InstDir\lib
   RmDir /r $InstDir\plugins
   Delete $InstDir\collectm.js
   Delete $InstDir\collectm_utils.js
@@ -190,6 +190,7 @@ Section "Uninstall"
   Delete $InstDir\LICENSE
   Delete $InstDir\uninstall.exe
   RmDir $InstDir\config
+  RmDir $InstDir\logs
   RmDir $InstDir
 
 

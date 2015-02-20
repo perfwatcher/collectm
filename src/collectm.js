@@ -1,6 +1,8 @@
 
+console.log('Collectm is starting');
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
+
 
 var os = require('os');
 var Collectd = require('collectdout');
@@ -11,16 +13,21 @@ var collectmVersion = '<%= pkg.version %>';
 
 var counters = [];
 var client;
-var path = require('path').dirname(require.main.filename);
+var path = require('path');
+var fs = require('fs');
+var prefix = path.join(path.dirname(require.main.filename), '..');
 
 var plugin = {};
 var pluginsCfg = [];
 
 // Initialize configuration directory in the same way that node-config does.
-var configDir = cfg.util.initParam('NODE_CONFIG_DIR', process.cwd() + '/config');
+var configDir = cfg.util.initParam('NODE_CONFIG_DIR', path.join(prefix,'config'));
 if (configDir.indexOf('.') === 0) {
-    configDir = process.cwd() + '/' + CONFIG_DIR;
+    configDir = path.join(process.cwd(), configDir);
 }
+console.log('Using configuration files in '+configDir);
+process.env.NODE_CONFIG_DIR=configDir;
+cfg = cfg.util.extendDeep({}, cfg, cfg.util.loadFileConfigs());
 
 var each = function(obj, block) {
   var attr;
@@ -63,7 +70,7 @@ each(pluginsCfg, function(p) {
     try {
         enabled = cfg.has('Plugin.'+p+'.enable') ? cfg.get('Plugin.'+p+'.enable') : 1;
         if(enabled) {
-            plugin[p] = require('./plugins/'+p+'.js');
+            plugin[p] = require(path.join(prefix,'plugins', p+'.js'));
         }
     } catch(e) {
         console.log('Failed to load plugin '+p+' ('+e+')\n');
@@ -105,7 +112,7 @@ each(plugin, function(p) {
 if(cfg.get('HttpConfig.enable')) {
     collectmHTTPConfig.init({
             cfg: cfg,
-            path: path,
+            path: prefix,
             configDir: configDir,
             collectmVersion: collectmVersion,
             plugins: plugin,
