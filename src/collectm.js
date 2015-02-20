@@ -1,5 +1,4 @@
 
-console.log('Collectm is starting');
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
 
@@ -15,7 +14,13 @@ var counters = [];
 var client;
 var path = require('path');
 var fs = require('fs');
+var cu = require('./collectm_utils.js');
 var prefix = path.join(path.dirname(require.main.filename), '..');
+
+// Do not console.log or console.* before this line
+cu.collectd_log_init(prefix);
+
+console.log('Collectm is starting');
 
 var plugin = {};
 var pluginsCfg = [];
