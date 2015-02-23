@@ -3,6 +3,7 @@
 var cu = require('../lib/collectm_utils.js');
 var os = require('os');
 
+var logger;
 var counters;
 var client;
 var cfg;
@@ -52,6 +53,7 @@ exports.reloadConfig = function(c) {
     cfg = c.config;
     client = c.client;
     counters = c.counters;
+    logger = c.logger;
 };
 
 /* Start the monitoring defined in the plugin */

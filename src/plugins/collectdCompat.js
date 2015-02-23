@@ -4,6 +4,7 @@ var diskspace = require('diskspace');
 var perfmon = require('perfmon');
 var cu = require('../lib/collectm_utils.js');
 
+var logger;
 var counters = [];
 var known_disks = [];
 var known_disks_letters = [];
@@ -311,6 +312,7 @@ exports.reloadConfig = function(c) { // {{{
     client = c.client;
     cfg = c.config;
     counters = c.counters;
+    logger = c.logger;
 }; // }}}
 
 exports.monitor = function () {

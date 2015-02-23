@@ -1,3 +1,10 @@
+Version 1.4.0
+
+- Removed dependancy on .Net framework (module node-windows using winser). Now use directly NSSM.
+- Improved logging
+- Moved the installed js files to lib/ directory
+- Upgraded to node.js-0.12.0
+
 Version 1.3.4
 
 - Fixed a bug (memory leak)

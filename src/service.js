@@ -1,6 +1,6 @@
 /*! CollectM - v1.2.1-20140926 - 2014-09-26 */
 
-var runcmd = require('child_process').exec;
+var runcmd = require('child_process').execSync;
 var path = require('path');
 var prefix = path.join(path.dirname(require.main.filename), '..');
 var svcpath = prefix;

@@ -2,6 +2,7 @@
 var perfmon = require('perfmon');
 var cu = require('../lib/collectm_utils.js');
 
+var logger;
 var counters;
 var client;
 var pmCfg = {};
@@ -35,6 +36,7 @@ exports.reloadConfig = function(c) {
     var cfg = c.config;
     client = c.client;
     counters = c.counters;
+    logger = c.logger;
 
     for (var i in cfg.counters) {
         var pm = cfg.counters[i];

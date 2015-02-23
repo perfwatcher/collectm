@@ -17,10 +17,30 @@ var fs = require('fs');
 var cu = require('./collectm_utils.js');
 var prefix = path.join(path.dirname(require.main.filename), '..');
 
-// Do not console.log or console.* before this line
-cu.collectd_log_init(prefix);
+// Initialize logger
+try {
+    fs.mkdirSync(path.join(prefix, 'logs'));
+} catch(e) {
+    if ( e.code != 'EEXIST' ) throw e;
+}
+var winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)(),
+        new (winston.transports.DailyRotateFile)({
+                filename: path.join(prefix, 'logs', 'collectm.log'),
+                handleExceptions: true,
+                maxsize: 10000000,
+                maxFiles: 10,
+                prettyPrint: true,
+                json:false,
+                datePattern: '.yyyy-MM-dd',
+                exitOnError: false })
+        ]
+});
 
-console.log('Collectm is starting');
+logger.info('Collectm version %s', collectmVersion);
+logger.info('Collectm is starting');
 
 var plugin = {};
 var pluginsCfg = [];
@@ -30,7 +50,7 @@ var configDir = cfg.util.initParam('NODE_CONFIG_DIR', path.join(prefix,'config')
 if (configDir.indexOf('.') === 0) {
     configDir = path.join(process.cwd(), configDir);
 }
-console.log('Using configuration files in '+configDir);
+logger.info('Using configuration files in '+configDir);
 process.env.NODE_CONFIG_DIR=configDir;
 cfg = cfg.util.extendDeep({}, cfg, cfg.util.loadFileConfigs());
 
@@ -78,7 +98,7 @@ each(pluginsCfg, function(p) {
             plugin[p] = require(path.join(prefix,'plugins', p+'.js'));
         }
     } catch(e) {
-        console.log('Failed to load plugin '+p+' ('+e+')\n');
+        logger.error('Failed to load plugin '+p+' ('+e+')\n');
     }
 });
 
@@ -86,8 +106,9 @@ each(pluginsCfg, function(p) {
 each(plugin, function(p) {
     try {
         plugin[p].reInit();
+        logger.info('Plugin %s : reInit done', p);
     } catch(e) {
-        console.log('Failed to reInit plugin '+p+' ('+e+')\n');
+        logger.error('Failed to reInit plugin '+p+' ('+e+')\n');
     }
 });
 
@@ -98,9 +119,11 @@ each(plugin, function(p) {
             config: cfg.get('Plugin.'+p),
             client: client,
             counters: counters,
+            logger: logger
         });
+        logger.info('Plugin %s : reloadConfig done', p);
     } catch(e) {
-        console.log('Failed to reloadConfig plugin '+p+' ('+e+')\n');
+        logger.error('Failed to reloadConfig plugin '+p+' ('+e+')\n');
     }
 });
 
@@ -108,8 +131,9 @@ each(plugin, function(p) {
 each(plugin, function(p) {
     try {
         plugin[p].monitor();
+        logger.info('Plugin %s : monitoring enabled', p);
     } catch(e) {
-        console.log('Failed to start plugin '+p+' monitor ('+e+')\n');
+        logger.error('Failed to start plugin '+p+' monitor ('+e+')\n');
     }
 });
 
@@ -123,6 +147,7 @@ if(cfg.get('HttpConfig.enable')) {
             plugins: plugin,
             });
     collectmHTTPConfig.start();
+    logger.info('Enabled httpconfig server');
 }
 
 

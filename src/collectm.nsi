@@ -141,6 +141,8 @@ L_file_missing_daemon:
     File /r /x .git /x .gitignore /x .npmignore node_modules\process\*.*
     SetOutPath $InstDir\node_modules\config
     File /r /x .git /x .gitignore /x .npmignore node_modules\config\*.*
+    SetOutPath $InstDir\node_modules\winston
+    File /r /x .git /x .gitignore /x .npmignore node_modules\winston\*.*
   
     ; Write the uninstall keys for Windows
     WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROJECTNAME}" "DisplayVersion" "${VERSION}"
