@@ -1,5 +1,6 @@
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
+!include "Sections.nsh"
 !include "x64.nsh"
 !insertmacro GetParameters
 !insertmacro GetOptions
@@ -19,9 +20,11 @@ LicenseData "LICENSE"
 Function .onInit
   Var /GLOBAL cmdLineParams
   Var /GLOBAL option_INSTALLSERVICE
+  Var /GLOBAL option_STARTSERVICE
   Var /GLOBAL option_INSTALLDEFAULTCONFIGFILE
 
   StrCpy $option_INSTALLSERVICE 1
+  StrCpy $option_STARTSERVICE 1
   StrCpy $option_INSTALLDEFAULTCONFIGFILE 1
 
   ${If} $InstDir == "" ; /D not used
@@ -46,6 +49,7 @@ $\r$\n\
 /S :$\t$\t$\tsilent install$\r$\n\
 /nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
 /noservice :$\t$\tdo not install the service$\r$\n\
+/nostart :$\t$\tdo not start the service$\r$\n\
 /D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
 " /SD IDOK
   ${Else}
@@ -55,6 +59,7 @@ $\r$\n\
 /S :$\t$\t$\t$\tsilent install$\r$\n\
 /nodefaultconfig : $\t$\tdo not install default configuration file$\r$\n\
 /noservice :$\t$\t$\tdo not install the service$\r$\n\
+/nostart :$\t$\t$\tdo not start the service$\r$\n\
 /D=<installation path> :$\tinstall to <installation path> (no quotes)$\r$\n\
 "
     FileClose $0
@@ -68,11 +73,17 @@ L_nohelp:
   IfErrors +2 0
   StrCpy $option_INSTALLDEFAULTCONFIGFILE 0
   
-  ${GetOptions} $cmdLineParams /noservice $R0
+  ${GetOptions} $cmdLineParams /nostart $R0
   IfErrors +2 0
-  StrCpy $option_INSTALLSERVICE 0
+  StrCpy $option_STARTSERVICE 0
   
+  ${GetOptions} $cmdLineParams /noservice $R0
+  IfErrors +3 0
+  StrCpy $option_INSTALLSERVICE 0
+  StrCpy $option_STARTSERVICE 0
+
 FunctionEnd
+
 
 Page license
 Page directory
@@ -168,11 +179,19 @@ L_file_missing_default_json:
       File config\default.json
   ${EndIf}
   SectionEnd
-  Section "create and start the Collectm service"
-    ${If} $option_INSTALLSERVICE == 1
-      ExecWait '"$InstDir\bin\node.exe" "$InstDir\lib\service.js" installAndStart'
-  ${EndIf}
-  SectionEnd
+  SectionGroup /e "Collectm service"
+    Section "create the Collectm service" g2o1
+      SectionIn RO
+      ${If} $option_INSTALLSERVICE == 1
+        ExecWait '"$InstDir\bin\node.exe" "$InstDir\lib\service.js" install'
+      ${EndIf}
+    SectionEnd
+    Section "start the Collectm service" g2o2
+      ${If} $option_STARTSERVICE == 1
+        ExecWait '"$InstDir\bin\node.exe" "$InstDir\lib\service.js" start'
+    ${EndIf}
+    SectionEnd
+  SectionGroupEnd
 SectionGroupEnd
 
 Section "Uninstall"
@@ -200,3 +219,24 @@ Section "Uninstall"
 
 
 SectionEnd
+
+Function .onSelChange
+
+  SectionGetFlags ${g2o1} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+
+  ${If} $R0 != ${SF_SELECTED}
+    !insertmacro UnSelectSection ${g2o2}
+  ${EndIf}
+
+  SectionGetFlags ${g2o2} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+
+  ${If} $R0 == ${SF_SELECTED}
+    !insertmacro SetSectionFlag ${g2o1} ${SF_RO}
+    !insertmacro SelectSection ${g2o1}
+  ${ElseIf} $R0 != ${SF_SELECTED}
+    !insertmacro ClearSectionFlag ${g2o1} ${SF_RO}
+  ${EndIf}
+
+FunctionEnd
