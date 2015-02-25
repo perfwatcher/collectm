@@ -1,6 +1,6 @@
 {
   "name": "CollectM",
-  "version": "1.4.0dev2",
+  "version": "1.4.0",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
