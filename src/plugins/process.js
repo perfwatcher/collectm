@@ -31,7 +31,14 @@ var parseData = function (str, flush) {
     var n;
     var pos;
     var process_line_metrics_regex = /([A-Za-z0-9_]+) *: ([0-9]+)/;
+    var process_line_id_regex = /([A-Za-z0-9_]+[Ii][Dd]) *: (.*)/;
+    var process_line_version_regex = /([A-Za-z0-9_]+[Vv][Ee][Rr][Ss][Ii][Oo][Nn]) *: (.*)/;
     var process_line_data_regex = /([A-Za-z0-9_]+) *: (.*)/;
+    var objects_not_metrics = {
+            '__GENUS' : 1,
+            '__PROPERTY_COUNT': 1,
+            'CreationDate': 1
+            };
     var match;
     
     line = str.split('\r\n');
@@ -53,8 +60,16 @@ var parseData = function (str, flush) {
                 }
                 currentProcess = { metrics:{}, data:{} };
             } else {
-                if(null !== (match = process_line_metrics_regex.exec(line[i]))) {
+                if(null !== (match = process_line_id_regex.exec(line[i]))) {
+                        currentProcess.data[match[1]] = match[2];
+                } else if(null !== (match = process_line_version_regex.exec(line[i]))) {
+                        currentProcess.data[match[1]] = match[2];
+                } else if(null !== (match = process_line_metrics_regex.exec(line[i]))) {
+                    if(objects_not_metrics[match[1]]) {
+                        currentProcess.data[match[1]] = match[2];
+                    } else {
                         currentProcess.metrics[match[1]] = match[2];
+                    }
                 } else if(null !== (match = process_line_data_regex.exec(line[i]))) {
                         currentProcess.data[match[1]] = match[2];
                 }
@@ -82,6 +97,41 @@ function processProcesses() {
     });
 
     process_info = [];
+}
+
+function checkOnce() {
+    var gwmi;
+    var prevLine = '';
+
+    if(gwmi_filter === '') return;
+    if(gwmi_is_running) return;
+
+    logger.log('info', 'Running process');
+    gwmi_is_running = 1;
+
+    currentProcess = { metrics:{}, data:{} };
+    process_info = [];
+
+    logger.log('info', 'FILTER : '+gwmi_filter);
+    gwmi = spawn('Powershell.exe', [ '-Command', ' &{gwmi -Class win32_process | ?{ ' + gwmi_filter + ' } | ?{ $_.ConvertToDateTime($_.CreationDate) -lt (Get-Date).addSeconds(-30) }} ' ]);
+    gwmi.stdin.end();
+    
+    gwmi.stdout.on('data', function (data) {
+        prevLine = parseData(prevLine + data.toString(), 0);
+    });
+
+    gwmi.stdout.on('end', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
+    gwmi.stdout.on('close', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
+    gwmi.stdout.on('error', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
+
+    gwmi.stderr.on('data', function (data) {
+            logger.log('error', data.toString());
+            });
+
+    gwmi.on('close', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
+    gwmi.on('exit', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0;  });
+    gwmi.on('error', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi.kill(); gwmi_is_running = 0; });
+
 }
 
 /* configShow : returns the current configuration.
@@ -128,38 +178,8 @@ exports.monitor = function() {
     /* start the monitoring here */
     var default_interval = cfg.interval || client.interval || 60000;
 
-    var gwmi;
-    var prevLine = '';
-
-    if(gwmi_filter === '') return;
-    if(gwmi_is_running) return;
-
-    logger.log('info', 'Running process');
-    gwmi_is_running = 1;
-
-    currentProcess = { metrics:{}, data:{} };
-    process_info = [];
-
-    logger.log('info', 'FILTER : '+gwmi_filter);
-    gwmi = spawn('Powershell.exe', [ '-Command', ' &{gwmi -Class win32_process | ?{ ' + gwmi_filter + ' } } ' ]);
-    gwmi.stdin.end();
-    
-    gwmi.stdout.on('data', function (data) {
-        prevLine = parseData(prevLine + data.toString(), 0);
-    });
-
-    gwmi.stdout.on('end', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.stdout.on('close', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.stdout.on('error', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-
-    gwmi.stderr.on('data', function (data) {
-            logger.log('error', data.toString());
-            });
-
-    gwmi.on('close', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.on('exit', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0;  });
-    gwmi.on('error', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi.kill(); gwmi_is_running = 0; });
-
+    checkOnce();
+    setInterval(checkOnce, default_interval);
 };
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
