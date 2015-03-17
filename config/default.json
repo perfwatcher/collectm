@@ -47,5 +47,16 @@
           }
       ]
     }
+    "process": {
+      "enable": 1,
+      "process": [
+// This is an example :
+          {
+            "plugin": "process",
+            "instance": "collectm",
+            "commandline": ".*node.*collectm.*"
+        }
+      ]
+    }
   }
 }

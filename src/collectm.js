@@ -16,6 +16,7 @@ var path = require('path');
 var fs = require('fs');
 var cu = require('./collectm_utils.js');
 var prefix = path.join(path.dirname(require.main.filename), '..');
+var collectmHostname = 'unknown';
 
 // Initialize logger
 try {
@@ -75,8 +76,13 @@ function get_hostname_with_case() {
 function get_collectd_servers_and_ports() {
     var servers = cfg.has('Network.servers') ? cfg.get('Network.servers') : {};
     var res = [];
+    var h;
+    var p;
     for (var i in servers) {
-        res.push( [ servers[i].hostname, (servers[i].port || 25826) ] );
+        h = servers[i].hostname;
+        p = servers[i].port || 25826;
+        res.push( [ h, p ] );
+        logger.log('info', 'Sending metrics to Collectd '+h+':'+p+'.');
     }
     return(res);
 }
@@ -85,55 +91,73 @@ function get_interval() {
     return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
 }
 
-client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, get_hostname_with_case());
+collectmHostname = get_hostname_with_case();
+logger.log('info', 'Sending metrics to Collectd with hostname '+collectmHostname+' (case sensitive).');
+client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, collectmHostname);
 
 /* Load the plugins */
 pluginsCfg = cfg.has('Plugin') ? cfg.get('Plugin') : [];
 plugin = {};
 each(pluginsCfg, function(p) {
     var enabled;
+    plugin[p] = { 'enabled': 0 };
     try {
         enabled = cfg.has('Plugin.'+p+'.enable') ? cfg.get('Plugin.'+p+'.enable') : 1;
         if(enabled) {
-            plugin[p] = require(path.join(prefix,'plugins', p+'.js'));
+            plugin[p].plugin = require(path.join(prefix,'plugins', p+'.js'));
+            plugin[p].enabled = 1;
         }
     } catch(e) {
         logger.error('Failed to load plugin '+p+' ('+e+')\n');
+        plugin[p].enabled = 0;
     }
 });
 
 /* Initialize the plugins */
 each(plugin, function(p) {
-    try {
-        plugin[p].reInit();
-        logger.info('Plugin %s : reInit done', p);
-    } catch(e) {
-        logger.error('Failed to reInit plugin '+p+' ('+e+')\n');
+    if(plugin[p].enabled) {
+        try {
+            plugin[p].plugin.reInit();
+            logger.info('Plugin %s : reInit done', p);
+        } catch(e) {
+            logger.error('Failed to reInit plugin '+p+' ('+e+')\n');
+        }
     }
 });
 
 /* Configure the plugins */
 each(plugin, function(p) {
-    try {
-        plugin[p].reloadConfig({
-            config: cfg.get('Plugin.'+p),
-            client: client,
-            counters: counters,
-            logger: logger
-        });
-        logger.info('Plugin %s : reloadConfig done', p);
-    } catch(e) {
-        logger.error('Failed to reloadConfig plugin '+p+' ('+e+')\n');
+    if(plugin[p].enabled) {
+        try {
+            rc = plugin[p].plugin.reloadConfig({
+                config: cfg.get('Plugin.'+p),
+               client: client,
+               counters: counters,
+               logger: logger
+            });
+            if(rc) {
+                logger.info('Plugin %s : reloadConfig failed. Disabling plugin.', p);
+                plugin[p].enabled = 0;
+
+            } else {
+                logger.info('Plugin %s : reloadConfig done', p);
+            }
+        } catch(e) {
+            logger.error('Failed to reloadConfig plugin '+p+' ('+e+')\n');
+            plugin[p].enabled = 0;
+        }
     }
 });
 
 /* Start the plugins */
 each(plugin, function(p) {
-    try {
-        plugin[p].monitor();
-        logger.info('Plugin %s : monitoring enabled', p);
-    } catch(e) {
-        logger.error('Failed to start plugin '+p+' monitor ('+e+')\n');
+    if(plugin[p].enabled) {
+        try {
+            plugin[p].plugin.monitor();
+            logger.info('Plugin %s : monitoring enabled', p);
+        } catch(e) {
+            logger.error('Failed to start plugin '+p+' monitor ('+e+')\n');
+        }
     }
 });
 

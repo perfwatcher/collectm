@@ -50,11 +50,13 @@ exports.reloadConfig = function(c) {
             pmCfg[pm.counter] = pm;
         }
     }
+    return(0);
 };
 
 exports.reInit = function() {
     //FIXME : remove all Perfmon counters
     pmCfg = {};
+    return(0);
 };
 
 exports.monitor = function() {

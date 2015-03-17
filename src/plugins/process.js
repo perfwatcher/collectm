@@ -1,6 +1,4 @@
 
-/* This is an example of a CollectM plugin */
-
 /* Load some utilities */
 var cu = require('../lib/collectm_utils.js');
 var spawn = require('child_process').spawn;
@@ -13,7 +11,7 @@ var cfg;
 
 var gwmi_filter = '';
 var process_list;
-var gwmi_is_running = 0;
+var check_lock = 0; /* 0=free, 1=gwmi running 2=processing data */
 
 var currentProcess = { metrics:{}, data:{} };
 var process_info = [];
@@ -26,7 +24,7 @@ var each = function(obj, block) { // {{{
   }
 }; // }}}
 
-var parseData = function (str, flush) {
+var parseData = function (str, flush) {  // {{{
     var line;
     var n;
     var pos;
@@ -86,69 +84,104 @@ var parseData = function (str, flush) {
         return('');
     }
     return(line[n]);
-};
+}; // }}}
 
-function processProcesses() {
-    console.log('info', 'PROCESS '+util.inspect(process_info.length, { showHidden: true, depth: null}));
-    if(process_info.length <= 0) return;
+function processProcesses(ev) {
+    var pm = {};
+//    logger.log('info', 'Event : '+util.inspect(ev, { showHidden: true, depth: null}));
+    if(check_lock != 1) return;
 
-    each(process_info, function(i,p) {
-        console.dir(p);
+    check_lock = 2;
+//    logger.log('info', 'PROCESS '+util.inspect(process_info.length, { showHidden: true, depth: null}));
+    if(process_info.length <= 0) {
+        check_lock = 0;
+        return;
+    }
+
+    each(process_list, function(p_pi, p_info) {
+        each(process_info, function(i,p) {
+            if(p_info.commandline_re.test(p.data.CommandLine)) {
+                if(pm.hasOwnProperty(p_pi)) {
+                    pm[p_pi].valid=0;
+                    logger.log('warn', 'Found more than one process matching "'+p_info.commandline+'". No metric will be recorded for "'+p_pi+'".');
+                } else {
+                    pm[p_pi] = { 'metrics': p.metrics, 'valid': 1}; 
+                }
+            }
+        });
+
     });
 
+    each(pm, function(p_pi, data) {
+        if(data.valid) {
+            each(data.metrics, function(k, v) {
+                var ti = cu.collectd_sanitize(k);
+//                logger.log('info', 'DEBUG : '+p_pi+'/gauge-'+ti+' = '+v);
+                process_list[p_pi].client.setGauge('gauge', ti, v);
+            });
+        }
+    });
+
+    /* Free the process info */
     process_info = [];
+    check_lock = 0;
+
 }
 
-function checkOnce() {
+function checkOnce() { // {{{
     var gwmi;
     var prevLine = '';
+    var setconsolesize = '$b = $host.UI.RawUI.BufferSize; $b.width=32000; $b.height=200; $host.UI.RawUI.BufferSize = $b;';
 
     if(gwmi_filter === '') return;
-    if(gwmi_is_running) return;
+    if(check_lock) return;
 
-    logger.log('info', 'Running process');
-    gwmi_is_running = 1;
+//    logger.log('info', 'Running process');
+    check_lock = 1;
 
     currentProcess = { metrics:{}, data:{} };
     process_info = [];
 
-    logger.log('info', 'FILTER : '+gwmi_filter);
-    gwmi = spawn('Powershell.exe', [ '-Command', ' &{gwmi -Class win32_process | ?{ ' + gwmi_filter + ' } | ?{ $_.ConvertToDateTime($_.CreationDate) -lt (Get-Date).addSeconds(-30) }} ' ]);
+//    logger.log('info', 'FILTER : '+gwmi_filter);
+    gwmi = spawn('Powershell.exe', [ '-Command', ' &{ ' + setconsolesize + ' gwmi -Class win32_process | ?{ ' + gwmi_filter + ' } | ?{ $_.ConvertToDateTime($_.CreationDate) -lt (Get-Date).addSeconds(-30) }} ' ]);
     gwmi.stdin.end();
     
     gwmi.stdout.on('data', function (data) {
         prevLine = parseData(prevLine + data.toString(), 0);
     });
 
-    gwmi.stdout.on('end', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.stdout.on('close', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.stdout.on('error', function () { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
+    gwmi.stdout.on('end', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/end'); check_lock = 0; });
+    gwmi.stdout.on('close', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/close'); check_lock = 0; });
+    gwmi.stdout.on('error', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/error'); gwmi.kill(); check_lock = 0; });
 
     gwmi.stderr.on('data', function (data) {
             logger.log('error', data.toString());
             });
 
-    gwmi.on('close', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0; });
-    gwmi.on('exit', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi_is_running = 0;  });
-    gwmi.on('error', function (code) { prevLine = parseData(prevLine, 1); processProcesses(); gwmi.kill(); gwmi_is_running = 0; });
+    gwmi.on('close', function (code) { prevLine = parseData(prevLine, 1); processProcesses('close'); check_lock = 0; });
+    gwmi.on('exit', function (code) { prevLine = parseData(prevLine, 1); processProcesses('exit'); check_lock = 0;  });
+    gwmi.on('error', function (code) { prevLine = parseData(prevLine, 1); processProcesses('error'); gwmi.kill(); check_lock = 0; });
 
-}
+} // }}}
 
 /* configShow : returns the current configuration.
  * Note : JSON.stringify( configShow ) should be exportable "as is" to the configuration file.
  */
-exports.configShow = function() {
+exports.configShow = function() { // {{{
     return({});
-};
+}; // }}}
 
 /* reInit : clean and initialize the plugin */
-exports.reInit = function() {
+exports.reInit = function() { // {{{
     /* reinitialize the plugin here */
-};
+    process_list = {};
+    return(0);
+}; // }}}
 
 /* reloadConfig : clean and reload the configuration */
-exports.reloadConfig = function(c) {
+exports.reloadConfig = function(c) { // {{{
     var processCfg;
+    var rc = 0;
     cfg = c.config;
     client = c.client;
     counters = c.counters;
@@ -156,7 +189,6 @@ exports.reloadConfig = function(c) {
     /* reload the config here */
 
     processCfg = cfg.hasOwnProperty('process') ? cfg.process : [];
-    process_list = {};
     gwmi_filter = '';
 
     each(processCfg, function(i, p) {
@@ -164,22 +196,33 @@ exports.reloadConfig = function(c) {
 
         if(p.hasOwnProperty('plugin') && p.hasOwnProperty('instance') && (p.hasOwnProperty('commandline'))) {
             k = p.plugin+'-'+p.instance;
-            process_list[k] = { 'commandline': p.commandline };
+            if(process_list.hasOwnProperty(k)) {
+                    logger.log('error', 'Plugin instance defined twice ('+k+').');
+                    rc = 1;
+                    return;
+            }
+            process_list[k] = { 'commandline': p.commandline, 'commandline_re': new RegExp(p.commandline), 'p': p.plugin, 'pi': p.instance };
             if(gwmi_filter !== '') {
                     gwmi_filter = gwmi_filter + ' -or ';
             }
             gwmi_filter = gwmi_filter + '$_.commandline -match \'' + p.commandline + '\'';
         }
     });
-};
+    if(rc) return(rc);
+
+    each(process_list, function(p_pi, p_info) {
+        process_list[p_pi].client = client.plugin(process_list[p_pi].p, process_list[p_pi].pi);
+    });
+    return(rc);
+}; // }}}
 
 /* Start the monitoring defined in the plugin */
-exports.monitor = function() {
+exports.monitor = function() { // {{{
     /* start the monitoring here */
     var default_interval = cfg.interval || client.interval || 60000;
 
     checkOnce();
     setInterval(checkOnce, default_interval);
-};
+}; // }}}
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

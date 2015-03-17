@@ -32,7 +32,11 @@ var perfmonGaugeToPlugin = function(pm, p, pi, t, ti) { // {{{
     // Note : do not use this function if you have more than one pm for the same (p,pi)
     var plugin = client.plugin(p, pi);
     perfmon(pm, function(err, data) {
-        plugin.setGauge(t, ti, data.counters[pm]);
+        if(typeof(data) !== 'undefined' && data.hasOwnProperty('counters') && data.counters.hasOwnProperty(pm)) {
+            plugin.setGauge(t, ti, data.counters[pm]);
+        } else {
+            logger.log('warn', 'What\'s happening ? No counter for '+p+(pi?('-'+pi):'')+'/'+t+(ti?('-'+ti):''));
+        }
     });
 }; // }}}
 
@@ -305,7 +309,7 @@ exports.configShow = function() { // {{{
 }; // }}}
 
 exports.reInit = function() { // {{{
-
+    return(0);
 }; // }}}
 
 exports.reloadConfig = function(c) { // {{{
@@ -313,6 +317,7 @@ exports.reloadConfig = function(c) { // {{{
     cfg = c.config;
     counters = c.counters;
     logger = c.logger;
+    return(0);
 }; // }}}
 
 exports.monitor = function () {

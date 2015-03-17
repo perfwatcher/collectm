@@ -19,6 +19,8 @@ exports.configShow = function() {
 /* reInit : clean and initialize the plugin */
 exports.reInit = function() {
     /* reinitialize the plugin here */
+    /* return(1) if something failed */
+    return(0);
 };
 
 /* reloadConfig : clean and reload the configuration */
@@ -28,6 +30,8 @@ exports.reloadConfig = function(c) {
     counters = c.counters;
     logger = c.logger;
     /* reload the config here */
+    /* return(1) if something failed */
+    return(0);
 };
 
 /* Start the monitoring defined in the plugin */

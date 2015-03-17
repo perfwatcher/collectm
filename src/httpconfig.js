@@ -108,7 +108,9 @@ exports.start = function() {
         var p = [];
         res.set('Content-Type', 'application/json');
         for (var i in httpcfg.plugins) {
-            p.push(i);
+            if(i.enabled) {
+                p.push(i.plugin);
+            }
         }
         res.json(p);
     });
@@ -178,8 +180,8 @@ exports.start = function() {
 
         res.set('Content-Type', 'application/json');
 
-        if(httpcfg.plugins.perfmon) {
-            pc = httpcfg.plugins.perfmon.configShow();
+        if(httpcfg.plugins.perfmon && httpcfg.plugins.perfmon.enabled) {
+            pc = httpcfg.plugins.perfmon.plugin.configShow();
             // Ugly thing cause a strange bug with res.send(...);
             for (i in pc) {
                 if(pc[i].enable) {

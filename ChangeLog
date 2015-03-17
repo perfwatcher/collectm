@@ -1,3 +1,8 @@
+Version 1.5.0
+
+- New plugin "process"
+- API change : Plugin callbacks should return 0 if working.
+
 Version 1.4.0
 
 - Removed dependancy on .Net framework (module node-windows using winser). Now use directly NSSM.
