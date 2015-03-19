@@ -18,6 +18,7 @@ var cu = require('./collectm_utils.js');
 var prefix = path.join(path.dirname(require.main.filename), '..');
 var collectmHostname = 'unknown';
 var collectmTimeToLive = 0;
+var logdeletiondays = 0;
 
 // Initialize logger
 try {
@@ -94,6 +95,48 @@ function get_interval() {
 
 function get_collectm_ttl() {
     return(cfg.has('CollectmTimeToLive') ? (cfg.get('CollectmTimeToLive') * 1000) : 0);
+}
+
+function get_log_deletion_days() {
+    return(cfg.has('LogDeletionDays') ? (cfg.get('LogDeletionDays') ) : 0);
+}
+
+function remove_old_logs(days) {
+    var now = new Date();
+    now = now.getTime();
+    
+    fs.readdir(path.join(prefix, 'logs'), function(err, files) {
+            var filenames;
+            if(err) {
+                logger.log('error', 'Problem while reading log dir : '+err);
+                return;
+            }
+            filenames = files.map(function (f) {
+                return path.join(prefix,'logs',f);
+                });
+
+            each(filenames, function(i,f) {
+                if(/collectm\.log/.test(f)) {
+                    fs.stat(f, function(err, stat) {
+                        if(err) {
+                            logger.log('error', 'Problem while reading log file '+f+' : '+err);
+                            return;
+                        }
+                        if(stat.isFile()) {
+                            if(now - stat.mtime.getTime() > (days * 86400 * 1000)) {
+                                logger.log('info', 'Removing old log '+f);
+                                fs.unlink(f, function(err) {
+                                    if(err) {
+                                        logger.log('error', 'Problem while removing log file '+f+' : '+err);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+    });
 }
 
 collectmHostname = get_hostname_with_case();
@@ -189,5 +232,12 @@ if(collectmTimeToLive > 60) {
             }, collectmTimeToLive);
 }
 
+/* Remove old logs */
+logdeletiondays = get_log_deletion_days();
+if(logdeletiondays > 0) {
+    logger.info('Log files will be deleted after '+parseInt(logdeletiondays)+' days');
+    remove_old_logs(logdeletiondays);
+    setInterval(function() { remove_old_logs(logdeletiondays); }, 86400 * 1000);
+}
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

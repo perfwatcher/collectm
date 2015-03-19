@@ -18,6 +18,10 @@
 //
 //  "CollectmTimeToLive": 86400,
 
+//  Every day, remove old logs (based on modified time).
+//  If unset, or if set to 0, no logs will be deleted.
+  "LogDeletionDays": 30,
+
   "HttpConfig": {
     "enable": 1,
     "listenPort": 25826,
