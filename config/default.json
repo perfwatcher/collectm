@@ -10,6 +10,14 @@
 
   "Interval": 60,
 
+//  Time To Live : will stop Collectm after this value (86400sec = 1 day).
+//  This is useful if you think there is a memory leak and want to reboot periodically
+//  Collectm. Stop Collectm after 86400sec and Windows will restart the service.
+//  Of course we do our best to avoid memory leaks.
+//  Note : values < 60 will be ignored : no stop. This is the default.
+//
+//  "CollectmTimeToLive": 86400,
+
   "HttpConfig": {
     "enable": 1,
     "listenPort": 25826,

@@ -17,6 +17,7 @@ var fs = require('fs');
 var cu = require('./collectm_utils.js');
 var prefix = path.join(path.dirname(require.main.filename), '..');
 var collectmHostname = 'unknown';
+var collectmTimeToLive = 0;
 
 // Initialize logger
 try {
@@ -89,6 +90,10 @@ function get_collectd_servers_and_ports() {
 
 function get_interval() {
     return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
+}
+
+function get_collectm_ttl() {
+    return(cfg.has('CollectmTimeToLive') ? (cfg.get('CollectmTimeToLive') * 1000) : 0);
 }
 
 collectmHostname = get_hostname_with_case();
@@ -172,6 +177,16 @@ if(cfg.get('HttpConfig.enable')) {
             });
     collectmHTTPConfig.start();
     logger.info('Enabled httpconfig server');
+}
+
+/* Set Time To Live for this process (prevent memory leak impact) */
+collectmTimeToLive = get_collectm_ttl();
+if(collectmTimeToLive > 60) {
+    logger.info('TTL configured : will gracefully stop after '+parseInt(collectmTimeToLive/1000)+' seconds');
+    setTimeout(function() { 
+            logger.error('Gracefully stopped after configured TTL');
+            process.exit();
+            }, collectmTimeToLive);
 }
 
 
