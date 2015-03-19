@@ -117,6 +117,8 @@ function refresh_known_disk_letters() { // {{{
     var result;
     var disk;
     var unique_letters = {};
+    var i;
+    var k;
 
     for(i=0; i<known_disks.length; i++) {
         regex = /^PhysicalDisk\((.*)\)\\/;
@@ -127,7 +129,7 @@ function refresh_known_disk_letters() { // {{{
         }
     }
     known_disks_letters = [];
-    for(var k in unique_letters) known_disks_letters.push(k.toLowerCase());
+    for(k in unique_letters) known_disks_letters.push(k.toLowerCase());
 } // }}}
 
 function get_disk() { // {{{
@@ -144,6 +146,7 @@ function get_disk() { // {{{
                 each(data.counters, function (metric, value) {
                     var regex = /^PhysicalDisk\((.*)\)\\(.*)/;
                     var result = metric.match(regex);
+                    var disk;
                     if (result[1] == '_Total') {
                         disk = 'total';
                     } else {
@@ -221,7 +224,7 @@ function get_interface() { // {{{
                 each(data.counters, function (metric, value) {
                     var regex = /^Network Interface\((.*)\)\\(.*)/;
                     var result = metric.match(regex);
-                    interface_name = cu.collectd_sanitize(result[1]);
+                    var interface_name = cu.collectd_sanitize(result[1]);
                     var plugin = client.plugin('interface', interface_name);
                     if (typeof results[interface_name] == 'undefined') {
                         results[interface_name] = [];

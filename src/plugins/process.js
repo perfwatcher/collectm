@@ -24,7 +24,7 @@ var each = function(obj, block) { // {{{
   }
 }; // }}}
 
-var parseData = function (str, flush) {  // {{{
+function parseData(str, flush) {  // {{{
     var line;
     var n;
     var pos;
@@ -38,6 +38,10 @@ var parseData = function (str, flush) {  // {{{
             'CreationDate': 1
             };
     var match;
+
+    if(str === null) {
+        return(null);
+    }
     
     line = str.split('\r\n');
     n = line.length;
@@ -72,6 +76,7 @@ var parseData = function (str, flush) {  // {{{
                         currentProcess.data[match[1]] = match[2];
                 }
             }
+            match = null;
         }
     }
     if(flush) {
@@ -79,12 +84,12 @@ var parseData = function (str, flush) {  // {{{
             if(Object.keys(currentProcess.metrics).length > 0) {
                 process_info.push(currentProcess);
             }
-            currentProcess = { metrics:{}, data:{} };
         }
+        currentProcess = { metrics:{}, data:{} };
         return('');
     }
     return(line[n]);
-}; // }}}
+} // }}}
 
 function processProcesses(ev) {
     var pm = {};
@@ -150,17 +155,17 @@ function checkOnce() { // {{{
         prevLine = parseData(prevLine + data.toString(), 0);
     });
 
-    gwmi.stdout.on('end', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/end'); check_lock = 0; });
-    gwmi.stdout.on('close', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/close'); check_lock = 0; });
-    gwmi.stdout.on('error', function () { prevLine = parseData(prevLine, 1); processProcesses('stdout/error'); gwmi.kill(); check_lock = 0; });
+    gwmi.stdout.on('end', function () { parseData(prevLine, 1); prevLine = null; processProcesses('stdout/end'); check_lock = 0; });
+    gwmi.stdout.on('close', function () { parseData(prevLine, 1); prevLine = null; processProcesses('stdout/close'); check_lock = 0; });
+    gwmi.stdout.on('error', function () { parseData(prevLine, 1); prevLine = null; processProcesses('stdout/error'); gwmi.kill(); check_lock = 0; });
 
     gwmi.stderr.on('data', function (data) {
             logger.log('error', data.toString());
             });
 
-    gwmi.on('close', function (code) { prevLine = parseData(prevLine, 1); processProcesses('close'); check_lock = 0; });
-    gwmi.on('exit', function (code) { prevLine = parseData(prevLine, 1); processProcesses('exit'); check_lock = 0;  });
-    gwmi.on('error', function (code) { prevLine = parseData(prevLine, 1); processProcesses('error'); gwmi.kill(); check_lock = 0; });
+    gwmi.on('close', function (code) { parseData(prevLine, 1); prevLine = null; processProcesses('close'); check_lock = 0; });
+    gwmi.on('exit', function (code) { parseData(prevLine, 1); prevLine = null; processProcesses('exit'); check_lock = 0;  });
+    gwmi.on('error', function (code) { parseData(prevLine, 1); prevLine = null; processProcesses('error'); gwmi.kill(); check_lock = 0; });
 
 } // }}}
 
