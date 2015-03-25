@@ -61,14 +61,22 @@
     }
     "process": {
       "enable": 1,
-      "process": [
+      "process": {
+// The key is not used in Collectm. It only helps for config overwrite in local.json
+// The value is an array with "plugin", "instance" and "commandline".
+//
 // This is an example :
-          {
+        "My Collectm": {
             "plugin": "process",
             "instance": "collectm",
-            "commandline": ".*node.*collectm.*"
+            "commandline": ".*node.*collectm\\.js.*"
+        },
+        "My NSSM for Collectm": {
+            "plugin": "process",
+            "instance": "nssm",
+            "commandline": ".*collectm.*nssm\\.exe.*"
         }
-      ]
+      }
     }
   }
 }
