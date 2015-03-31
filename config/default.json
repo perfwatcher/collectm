@@ -3,7 +3,7 @@
 // You should edit a file named {hostname}.js or local.js
 // (other possibilities best described in the Node node-config module documentation)
 // You can overwrite some values, including Network.servers.* and HostnameCase
-// 
+
 {
 //  "Hostname":"orion", // should not be set in default.json
 //  "HostnameCase": "default", // "lower", "upper" or "default"
@@ -15,7 +15,7 @@
 //  Collectm. Stop Collectm after 86400sec and Windows will restart the service.
 //  Of course we do our best to avoid memory leaks.
 //  Note : values < 60 will be ignored : no stop. This is the default.
-//
+
 //  "CollectmTimeToLive": 86400,
 
 //  Every day, remove old logs (based on modified time).
@@ -58,13 +58,13 @@
             "type_instance": "Free Space"
           }
       ]
-    }
+    },
     "process": {
       "enable": 1,
       "process": {
 // The key is not used in Collectm. It only helps for config overwrite in local.json
 // The value is an array with "plugin", "instance" and "commandline".
-//
+
 // This is an example :
         "My Collectm": {
             "plugin": "process",
