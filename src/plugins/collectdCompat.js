@@ -5,7 +5,7 @@ var perfmon = require('perfmon');
 var cu = require('../lib/collectm_utils.js');
 
 var logger;
-var counters = [];
+var counters = {};
 var known_disks = [];
 var known_disks_letters = [];
 var known_interfaces = [];
@@ -142,7 +142,7 @@ function get_disk() { // {{{
             refresh_known_disk_letters();
 
             perfmon(known_disks, function(err, data) {
-                var results = [];
+                var results = {};
                 each(data.counters, function (metric, value) {
                     var regex = /^PhysicalDisk\((.*)\)\\(.*)/;
                     var result = metric.match(regex);
@@ -153,7 +153,7 @@ function get_disk() { // {{{
                         disk = result[1].substr(2,1);
                     }
                     if (typeof results[disk] == 'undefined') {
-                        results[disk] = [];
+                        results[disk] = {};
                     }
                     if (typeof counters['disk-'+disk] == 'undefined') {
                         counters['disk-'+disk] = client.plugin('disk', disk);
@@ -164,6 +164,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_octet_write != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
                                 delete results[disk].disk_octet_write;
+                                delete results[disk].disk_octet_read;
                             }
                         break;
                         case 'Disk Write Bytes/sec':
@@ -171,6 +172,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_octet_read != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
                                 delete results[disk].disk_octet_read;
+                                delete results[disk].disk_octet_write;
                             }
                         break;
                         case '% Disk Read Time':
@@ -178,6 +180,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_write_time != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
                                 delete results[disk].disk_write_time;
+                                delete results[disk].disk_read_time;
                             }
                         break;
                         case '% Disk Write Time':
@@ -185,6 +188,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_read_time != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
                                 delete results[disk].disk_read_time;
+                                delete results[disk].disk_write_time;
                             }
                         break;
                         case 'Disk Reads/sec':
@@ -192,6 +196,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_write != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
                                 delete results[disk].disk_write;
+                                delete results[disk].disk_read;
                             }
                         break;
                         case 'Disk Writes/sec':
@@ -199,6 +204,7 @@ function get_disk() { // {{{
                             if (typeof results[disk].disk_read != 'undefined') {
                                 counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
                                 delete results[disk].disk_read;
+                                delete results[disk].disk_write;
                             }
                         break;
                     }
@@ -220,20 +226,21 @@ function get_interface() { // {{{
             known_interfaces = newcounters;
 
             perfmon(known_interfaces, function(err, data) {
-                var results = [];
+                var results = {};
                 each(data.counters, function (metric, value) {
                     var regex = /^Network Interface\((.*)\)\\(.*)/;
                     var result = metric.match(regex);
                     var interface_name = cu.collectd_sanitize(result[1]);
                     var plugin = client.plugin('interface', interface_name);
                     if (typeof results[interface_name] == 'undefined') {
-                        results[interface_name] = [];
+                        results[interface_name] = {};
                     }
                     switch(result[2]) {
                         case 'Bytes Received/sec':
                             results[interface_name].if_octets_rx = value;
                             if (typeof results[interface_name].if_octets_tx != 'undefined') {
                                 plugin.addCounter('if_octets', '', [results[interface_name].if_octets_rx, results[interface_name].if_octets_tx]);
+                                delete results[interface_name].if_octets_rx;
                                 delete results[interface_name].if_octets_tx;
                             }
                         break;
@@ -242,12 +249,14 @@ function get_interface() { // {{{
                             if (typeof results[interface_name].if_octets_rx != 'undefined') {
                                 plugin.addCounter('if_octets', '', [results[interface_name].if_octets_rx, results[interface_name].if_octets_tx]);
                                 delete results[interface_name].if_octets_rx;
+                                delete results[interface_name].if_octets_tx;
                             }
                         break;
                         case 'Packets Received/sec':
                             results[interface_name].if_packets_rx = Number(value / 100);
                             if (typeof results[interface_name].if_packets_tx != 'undefined') {
                                 plugin.addCounter('if_packets', '', [results[interface_name].if_packets_rx, results[interface_name].if_packets_tx]);
+                                delete results[interface_name].if_packets_rx;
                                 delete results[interface_name].if_packets_tx;
                             }
                         break;
@@ -256,12 +265,14 @@ function get_interface() { // {{{
                             if (typeof results[interface_name].if_packets_rx != 'undefined') {
                                 plugin.addCounter('if_packets', '', [results[interface_name].if_packets_rx, results[interface_name].if_packets_tx]);
                                 delete results[interface_name].if_packets_rx;
+                                delete results[interface_name].if_packets_tx;
                             }
                         break;
                         case 'Packets Received Errors':
                             results[interface_name].if_error_rx = value;
                             if (typeof results[interface_name].if_error_tx != 'undefined') {
                                 plugin.addCounter('if_errors', '', [results[interface_name].if_error_rx, results[interface_name].if_error_tx]);
+                                delete results[interface_name].if_error_rx;
                                 delete results[interface_name].if_error_tx;
                             }
                         break;
@@ -270,6 +281,7 @@ function get_interface() { // {{{
                             if (typeof results[interface_name].if_error_rx != 'undefined') {
                                 plugin.addCounter('if_errors', '', [results[interface_name].if_error_rx, results[interface_name].if_error_tx]);
                                 delete results[interface_name].if_error_rx;
+                                delete results[interface_name].if_error_tx;
                             }
                         break;
                     }
