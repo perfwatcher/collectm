@@ -50,8 +50,8 @@ PluginInstance.prototype = {
 	    increments = [increments];
 
 	doubleHashUpdate(this.counters, name, instance, function(counters) {
-	    return increments.map(function(increment) {
-		var counter = counters && counters[0] || 0;
+	    return increments.map(function(increment, i) {
+		var counter = counters && counters[i] || 0;
 		return counter + increment;
 	    });
 	});
@@ -88,13 +88,13 @@ PluginInstance.prototype = {
 };
 
 /**
- * Your context for a client periodically sending to 1 server. Use 
- * 
+ * Your context for a client periodically sending to 1 server. Use
+ *
  * Syntax :
  *   1/ var client = Collectd();
  *   2/ var client = Collectd(int, string, int, string);
  *   3/ var client = Collectd(int, object, ignored, string);
- * 
+ *
  * All arguments are optional (like in syntax 1)
  * Syntax 1
  *   no args (they are all optional)
