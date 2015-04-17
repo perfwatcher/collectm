@@ -26,8 +26,6 @@ function getAvgLoad(num_of_turns, timeframe) {
         return 0.0;
     }
     var actual_turns;
-    var length;
-    var i;
     var totalLoad;
     var totalProcesses;
     var newestValuePos;
