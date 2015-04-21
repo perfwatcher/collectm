@@ -93,11 +93,11 @@ function getUnixLoad() {
     var plugin = collectdClient.plugin('load', '');
     perfmon(avgLoadCounters, function (err, data) {
         for (var i = 0; i < avgLoadCounters.length; i++) {
-            if (typeof counter_repo.currentCounters[avgLoadCounters[i]] != 'undefined') {
-                counter_repo.currentCounters[avgLoadCounters[i]]["values"].push(data.counters[avgLoadCounters[i]]);
+            if (typeof data != 'undefined' && typeof data.counters != 'undefined' && typeof data.counters[avgLoadCounters[i]] != 'undefined') {
+                counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(data.counters[avgLoadCounters[i]]);
             } else {
-                logger.info("Problem with counter: " + avgLoadCounters[i]);
-                counter_repo.currentCounters[avgLoadCounters[i]]["values"].push(0);
+                logger.info("No value for counter: " + avgLoadCounters[i]);
+                counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(0);
             }
         }
         counter_repo.turns++;
@@ -116,6 +116,26 @@ function initializeCounterRepo() {
         counter_repo.currentCounters[avgLoadCounters[i]]["final_value"] = 0;
     }
     counter_repo.turns = 0;
+}
+
+function testing() {
+    var totalLoad = 0;
+    var totalProcesses = 0;
+    var actualTurns = counter_repo.turns < 60 ? counter_repo.turns : 60;
+    var valuesLength = counter_repo.currentCounters['\\processor(_total)\\% processor time'].values.length - 1;
+
+    for (var i=0 ; i<actualTurns ; i++) {
+        totalLoad += counter_repo.currentCounters['\\processor(_total)\\% processor time'].values[valuesLength - i];
+        totalProcesses += counter_repo.currentCounters['\\System\\Processor Queue Length'].values[valuesLength - i];
+    }
+
+    logger.info("Total load: " + totalLoad);
+    logger.info("Total processes: " + totalProcesses);
+    logger.info("Actual turns: " + actualTurns);
+    totalLoad = cpus * ((totalLoad / actualTurns) / 100);
+    totalProcesses = totalProcesses / actualTurns;
+
+    logger.info("Result: " + (totalLoad + totalProcesses));
 }
 
 exports.configShow = function () {
