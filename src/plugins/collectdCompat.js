@@ -1,3 +1,5 @@
+/*! CollectM - v1.5.1 - Built 2015-04-15 */
+
 
 var os = require('os');
 var diskspace = require('diskspace');
@@ -337,15 +339,52 @@ exports.reloadConfig = function(c) { // {{{
 
 exports.monitor = function () {
     var default_interval = cfg.interval || client.interval || 60000;
-    launch_collector_cpu       (default_interval);
-    launch_collector_memory    (default_interval);
-    launch_collector_df        (default_interval);
-    launch_collector_disk      (default_interval);
-    launch_collector_interface (default_interval);
-    launch_collector_load      (default_interval);
-    launch_collector_uptime    (default_interval);
-    launch_collector_process   (default_interval);
-    launch_collector_swap      (default_interval);
+
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['cpu'] === 'undefined' || cfg.modules['cpu'] == 1) {
+        launch_collector_cpu(default_interval);
+    } else {
+        logger.info("Deactivating cpu module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['memory'] === 'undefined' || cfg.modules['memory'] == 1) {
+        launch_collector_memory(default_interval);
+    } else {
+        logger.info("Deactivating memory module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['df'] === 'undefined' || cfg.modules['df'] == 1) {
+        launch_collector_df(default_interval);
+    } else {
+        logger.info("Deactivating df module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['disk'] === 'undefined' || cfg.modules['disk'] == 1) {
+        launch_collector_disk(default_interval);
+    } else {
+        logger.info("Deactivating disk module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['interface'] === 'undefined' || cfg.modules['interface'] == 1) {
+        launch_collector_interface(default_interval);
+    } else {
+        logger.info("Deactivating interface module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['load'] === 'undefined' || cfg.modules['load'] == 1) {
+        launch_collector_load(default_interval);
+    } else {
+        logger.info("Deactivating load module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['uptime'] === 'undefined' || cfg.modules['uptime'] == 1) {
+        launch_collector_uptime(default_interval);
+    } else {
+        logger.info("Deactivating uptime module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['process'] === 'undefined' || cfg.modules['process'] == 1) {
+        launch_collector_process(default_interval);
+    } else {
+        logger.info("Deactivating process module");
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules['swap'] === 'undefined' || cfg.modules['swap'] == 1) {
+        launch_collector_swap(default_interval);
+    } else {
+        logger.info("Deactivating swap module");
+    }
 };
 
 
