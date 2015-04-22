@@ -75,7 +75,6 @@ function getTypeOfCounter(counter) {
 }
 //add the hardcoded letters and the disk letters given by the configuration to the counters
 function initializeDiskLetters(diskLetters) {
-    logger.info("initializing disks");
     var i;
     for (i in diskLetters) {
         currentLogicalDisks.push(diskLetters[i]);
@@ -88,20 +87,23 @@ function initializeDiskLetters(diskLetters) {
 //find all the disks currently on the system
 function discoverDisks() {
     perfmon.list('logicaldisk', function (err, data) {
-        if (typeof data['counters'] == 'undefined') {
-            logger.info("data.counters is undefined");
+        if (typeof data == 'undefined' || typeof data['counters'] == 'undefined') {
+            logger.info("Data.counters is undefined. Trying again.");
             discoverDisks();
         } else {
             var list = data.counters;
             var i;
+            var diskLetter;
             for (i = 0; i < list.length; i++) {
                 if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) == true) {
-                    currentLogicalDisks.push(list[i].charAt(12));
+                    diskLetter = list[i].charAt(12);
+                    if (currentLogicalDisks.indexOf(diskLetter) == -1) {
+                        currentLogicalDisks.push(diskLetter);
+                        addDiskCounters(diskLetter);
+                    }
                 }
             }
-            for (var j in currentLogicalDisks) {
-                addDiskCounters(currentLogicalDisks[j]);
-            }
+
         }
         startMonitoring();
     });
@@ -111,7 +113,6 @@ function addDiskCounters(diskLetter) {
     var i;
     for(i in countersPerDisk) {
         var newCounter = 'logicaldisk(' + diskLetter + ':)\\' + countersPerDisk[i];
-        //logger.info(newCounter + " letter: " + getLetterOfCounter(newCounter) + " type: " + getTypeOfCounter(newCounter));
         counters.push(newCounter);
     }
     counterRepo.disks[diskLetter] = {};
@@ -131,12 +132,9 @@ function startMonitoring() {
                 var type = getTypeOfCounter(counter);
                 var collectdMetric = collectdMetricsMap[type];
                 var readOrWrite = counterTypeToFieldMap[type];
-                //logger.info("counterRepo.disks[" + diskLetter + "][" + collectdMetric + "][" + readOrWrite + "] = " + data.counters[counter]);
                 counterRepo.disks[diskLetter][collectdMetric][readOrWrite] = data.counters[counter];
             }
             flushValues();
-        } else {
-            logger.info("No counters returned this time");
         }
     });
 }
@@ -147,7 +145,6 @@ function flushValues() {
             var collectdMetric = collectdMetrics[i];
             var read = counterRepo.disks[diskLetter][collectdMetric]['read'];
             var write = counterRepo.disks[diskLetter][collectdMetric]['write'];
-            //logger.info(collectdMetric + "(" + diskLetter + "):" + "[" + read + ", " + write + "]");
             counterRepo.disks[diskLetter]['pluginInstance'].addCounter(collectdMetric, '', [read, write]);
             counterRepo.disks[diskLetter][collectdMetric]['read'] = 0;
             counterRepo.disks[diskLetter][collectdMetric]['write'] = 0;
@@ -176,7 +173,11 @@ exports.monitor = function () {
     if (typeof cfg.disks !== 'undefined') {
         initializeDiskLetters(cfg.disks);
     } else {
+        for (var j in currentLogicalDisks) {
+            addDiskCounters(currentLogicalDisks[j]);
+        }
         discoverDisks();
+        setInterval(discoverDisks, default_interval);
     }
 
 };
