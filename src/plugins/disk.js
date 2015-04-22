@@ -77,7 +77,9 @@ function getTypeOfCounter(counter) {
 function initializeDiskLetters(diskLetters) {
     var i;
     for (i in diskLetters) {
-        currentLogicalDisks.push(diskLetters[i]);
+        if (currentLogicalDisks.indexOf(diskLetters[i]) == -1) {
+            currentLogicalDisks.push(diskLetters[i]);
+        }
     }
     for (i in currentLogicalDisks) {
         addDiskCounters(currentLogicalDisks[i]);
