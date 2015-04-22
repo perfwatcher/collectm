@@ -103,20 +103,20 @@ function discoverDisks() {
                     }
                 }
             }
-
+            startMonitoring();
         }
-        startMonitoring();
     });
 }
 //for each disk letter initialize the appropriate fields
 function addDiskCounters(diskLetter) {
     var i;
+    var newCounter;
     for(i in countersPerDisk) {
-        var newCounter = 'logicaldisk(' + diskLetter + ':)\\' + countersPerDisk[i];
+        newCounter = '\\LogicalDisk(' + diskLetter + ((diskLetter !== '_Total') ? ':)' : ')') + '\\' + countersPerDisk[i];
         counters.push(newCounter);
     }
     counterRepo.disks[diskLetter] = {};
-    counterRepo.disks[diskLetter]['pluginInstance'] = collectdClient.plugin('disk', diskLetter);
+    counterRepo.disks[diskLetter]['pluginInstance'] = collectdClient.plugin('disk', (diskLetter == '_Total') ? 'total' : diskLetter);
     for (i in collectdMetrics) {
         counterRepo.disks[diskLetter][collectdMetrics[i]] = {};
         counterRepo.disks[diskLetter][collectdMetrics[i]]['read'] = 0;
