@@ -55,8 +55,11 @@ function getLetterOfCounter(counter) {
         if (counter.charAt(i) == '(') {
             start = i + 1;
             break;
-        } else if (counter.charAt(i) == ':') {
+        } else if (counter.charAt(i) == ')') {
             end = i;
+            if (counter.charAt(i - 1) == ":") {
+                end--;
+            }
         }
     }
     return counter.substring(start, end);
@@ -128,7 +131,7 @@ function addDiskCounters(diskLetter) {
 //gets the values returned from perfmon and sets them in the repo
 function startMonitoring() {
     perfmon(counters, function(err, data) {
-        if (typeof data != 'undefined' && typeof data.counters != 'undefined') {
+        if (typeof data !== 'undefined' && typeof data.counters !== 'undefined') {
             for (var counter in data.counters) {
                 var diskLetter = getLetterOfCounter(counter);
                 var type = getTypeOfCounter(counter);
@@ -137,6 +140,8 @@ function startMonitoring() {
                 counterRepo.disks[diskLetter][collectdMetric][readOrWrite] = data.counters[counter];
             }
             flushValues();
+        } else {
+            logger.info("No values returned to disk plugin");
         }
     });
 }
