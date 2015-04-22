@@ -20,6 +20,8 @@ var counter_repo = {};
 
 var logger;
 
+var noCounterDataTries = 0;
+
 function getAvgLoad(num_of_turns, timeframe) {
     //division by zero === 'very bad idea'
     if (counter_repo.turns == 0) {
@@ -91,20 +93,30 @@ function getAvgLoad(num_of_turns, timeframe) {
 
 function getUnixLoad() {
     var plugin = collectdClient.plugin('load', '');
+    var emptyData = false;
     perfmon(avgLoadCounters, function (err, data) {
+        emptyData = false;
         for (var i = 0; i < avgLoadCounters.length; i++) {
             if (typeof data != 'undefined' && typeof data.counters != 'undefined' && typeof data.counters[avgLoadCounters[i]] != 'undefined') {
                 counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(data.counters[avgLoadCounters[i]]);
             } else {
-                logger.info("No value for counter: " + avgLoadCounters[i]);
+                logger.info("No value for counter: " + avgLoadCounters[i] + " in load plugin.");
                 counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(0);
+                emptyData = true;
             }
         }
+        noCounterDataTries = emptyData ? noCounterDataTries + 1 : 0;
         counter_repo.turns++;
         var shortterm = parseFloat(getAvgLoad(60, '1m').toFixed(2));
         var midterm = parseFloat(getAvgLoad(300, '5m').toFixed(2));
         var longterm = parseFloat(getAvgLoad(900, '15m').toFixed(2));
         plugin.setGauge('load', '', [shortterm, midterm, longterm]);
+        if (noCounterDataTries == 10) {
+            logger.info("After 10 failed attempts no data from perfmon. Restarting perfmon");
+            perfmon.stop();
+            noCounterDataTries = 0;
+            setTimeout(getUnixLoad, 1000);
+        }
     });
 }
 
