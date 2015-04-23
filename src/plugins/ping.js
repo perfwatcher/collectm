@@ -26,13 +26,34 @@ ping.on('ping:output', function (data) {
 
     for (i=0 ; i<split.length ; i++) {
         if (split[i].length > 0) {
+            //logger.info("Processing: " + split[i]);
             //check if it is Reply line from 'localhost'
             if (split[i].match(/Reply\sfrom\s::1([a-z]|.|\s|=|\d|:)+/)) {
-                pingData.replies.push(split[i].substring(split[i].search("time<") + "time<".length, split[i].search("ms")));
+                if (split[i].indexOf("time<") != -1) {
+                    pingData.replies.push(split[i].substring(split[i].search("time<") + "time<".length, split[i].search("ms")));
+
+                    hosts[currentElement].plugin.setGauge('ping', 'droprate', 0);
+
+                    hosts[currentElement].plugin.setGauge('ping', 'average',  parseInt(pingData.replies[pingData.replies.length - 1]));
+                }
             }
             //check if it is Reply line
             else if (split[i].match(/Reply\sfrom\s([a-z]|.|\s|=|\d|:)+/)) {
-                pingData.replies.push(split[i].substring(split[i].search("time=") + "time=".length, split[i].search("ms")));
+                if (split[i].match(/(Destination host unreachable\.)$/)) {
+                    pingData.replies.push(0);
+
+                    hosts[currentElement].plugin.setGauge('ping', 'droprate', 100);
+
+                    hosts[currentElement].plugin.setGauge('ping', 'average', 0);
+                } else {
+                    if (split[i].indexOf("time=") != -1) {
+                        pingData.replies.push(split[i].substring(split[i].search("time=") + "time=".length, split[i].search("ms")));
+
+                        hosts[currentElement].plugin.setGauge('ping', 'droprate', 0);
+
+                        hosts[currentElement].plugin.setGauge('ping', 'average',  parseInt(pingData.replies[pingData.replies.length - 1]));
+                    }
+                }
             }
             //check if it is Packets: line
             else if (split[i].match(/Packets:([a-z]|.|\s|=|\d|:)+/)) {
@@ -40,6 +61,10 @@ ping.on('ping:output', function (data) {
                 pingData.received = getNumber(split[i], split[i].search("Received") + "Received = ".length);
                 pingData.lost = getNumber(split[i], split[i].search("Lost") + "Lost = ".length);
                 pingData['loss%'] = getNumber(split[i], split[i].search(/\(/) + 1);
+                if (pingData['loss%'] == 100) {
+                    pingData.finished = true;
+                    clearTimeout(stopId);
+                }
             }
             //check if it is Statistics line
             else if(split[i].match(/Minimum([a-z]|.|\s|=|\d|:)+/)) {
@@ -48,12 +73,14 @@ ping.on('ping:output', function (data) {
                 pingData.average = getNumber(split[i], split[i].search("Average") + "Average = ".length);
                 pingData.finished = true;
                 clearTimeout(stopId);
-                hosts[currentElement].plugin.setGauge('ping', 'droprate', pingData['loss%']);
-                hosts[currentElement].plugin.setGauge('ping', 'average', pingData['average']);
             }
             //request timed out
-            else if(split[i].match(/Request\stimed([a-z]|.|\s|=|\d)+/)) {
-                pingData.replies.push(-1);
+            else if(split[i] === "Request timed out.") {
+                pingData.replies.push(0);
+
+                hosts[currentElement].plugin.setGauge('ping', 'droprate', 100);
+
+                hosts[currentElement].plugin.setGauge('ping', 'average', 0);
             }
         }
     }
@@ -103,6 +130,7 @@ function initPingData(host) {
     pingData['maximum'] = 0;
     pingData['average'] = 0;
     pingData['finished'] = false;
+
     return pingData;
 }
 
@@ -111,7 +139,7 @@ function runPings() {
     ping.start(pingData.host);
     stopId = setTimeout(function() {
         ping.stop();
-    }, 10000);
+    }, 30000);
 }
 
 exports.configShow = function () {
