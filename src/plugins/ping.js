@@ -8,13 +8,7 @@ var ping = new p.PingOutput();
 
 var hosts = [
     {
-        host: "www.google.com"
-    },
-    {
         host: "8.8.8.8"
-    },
-    {
-        host: "localhost"
     }
 ];
 
@@ -90,7 +84,6 @@ function initHosts() {
         } else {
             hosts[i].pluginInstance = hosts[i].host;
         }
-        logger.info(hosts[i].pluginInstance);
         hosts[i].plugin = collectdClient.plugin('ping', hosts[i].pluginInstance);
     }
 }
@@ -137,6 +130,13 @@ exports.reloadConfig = function (c) {
 
 exports.monitor = function () {
     var default_interval = cfg.interval || collectdClient.interval || 60000;
+    if (typeof cfg.hosts !== 'undefined') {
+        for (var i=0 ; i<cfg.hosts.length ; i++) {
+            var newHost = {};
+            newHost.host = cfg.hosts[i];
+            hosts.push(newHost);
+        }
+    }
     initHosts();
     runPings();
 };
