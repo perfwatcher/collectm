@@ -50,8 +50,6 @@ ping.on('ping:output', function (data) {
                 clearTimeout(stopId);
                 hosts[currentElement].plugin.setGauge('ping', 'droprate', pingData['loss%']);
                 hosts[currentElement].plugin.setGauge('ping', 'average', pingData['average']);
-                currentElement = ++currentElement % hosts.length;
-                runPings();
             }
             //request timed out
             else if(split[i].match(/Request\stimed([a-z]|.|\s|=|\d)+/)) {
@@ -59,6 +57,11 @@ ping.on('ping:output', function (data) {
             }
         }
     }
+});
+
+ping.on('ping:exit_code', function(code) {
+    currentElement = ++currentElement % hosts.length;
+    runPings();
 });
 
 function getNumber(str, start) {
@@ -108,8 +111,7 @@ function runPings() {
     ping.start(pingData.host);
     stopId = setTimeout(function() {
         ping.stop();
-        currentElement = ++currentElement % hosts.length;
-    }, 5000);
+    }, 10000);
 }
 
 exports.configShow = function () {
