@@ -8,7 +8,7 @@ var ping = new p.PingOutput();
 
 var hosts = [
     {
-        host: "8.8.8.8"
+        host: "www.bing.com"
     }
 ];
 
