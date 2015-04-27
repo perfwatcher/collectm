@@ -40,7 +40,15 @@
 
   "Plugin": {
     "collectdCompat": {
-	  "enable": 1
+	  "enable": 1,
+	  "modules": {
+// This is an example. You can select which of the modules of the collectdCompat plugin you want to be active.
+// Available modules are: load, disk, cpu, memory, uptime, df, interface, process, swap. 
+// Set to 0 to deactivate, 1 or don't set at all to activate.
+// If you want all to be active remove "modules" value completely.
+	    "load": 0,
+		"disk": 0
+	  }
 	},
     "sysconfig": {
 	  "enable": 1
