@@ -75,7 +75,10 @@
             "plugin": "process",
             "instance": "nssm",
             "commandline": ".*collectm.*nssm\\.exe.*"
-        }
+        },
+	    "load": {
+	        "enable": 1
+	    }
       }
     }
   }
