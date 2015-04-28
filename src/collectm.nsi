@@ -148,7 +148,7 @@ L_file_missing_daemon:
     File /r /x .git /x .gitignore /x .npmignore node_modules\MD5\*.*
     SetOutPath $InstDir\node_modules\perfmon
     File /r /x .git /x .gitignore /x .npmignore node_modules\perfmon\*.*
-	SetOutPath $InstDir\node_modules\ping-output
+    SetOutPath $InstDir\node_modules\ping-output
     File /r /x .git /x .gitignore /x .npmignore node_modules\ping-output\*.*
     SetOutPath $InstDir\node_modules\process
     File /r /x .git /x .gitignore /x .npmignore node_modules\process\*.*
