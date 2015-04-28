@@ -6,11 +6,7 @@ var counters;
 var p = require('ping-output');
 var ping = new p.PingOutput();
 
-var hosts = [
-    {
-        host: "www.bing.com"
-    }
-];
+var hosts = [];
 
 var pingData;
 var stopId;
@@ -166,6 +162,7 @@ exports.monitor = function () {
             var newHost = {};
             newHost.host = cfg.hosts[i];
             hosts.push(newHost);
+            logger.info("Will ping host: " + newHost);
         }
     }
     initHosts();
