@@ -198,11 +198,13 @@ function flushPingData() {
 
 function stddev() {
     var sum = 0;
-    for (var i=0 ; i<pingData.replies.length ; i++) {
-        sum += (pingData.replies[i] - pingData.average);
+    if (pingData.replies.length > 0) {
+        for (var i=0 ; i<pingData.replies.length ; i++) {
+            sum += (pingData.replies[i] - pingData.average);
+        }
+        sum /= pingData.replies.length;
+        sum = Math.sqrt(sum);
     }
-    sum /= pingData.replies.length;
-    sum = Math.sqrt(sum);
     return sum;
 }
 
