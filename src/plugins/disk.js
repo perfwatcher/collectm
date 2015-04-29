@@ -82,7 +82,7 @@ function initializeDiskLetters(disks) {
         if (typeof diskLetter === 'string' && (diskLetter.match(/^([a-z])$/i) || diskLetter.match(/^(total|_total)$/i)) && disks[diskLetter] == 1) {
             if (diskLetter.match(/^([a-z])$/)) {
                 diskLetter = diskLetter.toUpperCase();
-            } else if (diskLetter.match(/^(total|_total)$/i)){
+            } else if (diskLetter.match(/^(total|_total|Total)$/i)){
                 diskLetter = "_Total";
             }
             if (currentLogicalDisks.indexOf(diskLetter) == -1) {
@@ -93,7 +93,7 @@ function initializeDiskLetters(disks) {
     }
 }
 //find all the disks currently on the system
-function discoverDisks() {
+function discoverDisks(forceMonitor) {
     perfmon.list('logicaldisk', function (err, data) {
         if (typeof data == 'undefined' || typeof data['counters'] == 'undefined') {
             logger.info("Data.counters is undefined. Trying again.");
@@ -102,21 +102,26 @@ function discoverDisks() {
             var list = data.counters;
             var i;
             var diskLetter;
+            var foundNewDisks = false;
             for (i = 0; i < list.length; i++) {
                 if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) == true) {
                     diskLetter = list[i].charAt(12);
                     if (currentLogicalDisks.indexOf(diskLetter) == -1) {
                         currentLogicalDisks.push(diskLetter);
                         addDiskCounters(diskLetter);
+                        foundNewDisks = true;
                     }
                 }
+            }
+            if (forceMonitor == true || foundNewDisks == true) {
+                startMonitoring();
             }
         }
     });
 }
 //for each disk letter initialize the appropriate fields
 function addDiskCounters(diskLetter) {
-    logger.info("Monitoring disk: " + diskLetter);
+    logger.info("Disk plugin monitoring: " + diskLetter);
     var i;
     var newCounter;
     for(i in countersPerDisk) {
@@ -184,7 +189,6 @@ exports.reInit = function () {
 exports.reloadConfig = function (c) {
     collectdClient = c.client;
     cfg = c.config;
-    counters = c.counters;
     logger = c.logger;
     return (0);
 };
@@ -195,10 +199,11 @@ exports.monitor = function () {
         initializeDiskLetters(cfg.disks);
     }
     if (typeof cfg.autodiscover == 'undefined' || cfg.autodiscover == 1) {
-        discoverDisks();
-        setInterval(discoverDisks, default_interval);
+        discoverDisks(true);
+        setInterval(function () { discoverDisks(false); }, default_interval);
+        logger.info("Autodiscover is turned on for disk plugin.");
     } else {
-        logger.info("Autodiscover is turned off.");
+        logger.info("Autodiscover is turned off for disk plugin.");
+        startMonitoring();
     }
-    startMonitoring();
 };
