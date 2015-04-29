@@ -49,14 +49,14 @@
 	  "enable": 1,
       "counters" : [
 // This is an example :
-	  {
-            "counter": "\\LogicalDisk(C:)\\% Free Space",
-            "enable": 1,
-            "plugin": "perfmon_LogicalDisk",
-            "plugin_instance": "C",
-            "type": "percent",
-            "type_instance": "Free Space"
-          }
+	    {
+          "counter": "\\LogicalDisk(C:)\\% Free Space",
+          "enable": 1,
+          "plugin": "perfmon_LogicalDisk",
+          "plugin_instance": "C",
+          "type": "percent",
+          "type_instance": "Free Space"
+        }
       ]
     },
     "process": {
@@ -67,16 +67,29 @@
 
 // This is an example :
         "My Collectm": {
-            "plugin": "process",
-            "instance": "collectm",
-            "commandline": ".*node.*collectm\\.js.*"
+          "plugin": "process",
+          "instance": "collectm",
+          "commandline": ".*node.*collectm\\.js.*"
         },
         "My NSSM for Collectm": {
-            "plugin": "process",
-            "instance": "nssm",
-            "commandline": ".*collectm.*nssm\\.exe.*"
+          "plugin": "process",
+          "instance": "nssm",
+          "commandline": ".*collectm.*nssm\\.exe.*"
         }
-      }
+	  }
+	},
+	"disk": {
+	  "enable": 1,
+	  "autodiscover": 1,
+// This is an example.
+// Plugin can either autodiscover all the disks mounted on the system
+// or point to a particular disk like below.
+// If set to autodiscover it will also find new disks that are mounted after starting the service.
+// Autodiscover will override the disks setting if both are set.
+// If disk is no longer available no data will be sent.
+      "disks": {
+	    "total" : 1
+	  }
     }
   }
 }
