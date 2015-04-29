@@ -12,7 +12,8 @@
     "connect-basic-auth": "~0.1.0",
     "express": "~4.4.5",
     "process": "~0.7.0",
-    "config": ">=1.2.0"
+    "config": ">=1.2.0",
+    "ping-output":  "1.0.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

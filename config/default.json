@@ -31,32 +31,32 @@
 
   "Network": {
     "servers": [
-        {
-          "hostname": "localhost",
-          "port": 25826
-        }
-      ]
+      {
+        "hostname": "localhost",
+        "port": 25826
+      }
+    ]
   },
 
   "Plugin": {
     "collectdCompat": {
-	  "enable": 1
-	},
+        "enable": 1
+    },
     "sysconfig": {
-	  "enable": 1
-	},
+      "enable": 1
+    },
     "perfmon": {
-	  "enable": 1,
-      "counters" : [
+      "enable": 1,
+      "counters": [
 // This is an example :
-	  {
-            "counter": "\\LogicalDisk(C:)\\% Free Space",
-            "enable": 1,
-            "plugin": "perfmon_LogicalDisk",
-            "plugin_instance": "C",
-            "type": "percent",
-            "type_instance": "Free Space"
-          }
+        {
+          "counter": "\\LogicalDisk(C:)\\% Free Space",
+          "enable": 1,
+          "plugin": "perfmon_LogicalDisk",
+          "plugin_instance": "C",
+          "type": "percent",
+          "type_instance": "Free Space"
+        }
       ]
     },
     "process": {
@@ -67,15 +67,24 @@
 
 // This is an example :
         "My Collectm": {
-            "plugin": "process",
-            "instance": "collectm",
-            "commandline": ".*node.*collectm\\.js.*"
+          "plugin": "process",
+          "instance": "collectm",
+          "commandline": ".*node.*collectm\\.js.*"
         },
         "My NSSM for Collectm": {
-            "plugin": "process",
-            "instance": "nssm",
-            "commandline": ".*collectm.*nssm\\.exe.*"
+          "plugin": "process",
+          "instance": "nssm",
+          "commandline": ".*collectm.*nssm\\.exe.*"
         }
+      }
+    },
+    "ping": {
+      "enable": 1,
+// This is an example. If you want to change which url is pinged you can do so like shown below:
+//There is no limit to how many addresses can be pinged. They have to be all in an array.
+      "hosts": {
+        "www.google.com": 0,
+        "www.bing.com": 1
       }
     }
   }
