@@ -9,6 +9,8 @@ var collectdClient;
 
 var currentLogicalDisks = [];
 
+var failedAttempts = 0;
+
 var countersPerDisk = [
     '% Disk Read Time'
     ,'% Disk Write Time'
@@ -140,9 +142,17 @@ function startMonitoring() {
                 var readOrWrite = counterTypeToFieldMap[type];
                 counterRepo.disks[diskLetter][collectdMetric][readOrWrite] = data.counters[counter];
             }
+            failedAttempts = 0;
             flushValues();
         } else {
             logger.info("No values returned to disk plugin");
+            failedAttempts++;
+            if (failedAttempts == 10) {
+                logger.info("It's the 10th failed attempt to get metrics for disks. Restarting perfmon.");
+                perfmon.stop();
+                failedAttempts = 0;
+                setTimeout(startMonitoring, 1000);
+            }
         }
     });
 }
