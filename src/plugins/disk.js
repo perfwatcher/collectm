@@ -133,6 +133,9 @@ function addDiskCounters(diskLetter) {
 }
 //gets the values returned from perfmon and sets them in the repo
 function startMonitoring() {
+    if (counters.length == 0) {
+        return;
+    }
     perfmon(counters, function(err, data) {
         if (typeof data !== 'undefined' && typeof data.counters !== 'undefined') {
             for (var counter in data.counters) {
