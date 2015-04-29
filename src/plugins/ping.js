@@ -6,7 +6,7 @@ var counters;
 var p = require('ping-output');
 var ping = new p.PingOutput();
 
-var hosts = [];
+var hosts;
 
 var pingData;
 var stopId;
@@ -22,7 +22,6 @@ ping.on('ping:output', function (data) {
 
     for (i=0 ; i<split.length ; i++) {
         if (split[i].length > 0) {
-            //logger.info("Processing: " + split[i]);
             //check if it is Reply line from 'localhost'
             if (split[i].match(/Reply\sfrom\s::1([a-z]|.|\s|=|\d|:)+/)) {
                 if (split[i].indexOf("time<") != -1) {
@@ -156,13 +155,21 @@ exports.reloadConfig = function (c) {
 
 exports.monitor = function () {
     var default_interval = cfg.interval || collectdClient.interval || 60000;
-    if (typeof cfg.hosts !== 'undefined' && cfg.hosts.length > 0) {
+    if (typeof cfg.hosts !== 'undefined') {
 		hosts = [];
-        for (var i=0 ; i<cfg.hosts.length ; i++) {
-            var newHost = {};
-            newHost.host = cfg.hosts[i];
-            hosts.push(newHost);
-            logger.info("Will ping host: " + newHost);
+        for (var hostName in cfg.hosts) {
+            if (typeof hostName === 'string' &&
+                (hostName.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/) || hostName.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))) {
+                if (cfg.hosts[hostName] == 1) {
+                    var newHost = {};
+                    newHost.host = hostName;
+                    hosts.push(newHost);
+                    logger.info("Will ping host: " + newHost.host);
+                }
+            }
+            else {
+                logger.info("Host: " + hostName + " has syntactic issues!It will not be used");
+            }
         }
     }
     initHosts();
