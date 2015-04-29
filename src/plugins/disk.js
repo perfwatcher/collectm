@@ -7,9 +7,7 @@ var prefix = path.join(path.dirname(require.main.filename), '..');
 var cfg;
 var collectdClient;
 
-var currentLogicalDisks = [
-    '_Total'
-];
+var currentLogicalDisks = [];
 
 var countersPerDisk = [
     '% Disk Read Time'
@@ -77,17 +75,20 @@ function getTypeOfCounter(counter) {
     return counter.substring(start, end);
 }
 //add the hardcoded letters and the disk letters given by the configuration to the counters
-function initializeDiskLetters(diskLetters) {
-    var i;
-    for (i in diskLetters) {
-        if (currentLogicalDisks.indexOf(diskLetters[i]) == -1) {
-            currentLogicalDisks.push(diskLetters[i]);
+function initializeDiskLetters(disks) {
+    for (var diskLetter in disks) {
+        if (typeof diskLetter === 'string' && (diskLetter.match(/^([a-z])$/i) || diskLetter.match(/^(total|_total)$/i)) && disks[diskLetter] == 1) {
+            if (diskLetter.match(/^([a-z])$/)) {
+                diskLetter = diskLetter.toUpperCase();
+            } else if (diskLetter.match(/^(total|_total)$/i)){
+                diskLetter = "_Total";
+            }
+            if (currentLogicalDisks.indexOf(diskLetter) == -1) {
+                currentLogicalDisks.push(diskLetter);
+                addDiskCounters(diskLetter);
+            }
         }
     }
-    for (i in currentLogicalDisks) {
-        addDiskCounters(currentLogicalDisks[i]);
-    }
-    startMonitoring();
 }
 //find all the disks currently on the system
 function discoverDisks() {
@@ -108,12 +109,12 @@ function discoverDisks() {
                     }
                 }
             }
-            startMonitoring();
         }
     });
 }
 //for each disk letter initialize the appropriate fields
 function addDiskCounters(diskLetter) {
+    logger.info("Monitoring disk: " + diskLetter);
     var i;
     var newCounter;
     for(i in countersPerDisk) {
@@ -179,12 +180,12 @@ exports.monitor = function () {
     var default_interval = cfg.interval || collectdClient.interval || 60000;
     if (typeof cfg.disks !== 'undefined') {
         initializeDiskLetters(cfg.disks);
-    } else {
-        for (var j in currentLogicalDisks) {
-            addDiskCounters(currentLogicalDisks[j]);
-        }
+    }
+    if (typeof cfg.autodiscover == 'undefined' || cfg.autodiscover == 1) {
         discoverDisks();
         setInterval(discoverDisks, default_interval);
+    } else {
+        logger.info("Autodiscover is turned off.");
     }
-
+    startMonitoring();
 };
