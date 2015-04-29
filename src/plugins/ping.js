@@ -12,9 +12,52 @@ var pingData;
 var stopId;
 var currentElement = 0;
 
+function getNumber(str, start) {
+    var i;
+    var end;
+    for (i=start + 1 ; i<str.length ; i++) {
+        if (str.charAt(i) == ' ' || str.charAt(i) == ',' || str.charAt(i) == '%' || str.charAt(i) == 'm') {
+            end = i;
+            break;
+        }
+    }
+    return parseInt(str.substring(start, end));
+}
+
+function initHosts() {
+    for (var i=0 ; i<hosts.length ; i++) {
+        hosts[i].plugin = collectdClient.plugin('ping', '');
+    }
+}
+
+function initPingData(host) {
+    var pingData = {};
+    pingData.host = host;
+    pingData.replies = [];
+    pingData.sent = 0;
+    pingData.lost = 0;
+    pingData['loss%'] = 100;
+    pingData.minimum = 0;
+    pingData.maximum = 0;
+    pingData.average = 0;
+    pingData.sum = 0;
+    pingData.finished = false;
+
+    return pingData;
+}
+
+function runPings() {
+    pingData = initPingData(hosts[currentElement].host);
+    ping.start(pingData.host);
+    stopId = setTimeout(function() {
+        ping.stop();
+    }, 30000);
+}
+
 ping.on('ping:output', function (data) {
     var i;
     var split = data.toString().split("\n");
+    var time;
 
     for (i=0 ; i<split.length ; i++) {
         split[i] = split[i].trim();
@@ -25,28 +68,66 @@ ping.on('ping:output', function (data) {
             //check if it is Reply line from 'localhost'
             if (split[i].match(/Reply\sfrom\s::1([a-z]|.|\s|=|\d|:)+/)) {
                 if (split[i].indexOf("time<") != -1) {
-                    pingData.replies.push(split[i].substring(split[i].search("time<") + "time<".length, split[i].search("ms")));
+                    time = parseInt(split[i].substring(split[i].search("time<") + "time<".length, split[i].search("ms")));
 
-                    hosts[currentElement].plugin.setGauge('ping', 'droprate', 0);
+                    pingData.replies.push(time);
+                    pingData.sum += time;
+                    pingData.sent++;
 
-                    hosts[currentElement].plugin.setGauge('ping', 'average',  parseInt(pingData.replies[pingData.replies.length - 1]));
+                    if (pingData.sent == 1) {
+                        pingData.maximum = time;
+                        pingData.minimum = time;
+                    }
+                    else {
+                        if (pingData.maximum < time) {
+                            pingData.maximum = time;
+                        }
+                        if (pingData.minimum > time) {
+                            pingData.minimum = time;
+                        }
+                    }
+                    pingData.average = pingData.sum / pingData.sent;
                 }
             }
             //check if it is Reply line
             else if (split[i].match(/Reply\sfrom\s([a-z]|.|\s|=|\d|:)+/)) {
                 if (split[i].match(/(Destination host unreachable\.)$/)) {
-                    pingData.replies.push(0);
+                    time = 0;
+                    pingData.replies.push(time);
+                    pingData.sent++;
 
-                    hosts[currentElement].plugin.setGauge('ping', 'droprate', 100);
-
-                    hosts[currentElement].plugin.setGauge('ping', 'average', 0);
+                    if (pingData.sent == 1) {
+                        pingData.maximum = time;
+                        pingData.minimum = time;
+                    }
+                    else {
+                        if (pingData.maximum < time) {
+                            pingData.maximum = time;
+                        }
+                        if (pingData.minimum > time) {
+                            pingData.minimum = time;
+                        }
+                    }
+                    pingData.average = pingData.sum / pingData.sent;
                 } else {
                     if (split[i].indexOf("time=") != -1) {
-                        pingData.replies.push(split[i].substring(split[i].search("time=") + "time=".length, split[i].search("ms")));
+                        time = parseInt(split[i].substring(split[i].search("time=") + "time=".length, split[i].search("ms")));
+                        pingData.replies.push(time);
+                        pingData.sent++;
 
-                        hosts[currentElement].plugin.setGauge('ping', 'droprate', 0);
-
-                        hosts[currentElement].plugin.setGauge('ping', 'average',  parseInt(pingData.replies[pingData.replies.length - 1]));
+                        if (pingData.sent == 1) {
+                            pingData.maximum = time;
+                            pingData.minimum = time;
+                        }
+                        else {
+                            if (pingData.maximum < time) {
+                                pingData.maximum = time;
+                            }
+                            if (pingData.minimum > time) {
+                                pingData.minimum = time;
+                            }
+                        }
+                        pingData.average = pingData.sum / pingData.sent;
                     }
                 }
             }
@@ -71,70 +152,58 @@ ping.on('ping:output', function (data) {
             }
             //request timed out
             else if(split[i] === "Request timed out.") {
+                time = 0;
+                pingData.replies.push(time);
+                pingData.sent++;
+                pingData.lost++;
+
+                if (pingData.sent == 1) {
+                    pingData.maximum = time;
+                    pingData.minimum = time;
+                }
+                else {
+                    if (pingData.maximum < time) {
+                        pingData.maximum = time;
+                    }
+                    if (pingData.minimum > time) {
+                        pingData.minimum = time;
+                    }
+                }
+                pingData.average = pingData.sum / pingData.sent;
+            }
+            else if(split[i].match(/Ping request could not find/)) {
+                pingData.average = 0;
+                pingData.maximum = 0;
+                pingData.minimum = 0;
+                pingData.lost = 1;
+                pingData.sent = 1;
                 pingData.replies.push(0);
-
-                hosts[currentElement].plugin.setGauge('ping', 'droprate', 100);
-
-                hosts[currentElement].plugin.setGauge('ping', 'average', 0);
+                pingData['loss%'] = 100;
             }
         }
     }
 });
 
 ping.on('ping:exit_code', function(code) {
+    flushPingData();
     currentElement = ++currentElement % hosts.length;
     runPings();
 });
 
-function getNumber(str, start) {
-    var i;
-    var end;
-    for (i=start + 1 ; i<str.length ; i++) {
-        if (str.charAt(i) == ' ' || str.charAt(i) == ',' || str.charAt(i) == '%' || str.charAt(i) == 'm') {
-            end = i;
-            break;
-        }
+function flushPingData() {
+    hosts[currentElement].plugin.setGauge('ping_droprate', hosts[currentElement].host, pingData['loss%']);
+    hosts[currentElement].plugin.setGauge('ping', hosts[currentElement].host, pingData.average);
+    hosts[currentElement].plugin.setGauge('ping_stddev', hosts[currentElement].host, stddev());
+}
+
+function stddev() {
+    var sum = 0;
+    for (var i=0 ; i<pingData.replies.length ; i++) {
+        sum += (pingData.replies[i] - pingData.average);
     }
-    return parseInt(str.substring(start, end));
-}
-
-function initHosts() {
-    for (var i=0 ; i<hosts.length ; i++) {
-        if (hosts[i].host.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/) || hosts[i].host.match(/^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$/) || hosts[i].host.indexOf(".") != -1) {
-            var temp = hosts[i].host;
-            while(temp.indexOf(".") != -1) {
-                temp = temp.replace(".", "_");
-            }
-            hosts[i].pluginInstance = temp;
-        } else {
-            hosts[i].pluginInstance = hosts[i].host;
-        }
-        hosts[i].plugin = collectdClient.plugin('ping', hosts[i].pluginInstance);
-    }
-}
-
-function initPingData(host) {
-    var pingData = {};
-    pingData['host'] = host;
-    pingData['replies'] = [];
-    pingData['sent'] = 0;
-    pingData['received'] = 0;
-    pingData['lost'] = 0;
-    pingData['loss%'] = 100;
-    pingData['minimum'] = 0;
-    pingData['maximum'] = 0;
-    pingData['average'] = 0;
-    pingData['finished'] = false;
-
-    return pingData;
-}
-
-function runPings() {
-    pingData = initPingData(hosts[currentElement].host);
-    ping.start(pingData.host);
-    stopId = setTimeout(function() {
-        ping.stop();
-    }, 30000);
+    sum /= pingData.replies.length;
+    sum = Math.sqrt(sum);
+    return sum;
 }
 
 exports.configShow = function () {
