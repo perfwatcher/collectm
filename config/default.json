@@ -40,24 +40,24 @@
 
   "Plugin": {
     "collectdCompat": {
-	  "enable": 1,
-	  "modules": {
+      "enable": 1,
+      "modules": {
 // This is an example. You can select which of the modules of the collectdCompat plugin you want to be active.
 // Available modules are: load, disk, cpu, memory, uptime, df, interface, process, swap. 
 // Set to 0 to deactivate, 1 or don't set at all to activate.
 // If you want all to be active remove "modules" value completely.
-	    "load": 0,
-		"disk": 0
-	  }
-	},
-    "sysconfig": {
-	  "enable": 1
-	},
-    "perfmon": {
-	  "enable": 1,
-      "counters" : [
+        "load": 0,
+        "disk": 0
+      }
+    },
+      "sysconfig": {
+      "enable": 1
+    },
+      "perfmon": {
+      "enable": 1,
+        "counters" : [
 // This is an example :
-	  {
+        {
             "counter": "\\LogicalDisk(C:)\\% Free Space",
             "enable": 1,
             "plugin": "perfmon_LogicalDisk",
@@ -65,39 +65,52 @@
             "type": "percent",
             "type_instance": "Free Space"
           }
-      ]
-    },
-    "process": {
-      "enable": 1,
+        ]
+      },
       "process": {
+        "enable": 1,
+        "process": {
 // The key is not used in Collectm. It only helps for config overwrite in local.json
 // The value is an array with "plugin", "instance" and "commandline".
-
+  
 // This is an example :
-        "My Collectm": {
+          "My Collectm": {
             "plugin": "process",
             "instance": "collectm",
             "commandline": ".*node.*collectm\\.js.*"
-        },
-        "My NSSM for Collectm": {
+          },
+          "My NSSM for Collectm": {
             "plugin": "process",
             "instance": "nssm",
             "commandline": ".*collectm.*nssm\\.exe.*"
+          }
         }
-      }
-    },
-	"df": {
-	  "enable": 1,
-	  "autodiscover": 1,
+      },
+      "df": {
+        "enable": 1,
+        "autodiscover": 1,
 // This is an example.
 // Plugin can either autodiscover all the disks mounted on the system
 // or point to a particular disk like below.
 // If set to autodiscover it will also find new disks that are mounted after starting the service.
 // Autodiscover will override the disks setting if both are set.
 // If disk is no longer available no data will be sent.
-      "disks": {
-	    "total" : 1
-	  }
-	}
+        "disks": {
+        "total" : 1
+      }
+    },
+    "disk": {
+      "enable": 1,
+      "autodiscover": 1,
+// This is an example.
+// Plugin can either autodiscover all the disks mounted on the system
+// or point to a particular disk like below.
+// If set to autodiscover it will also find new disks that are mounted after starting the service.
+// Autodiscover will override the disks setting if both are set.
+// If disk is no longer available no data will be sent.
+        "disks": {
+        "total" : 1
+      }
+    }
   }
 }
