@@ -13,12 +13,12 @@ var currentLogicalDisks = [];
 var failedAttempts = 0;
 
 var countersPerDisk = [
-    '% Free Space'
-    ,'Free Megabytes'
+    '% Free Space',
+    'Free Megabytes'
 ];
 
 var counterRepo = {};
-counterRepo['disks'] = {};
+counterRepo.disks = {};
 
 var counters = [];
 
@@ -32,7 +32,7 @@ function getLetterOfCounter(counter) {
             break;
         } else if (counter.charAt(i) == ')') {
             end = i;
-            if (counter.charAt(i - 1) == ":") {
+            if (counter.charAt(i - 1) == ':') {
                 end--;
             }
         }
@@ -58,7 +58,7 @@ function initializeDiskLetters(disks) {
             if (diskLetter.match(/^([a-z])$/)) {
                 diskLetter = diskLetter.toUpperCase();
             } else if (diskLetter.match(/^(total|_total|Total)$/i)){
-                diskLetter = "_Total";
+                diskLetter = '_Total';
             }
             if (currentLogicalDisks.indexOf(diskLetter) == -1) {
                 currentLogicalDisks.push(diskLetter);
@@ -66,15 +66,15 @@ function initializeDiskLetters(disks) {
             }
         }
         else {
-            logger.info("Df not monitoring " + diskLetter);
+            logger.info('Df not monitoring ' + diskLetter);
         }
     }
 }
 //find all the disks currently on the system
 function discoverDisks(forceMonitor) {
     perfmon.list('logicaldisk', function (err, data) {
-        if (typeof data == 'undefined' || typeof data['counters'] == 'undefined') {
-            logger.info("Data.counters is undefined. Trying again.");
+        if (typeof data == 'undefined' || typeof data.counters == 'undefined') {
+            logger.info('Data.counters is undefined. Trying again.');
             discoverDisks();
         } else {
             var list = data.counters;
@@ -82,7 +82,7 @@ function discoverDisks(forceMonitor) {
             var diskLetter;
             var foundNewDisks = false;
             for (i = 0; i < list.length; i++) {
-                if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) == true) {
+                if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) === true) {
                     diskLetter = list[i].charAt(12);
                     if (currentLogicalDisks.indexOf(diskLetter) == -1) {
                         currentLogicalDisks.push(diskLetter);
@@ -91,7 +91,7 @@ function discoverDisks(forceMonitor) {
                     }
                 }
             }
-            if (forceMonitor == true || foundNewDisks == true) {
+            if (forceMonitor === true || foundNewDisks === true) {
                 startMonitoring();
             }
         }
@@ -99,7 +99,7 @@ function discoverDisks(forceMonitor) {
 }
 //for each disk letter initialize the appropriate fields
 function addDiskCounters(diskLetter) {
-    logger.info("Df plugin monitoring: " + diskLetter);
+    logger.info('Df plugin monitoring: ' + diskLetter);
     var i;
     var newCounter;
     for(i in countersPerDisk) {
@@ -107,16 +107,16 @@ function addDiskCounters(diskLetter) {
         counters.push(newCounter);
     }
     counterRepo.disks[diskLetter] = {};
-    counterRepo.disks[diskLetter]['pluginInstance'] = collectdClient.plugin('df', (diskLetter == '_Total') ? 'total' : diskLetter);
-    counterRepo.disks[diskLetter]['free'] = 0;
+    counterRepo.disks[diskLetter].pluginInstance = collectdClient.plugin('df', (diskLetter == '_Total') ? 'total' : diskLetter);
+    counterRepo.disks[diskLetter].free = 0;
     counterRepo.disks[diskLetter]['free%'] = 0;
-    counterRepo.disks[diskLetter]['used'] = 0;
-    counterRepo.disks[diskLetter]['reserved'] = 0;
-    counterRepo.disks[diskLetter]['total'] = 0;
+    counterRepo.disks[diskLetter].used = 0;
+    counterRepo.disks[diskLetter].reserved = 0;
+    counterRepo.disks[diskLetter].total = 0;
 }
 //gets the values returned from perfmon and sets them in the repo
 function startMonitoring() {
-    if (counters.length == 0) {
+    if (counters.length === 0) {
         return;
     }
     perfmon(counters, function(err, data) {
@@ -127,16 +127,16 @@ function startMonitoring() {
                 if (type == '% Free Space') {
                     counterRepo.disks[diskLetter]['free%'] = parseInt(data.counters[counter]);
                 } else if (type == 'Free Megabytes') {
-                    counterRepo.disks[diskLetter]['free'] = parseInt(data.counters[counter]) / 1024;
+                    counterRepo.disks[diskLetter].free = parseInt(data.counters[counter]) / 1024;
                 }
             }
             failedAttempts = 0;
             flushValues();
         } else {
-            logger.info("No values returned to df plugin");
+            logger.info('No values returned to df plugin');
             failedAttempts++;
             if (failedAttempts == 10) {
-                logger.info("It's the 10th failed attempt to get metrics for df. Restarting perfmon.");
+                logger.info('It is the 10th failed attempt to get metrics for df. Restarting perfmon.');
                 perfmon.stop();
                 failedAttempts = 0;
                 setTimeout(startMonitoring, 1000);
@@ -147,21 +147,21 @@ function startMonitoring() {
 //sends the values to the collectd client
 function flushValues() {
     for(var diskLetter in counterRepo.disks) {
-        if (counterRepo.disks[diskLetter]['free'] != 0 && counterRepo.disks[diskLetter]['free%'] != 0) {
-            counterRepo.disks[diskLetter]['used'] = (100 - counterRepo.disks[diskLetter]['free%']) * (counterRepo.disks[diskLetter]['free'] / counterRepo.disks[diskLetter]['free%'])
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'reserved', 0 );
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'free', counterRepo.disks[diskLetter]['free']);
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'used', counterRepo.disks[diskLetter]['used']);
-            var new_total = 100 * (counterRepo.disks[diskLetter]['free'] / counterRepo.disks[diskLetter]['free%'])
-            if (counterRepo.disks[diskLetter]['total'] == 0) {
-                counterRepo.disks[diskLetter]['total'] = new_total;
-            } else if (new_total - counterRepo.disks[diskLetter]['total']  > 1 || new_total - counterRepo.disks[diskLetter]['total'] < -1) {
-                counterRepo.disks[diskLetter]['total'] = new_total;
+        if (counterRepo.disks[diskLetter].free !== 0 && counterRepo.disks[diskLetter]['free%'] !== 0) {
+            counterRepo.disks[diskLetter].used = (100 - counterRepo.disks[diskLetter]['free%']) * (counterRepo.disks[diskLetter].free / counterRepo.disks[diskLetter]['free%']);
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'reserved', 0 );
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'free', counterRepo.disks[diskLetter].free);
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'used', counterRepo.disks[diskLetter].used);
+            var new_total = 100 * (counterRepo.disks[diskLetter].free / counterRepo.disks[diskLetter]['free%']);
+            if (counterRepo.disks[diskLetter].total === 0) {
+                counterRepo.disks[diskLetter].total = new_total;
+            } else if (new_total - counterRepo.disks[diskLetter].total  > 1 || new_total - counterRepo.disks[diskLetter].total < -1) {
+                counterRepo.disks[diskLetter].total = new_total;
             }
-        } else if (counterRepo.disks[diskLetter]['free'] != 0 && counterRepo.disks[diskLetter]['free%'] == 0) {
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'reserved', 0);
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'free', 0);
-            counterRepo.disks[diskLetter]['pluginInstance'].setGauge('df_complex', 'used', counterRepo.disks[diskLetter]['total']);
+        } else if (counterRepo.disks[diskLetter].free !== 0 && counterRepo.disks[diskLetter]['free%'] === 0) {
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'reserved', 0);
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'free', 0);
+            counterRepo.disks[diskLetter].pluginInstance.setGauge('df_complex', 'used', counterRepo.disks[diskLetter].total);
         }
     }
 }
@@ -189,9 +189,9 @@ exports.monitor = function () {
     if (typeof cfg.autodiscover == 'undefined' || cfg.autodiscover == 1) {
         discoverDisks(true);
         setInterval(function () { discoverDisks(false); }, default_interval);
-        logger.info("Autodiscover is turned on for df plugin.");
+        logger.info('Autodiscover is turned on for df plugin.');
     } else {
-        logger.info("Autodiscover is turned off for df plugin.");
+        logger.info('Autodiscover is turned off for df plugin.');
         startMonitoring();
     }
 };

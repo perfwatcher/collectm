@@ -56,7 +56,7 @@ function runPings() {
 
 ping.on('ping:output', function (data) {
     var i;
-    var split = data.toString().split("\n");
+    var split = data.toString().split('\n');
     var time;
 
     for (i=0 ; i<split.length ; i++) {
@@ -67,8 +67,8 @@ ping.on('ping:output', function (data) {
         if (split[i].length > 0) {
             //check if it is Reply line from 'localhost'
             if (split[i].match(/Reply\sfrom\s::1([a-z]|.|\s|=|\d|:)+/)) {
-                if (split[i].indexOf("time<") != -1) {
-                    time = parseInt(split[i].substring(split[i].search("time<") + "time<".length, split[i].search("ms")));
+                if (split[i].indexOf('time<') != -1) {
+                    time = parseInt(split[i].substring(split[i].search('time<') + 'time<'.length, split[i].search('ms')));
 
                     pingData.replies.push(time);
                     pingData.sum += time;
@@ -110,8 +110,8 @@ ping.on('ping:output', function (data) {
                     }
                     pingData.average = pingData.sum / pingData.sent;
                 } else {
-                    if (split[i].indexOf("time=") != -1) {
-                        time = parseInt(split[i].substring(split[i].search("time=") + "time=".length, split[i].search("ms")));
+                    if (split[i].indexOf('time=') != -1) {
+                        time = parseInt(split[i].substring(split[i].search('time=') + 'time='.length, split[i].search('ms')));
                         pingData.replies.push(time);
                         pingData.sent++;
 
@@ -133,9 +133,9 @@ ping.on('ping:output', function (data) {
             }
             //check if it is Packets: line
             else if (split[i].match(/Packets:([a-z]|.|\s|=|\d|:)+/)) {
-                pingData.sent = getNumber(split[i], split[i].search("Sent") + "Sent = ".length);
-                pingData.received = getNumber(split[i], split[i].search("Received") + "Received = ".length);
-                pingData.lost = getNumber(split[i], split[i].search("Lost") + "Lost = ".length);
+                pingData.sent = getNumber(split[i], split[i].search('Sent') + 'Sent = '.length);
+                pingData.received = getNumber(split[i], split[i].search('Received') + 'Received = '.length);
+                pingData.lost = getNumber(split[i], split[i].search('Lost') + 'Lost = '.length);
                 pingData['loss%'] = getNumber(split[i], split[i].search(/\(/) + 1);
                 if (pingData['loss%'] == 100) {
                     pingData.finished = true;
@@ -144,14 +144,14 @@ ping.on('ping:output', function (data) {
             }
             //check if it is Statistics line
             else if(split[i].match(/Minimum([a-z]|.|\s|=|\d|:)+/)) {
-                pingData.minimum = getNumber(split[i], split[i].search("Minimum") + "Minimum = ".length);
-                pingData.maximum = getNumber(split[i], split[i].search("Maximum") + "Maximum = ".length);
-                pingData.average = getNumber(split[i], split[i].search("Average") + "Average = ".length);
+                pingData.minimum = getNumber(split[i], split[i].search('Minimum') + 'Minimum = '.length);
+                pingData.maximum = getNumber(split[i], split[i].search('Maximum') + 'Maximum = '.length);
+                pingData.average = getNumber(split[i], split[i].search('Average') + 'Average = '.length);
                 pingData.finished = true;
                 clearTimeout(stopId);
             }
             //request timed out
-            else if(split[i] === "Request timed out.") {
+            else if(split[i] === 'Request timed out.') {
                 time = 0;
                 pingData.replies.push(time);
                 pingData.sent++;
@@ -235,11 +235,11 @@ exports.monitor = function () {
                     var newHost = {};
                     newHost.host = hostName;
                     hosts.push(newHost);
-                    logger.info("Will ping host: " + newHost.host);
+                    logger.info('Will ping host: ' + newHost.host);
                 }
             }
             else {
-                logger.info("Host: " + hostName + " has syntactic issues!It will not be used");
+                logger.info('Host: ' + hostName + ' has syntactic issues! It will not be used');
             }
         }
     }

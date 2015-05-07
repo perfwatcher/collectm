@@ -12,12 +12,12 @@ var currentLogicalDisks = [];
 var failedAttempts = 0;
 
 var countersPerDisk = [
-    '% Disk Read Time'
-    ,'% Disk Write Time'
-    ,'Disk Read Bytes/sec'
-    ,'Disk Write Bytes/sec'
-    ,'Disk Reads/sec'
-    ,'Disk Writes/sec'
+    '% Disk Read Time',
+    '% Disk Write Time',
+    'Disk Read Bytes/sec',
+    'Disk Write Bytes/sec',
+    'Disk Reads/sec',
+    'Disk Writes/sec'
 ];
 
 var collectdMetrics = [
@@ -43,7 +43,7 @@ counterTypeToFieldMap['Disk Reads/sec'] = 'read';
 counterTypeToFieldMap['Disk Writes/sec'] = 'write';
 
 var counterRepo = {};
-counterRepo['disks'] = {};
+counterRepo.disks = {};
 
 var counters = [];
 
@@ -57,7 +57,7 @@ function getLetterOfCounter(counter) {
             break;
         } else if (counter.charAt(i) == ')') {
             end = i;
-            if (counter.charAt(i - 1) == ":") {
+            if (counter.charAt(i - 1) == ':') {
                 end--;
             }
         }
@@ -83,7 +83,7 @@ function initializeDiskLetters(disks) {
             if (diskLetter.match(/^([a-z])$/)) {
                 diskLetter = diskLetter.toUpperCase();
             } else if (diskLetter.match(/^(total|_total|Total)$/i)){
-                diskLetter = "_Total";
+                diskLetter = '_Total';
             }
             if (currentLogicalDisks.indexOf(diskLetter) == -1) {
                 currentLogicalDisks.push(diskLetter);
@@ -95,8 +95,8 @@ function initializeDiskLetters(disks) {
 //find all the disks currently on the system
 function discoverDisks(forceMonitor) {
     perfmon.list('logicaldisk', function (err, data) {
-        if (typeof data == 'undefined' || typeof data['counters'] == 'undefined') {
-            logger.info("Data.counters is undefined. Trying again.");
+        if (typeof data == 'undefined' || typeof data.counters == 'undefined') {
+            logger.info('Data.counters is undefined. Trying again.');
             discoverDisks();
         } else {
             var list = data.counters;
@@ -104,7 +104,7 @@ function discoverDisks(forceMonitor) {
             var diskLetter;
             var foundNewDisks = false;
             for (i = 0; i < list.length; i++) {
-                if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) == true) {
+                if (/logicaldisk\([A-Z]:\)\\%\sFree\sSpace/.test(list[i]) === true) {
                     diskLetter = list[i].charAt(12);
                     if (currentLogicalDisks.indexOf(diskLetter) == -1) {
                         currentLogicalDisks.push(diskLetter);
@@ -113,7 +113,7 @@ function discoverDisks(forceMonitor) {
                     }
                 }
             }
-            if (forceMonitor == true || foundNewDisks == true) {
+            if (forceMonitor === true || foundNewDisks === true) {
                 startMonitoring();
             }
         }
@@ -121,7 +121,7 @@ function discoverDisks(forceMonitor) {
 }
 //for each disk letter initialize the appropriate fields
 function addDiskCounters(diskLetter) {
-    logger.info("Disk plugin monitoring: " + diskLetter);
+    logger.info('Disk plugin monitoring: ' + diskLetter);
     var i;
     var newCounter;
     for(i in countersPerDisk) {
@@ -129,16 +129,16 @@ function addDiskCounters(diskLetter) {
         counters.push(newCounter);
     }
     counterRepo.disks[diskLetter] = {};
-    counterRepo.disks[diskLetter]['pluginInstance'] = collectdClient.plugin('disk', (diskLetter == '_Total') ? 'total' : diskLetter);
+    counterRepo.disks[diskLetter].pluginInstance = collectdClient.plugin('disk', (diskLetter == '_Total') ? 'total' : diskLetter);
     for (i in collectdMetrics) {
         counterRepo.disks[diskLetter][collectdMetrics[i]] = {};
-        counterRepo.disks[diskLetter][collectdMetrics[i]]['read'] = 0;
-        counterRepo.disks[diskLetter][collectdMetrics[i]]['write'] = 0;
+        counterRepo.disks[diskLetter][collectdMetrics[i]].read = 0;
+        counterRepo.disks[diskLetter][collectdMetrics[i]].write = 0;
     }
 }
 //gets the values returned from perfmon and sets them in the repo
 function startMonitoring() {
-    if (counters.length == 0) {
+    if (counters.length === 0) {
         return;
     }
     perfmon(counters, function(err, data) {
@@ -153,10 +153,10 @@ function startMonitoring() {
             failedAttempts = 0;
             flushValues();
         } else {
-            logger.info("No values returned to disk plugin");
+            logger.info('No values returned to disk plugin');
             failedAttempts++;
             if (failedAttempts == 10) {
-                logger.info("It's the 10th failed attempt to get metrics for disks. Restarting perfmon.");
+                logger.info('It is the 10th failed attempt to get metrics for disks. Restarting perfmon.');
                 perfmon.stop();
                 failedAttempts = 0;
                 setTimeout(startMonitoring, 1000);
@@ -169,11 +169,11 @@ function flushValues() {
     for(var diskLetter in counterRepo.disks) {
         for (var i in collectdMetrics) {
             var collectdMetric = collectdMetrics[i];
-            var read = counterRepo.disks[diskLetter][collectdMetric]['read'];
-            var write = counterRepo.disks[diskLetter][collectdMetric]['write'];
-            counterRepo.disks[diskLetter]['pluginInstance'].addCounter(collectdMetric, '', [read, write]);
-            counterRepo.disks[diskLetter][collectdMetric]['read'] = 0;
-            counterRepo.disks[diskLetter][collectdMetric]['write'] = 0;
+            var read = counterRepo.disks[diskLetter][collectdMetric].read;
+            var write = counterRepo.disks[diskLetter][collectdMetric].write;
+            counterRepo.disks[diskLetter].pluginInstance.addCounter(collectdMetric, '', [read, write]);
+            counterRepo.disks[diskLetter][collectdMetric].read = 0;
+            counterRepo.disks[diskLetter][collectdMetric].write = 0;
         }
     }
 }
@@ -201,9 +201,9 @@ exports.monitor = function () {
     if (typeof cfg.autodiscover == 'undefined' || cfg.autodiscover == 1) {
         discoverDisks(true);
         setInterval(function () { discoverDisks(false); }, default_interval);
-        logger.info("Autodiscover is turned on for disk plugin.");
+        logger.info('Autodiscover is turned on for disk plugin.');
     } else {
-        logger.info("Autodiscover is turned off for disk plugin.");
+        logger.info('Autodiscover is turned off for disk plugin.');
         startMonitoring();
     }
 };

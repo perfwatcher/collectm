@@ -24,7 +24,7 @@ var noCounterDataTries = 0;
 
 function getAvgLoad(num_of_turns, timeframe) {
     //division by zero === 'very bad idea'
-    if (counter_repo.turns == 0) {
+    if (counter_repo.turns === 0) {
         return 0.0;
     }
     var actual_turns;
@@ -42,15 +42,15 @@ function getAvgLoad(num_of_turns, timeframe) {
         actual_turns =  counter_repo.turns;
 
         if (!counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].hasOwnProperty('earliestValue')) {
-            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['earliestValue'] =
+            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].earliestValue =
                 counter_repo.currentCounters['\\processor(_total)\\% processor time'].values[0];
-            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['value'] = 0;
+            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].value = 0;
         }
 
         if (!counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].hasOwnProperty('earliestValue')) {
-            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['earliestValue'] =
+            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].earliestValue =
                 counter_repo.currentCounters['\\System\\Processor Queue Length'].values[0];
-            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['value'] = 0;
+            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].value = 0;
         }
 
         //add newest value to already existing sum
@@ -62,31 +62,31 @@ function getAvgLoad(num_of_turns, timeframe) {
         newestValuePos = counter_repo.currentCounters['\\processor(_total)\\% processor time'].values.length - 1;
 
         //subtracting earliest value of previous sum
-        counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['value'] -=
-            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['earliestValue'];
-        counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['value'] -=
-            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['earliestValue'];
+        counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].value -=
+            counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].earliestValue;
+        counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].value -=
+            counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].earliestValue;
     }
 
     //adding newest value
-    counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['value'] +=
+    counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].value +=
         counter_repo.currentCounters['\\processor(_total)\\% processor time'].values[newestValuePos];
 
-    counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['value'] +=
+    counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].value +=
         counter_repo.currentCounters['\\System\\Processor Queue Length'].values[newestValuePos];
 
     if (counter_repo.turns >= num_of_turns) {
         var earliestValuePos = counter_repo.currentCounters['\\processor(_total)\\% processor time'].values.length - num_of_turns;
 
         //updating earliest value
-        counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['earliestValue'] =
+        counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].earliestValue =
             counter_repo.currentCounters['\\processor(_total)\\% processor time'].values[earliestValuePos];
-        counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['earliestValue'] =
+        counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].earliestValue =
             counter_repo.currentCounters['\\System\\Processor Queue Length'].values[earliestValuePos];
     }
 
-    totalLoad = cpus * ((counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe]['value'] / actual_turns) / 100);
-    totalProcesses = counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe]['value'] / actual_turns;
+    totalLoad = cpus * ((counter_repo.currentCounters['\\processor(_total)\\% processor time'][timeframe].value / actual_turns) / 100);
+    totalProcesses = counter_repo.currentCounters['\\System\\Processor Queue Length'][timeframe].value / actual_turns;
 
     return (totalLoad + totalProcesses);
 }
@@ -98,10 +98,10 @@ function getUnixLoad() {
         emptyData = false;
         for (var i = 0; i < avgLoadCounters.length; i++) {
             if (typeof data != 'undefined' && typeof data.counters != 'undefined' && typeof data.counters[avgLoadCounters[i]] != 'undefined') {
-                counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(data.counters[avgLoadCounters[i]]);
+                counter_repo.currentCounters[avgLoadCounters[i]].value.push(data.counters[avgLoadCounters[i]]);
             } else {
-                logger.info("No value for counter: " + avgLoadCounters[i] + " in load plugin.");
-                counter_repo.currentCounters[avgLoadCounters[i]]['values'].push(0);
+                logger.info('No value for counter: ' + avgLoadCounters[i] + ' in load plugin.');
+                counter_repo.currentCounters[avgLoadCounters[i]].value.push(0);
                 emptyData = true;
             }
         }
@@ -112,7 +112,7 @@ function getUnixLoad() {
         var longterm = parseFloat(getAvgLoad(900, '15m').toFixed(2));
         plugin.setGauge('load', '', [shortterm, midterm, longterm]);
         if (noCounterDataTries == 10) {
-            logger.info("After 10 failed attempts no data from perfmon. Restarting perfmon");
+            logger.info('After 10 failed attempts no data from perfmon. Restarting perfmon');
             perfmon.stop();
             noCounterDataTries = 0;
             setTimeout(getUnixLoad, 1000);
@@ -124,8 +124,8 @@ function initializeCounterRepo() {
     counter_repo.currentCounters = {};
     for (var i = 0; i < avgLoadCounters.length; i++) {
         counter_repo.currentCounters[avgLoadCounters[i]] = {};
-        counter_repo.currentCounters[avgLoadCounters[i]]["values"] = [];
-        counter_repo.currentCounters[avgLoadCounters[i]]["final_value"] = 0;
+        counter_repo.currentCounters[avgLoadCounters[i]].values = [];
+        counter_repo.currentCounters[avgLoadCounters[i]].final_value = 0;
     }
     counter_repo.turns = 0;
 }
@@ -141,13 +141,13 @@ function testing() {
         totalProcesses += counter_repo.currentCounters['\\System\\Processor Queue Length'].values[valuesLength - i];
     }
 
-    logger.info("Total load: " + totalLoad);
-    logger.info("Total processes: " + totalProcesses);
-    logger.info("Actual turns: " + actualTurns);
+    logger.info('Total load: ' + totalLoad);
+    logger.info('Total processes: ' + totalProcesses);
+    logger.info('Actual turns: ' + actualTurns);
     totalLoad = cpus * ((totalLoad / actualTurns) / 100);
     totalProcesses = totalProcesses / actualTurns;
 
-    logger.info("Result: " + (totalLoad + totalProcesses));
+    logger.info('Result: ' + (totalLoad + totalProcesses));
 }
 
 exports.configShow = function () {
