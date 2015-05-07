@@ -85,6 +85,19 @@
             "commandline": ".*collectm.*nssm\\.exe.*"
         }
       }
-    }
+    },
+	"df": {
+	  "enable": 1,
+	  "autodiscover": 1,
+// This is an example.
+// Plugin can either autodiscover all the disks mounted on the system
+// or point to a particular disk like below.
+// If set to autodiscover it will also find new disks that are mounted after starting the service.
+// Autodiscover will override the disks setting if both are set.
+// If disk is no longer available no data will be sent.
+      "disks": {
+	    "total" : 1
+	  }
+	}
   }
 }
