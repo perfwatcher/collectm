@@ -111,6 +111,16 @@
         "disks": {
         "total" : 1
       }
+    },
+    "ping": {
+      "enable": 1,
+// This is an example. If you want to change which url is pinged you can do so like shown below:
+//There is no limit to how many addresses can be pinged. They have to be all in an array.
+      "hosts": {
+        "www.someurl.com": 0,
+        "www.someotherurl.com": 1
+      }
     }
   }
 }
+
