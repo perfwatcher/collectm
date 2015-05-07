@@ -216,33 +216,27 @@ exports.monitor = function () {
 
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['cpu'] === 'undefined' || cfg.modules['cpu'] == 1) {
         launch_collector_cpu(default_interval);
-    } else {
-        logger.info("Deactivating cpu module");
+        logger.info("Enabling CollectdCompat cpu module");
     }
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['memory'] === 'undefined' || cfg.modules['memory'] == 1) {
         launch_collector_memory(default_interval);
-    } else {
-        logger.info("Deactivating memory module");
+        logger.info("Enabling CollectdCompat memory module");
     }
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['interface'] === 'undefined' || cfg.modules['interface'] == 1) {
         launch_collector_interface(default_interval);
-    } else {
-        logger.info("Deactivating interface module");
+        logger.info("Enabling CollectdCompat interface module");
     }
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['uptime'] === 'undefined' || cfg.modules['uptime'] == 1) {
         launch_collector_uptime(default_interval);
-    } else {
-        logger.info("Deactivating uptime module");
+        logger.info("Enabling CollectdCompat uptime module");
     }
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['process'] === 'undefined' || cfg.modules['process'] == 1) {
         launch_collector_process(default_interval);
-    } else {
-        logger.info("Deactivating process module");
+        logger.info("Enabling CollectdCompat process module");
     }
     if (typeof cfg.modules === 'undefined' || typeof cfg.modules['swap'] === 'undefined' || cfg.modules['swap'] == 1) {
         launch_collector_swap(default_interval);
-    } else {
-        logger.info("Deactivating swap module");
+        logger.info("Enabling CollectdCompat module");
     }
 };
 
