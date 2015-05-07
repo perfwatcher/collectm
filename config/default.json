@@ -120,7 +120,11 @@
         "www.someurl.com": 0,
         "www.someotherurl.com": 1
       }
+    },
+    "load": {
+      "enable": 1
     }
   }
 }
+
 
