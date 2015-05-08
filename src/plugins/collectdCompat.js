@@ -170,10 +170,6 @@ function launch_collector_interface(interval) { // {{{
     get_interface();
     setInterval(get_interface, interval);
 } // }}}
-
-function launch_collector_load() { // {{{
-    perfmonGaugeToPlugin('\\processor(_total)\\% processor time', 'load', '', 'percent', '');
-} // }}}
 function get_uptime() { // {{{
     var plugin = client.plugin('uptime', '');
     plugin.setGauge('uptime', '', os.uptime());
