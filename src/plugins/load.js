@@ -1,3 +1,5 @@
+/*! CollectM - v1.5.1modularization - Built 2015-05-08 */
+
 var winston = require('winston');
 var path = require('path');
 var perfmon = require('perfmon');
@@ -98,10 +100,10 @@ function getUnixLoad() {
         emptyData = false;
         for (var i = 0; i < avgLoadCounters.length; i++) {
             if (typeof data != 'undefined' && typeof data.counters != 'undefined' && typeof data.counters[avgLoadCounters[i]] != 'undefined') {
-                counter_repo.currentCounters[avgLoadCounters[i]].value.push(data.counters[avgLoadCounters[i]]);
+                counter_repo.currentCounters[avgLoadCounters[i]].values.push(data.counters[avgLoadCounters[i]]);
             } else {
                 logger.info('No value for counter: ' + avgLoadCounters[i] + ' in load plugin.');
-                counter_repo.currentCounters[avgLoadCounters[i]].value.push(0);
+                counter_repo.currentCounters[avgLoadCounters[i]].values.push(0);
                 emptyData = true;
             }
         }
