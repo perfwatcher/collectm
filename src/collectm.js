@@ -91,7 +91,7 @@ function get_collectd_servers_and_ports() {
     return(res);
 }
 
-logger.info("Default interval is: " + get_interval() + "ms");
+logger.info('Default interval is: ' + get_interval() + 'ms');
 
 function get_interval() {
     return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
