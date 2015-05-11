@@ -1,5 +1,3 @@
-/*! CollectM - v1.5.1modularization - Built 2015-05-08 */
-
 var winston = require('winston');
 var path = require('path');
 var perfmon = require('perfmon');

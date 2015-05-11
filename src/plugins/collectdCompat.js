@@ -1,6 +1,3 @@
-/*! CollectM - v1.5.1 - Built 2015-04-15 */
-
-
 var os = require('os');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
