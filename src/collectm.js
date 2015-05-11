@@ -19,6 +19,7 @@ var prefix = path.join(path.dirname(require.main.filename), '..');
 var collectmHostname = 'unknown';
 var collectmTimeToLive = 0;
 var logdeletiondays = 0;
+var defaultInterval = 60000;
 
 // Initialize logger
 try {
@@ -141,7 +142,9 @@ function remove_old_logs(days) {
 
 collectmHostname = get_hostname_with_case();
 logger.log('info', 'Sending metrics to Collectd with hostname '+collectmHostname+' (case sensitive).');
-client = new Collectd(get_interval(), get_collectd_servers_and_ports(), 0, collectmHostname);
+defaultInterval = get_interval();
+client = new Collectd(defaultInterval, get_collectd_servers_and_ports(), 0, collectmHostname);
+logger.log('info', 'Default interval is ' + defaultInterval + ' ms');
 
 /* Load the plugins */
 pluginsCfg = cfg.has('Plugin') ? cfg.get('Plugin') : [];

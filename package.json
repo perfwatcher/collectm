@@ -1,6 +1,6 @@
 {
   "name": "CollectM",
-  "version": "1.5.1",
+  "version": "1.5.1modularization",
   "author": "Cyril Feraudet",
   "license": "GPLv2",
   "dependancies": {
@@ -12,7 +12,8 @@
     "connect-basic-auth": "~0.1.0",
     "express": "~4.4.5",
     "process": "~0.7.0",
-    "config": ">=1.2.0"
+    "config": ">=1.2.0",
+    "ping-output":  "1.0.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

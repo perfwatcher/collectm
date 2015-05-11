@@ -1,4 +1,3 @@
-
 var os = require('os');
 var diskspace = require('diskspace');
 var perfmon = require('perfmon');
@@ -92,132 +91,6 @@ function launch_collector_memory(interval) { // {{{
     perfmonCounterToPlugin('\\Server\\Pool Paged Failures', 'memory', '', 'swap_io', 'pool_paged_failures');
 } // }}}
 
-function get_df() { // {{{
-    each(known_disks_letters, function (disk) {
-        if (typeof counters['df-'+known_disks_letters[disk]] == 'undefined') {
-            counters['df-'+known_disks_letters[disk]] = client.plugin('df', known_disks_letters[disk]);
-        }
-        diskspace.check(known_disks_letters[disk], function (total, free, status) {
-            if (typeof status != 'undefined' && total > 0) {
-                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'reserved', 0 );
-                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'free', parseInt(free));
-                counters['df-'+known_disks_letters[disk]].setGauge('df_complex', 'used', (parseInt(total) - parseInt(free)));
-            }
-        });
-    });
-
-} // }}}
-function launch_collector_df(interval) { // {{{
-    get_df();
-    setInterval(get_df, interval);
-} // }}}
-
-function refresh_known_disk_letters() { // {{{
-    var regex;
-    var result;
-    var disk;
-    var unique_letters = {};
-    var i;
-    var k;
-
-    for(i=0; i<known_disks.length; i++) {
-        regex = /^PhysicalDisk\((.*)\)\\/;
-        result = known_disks[i].match(regex);
-        if (result[1] != '_Total') {
-            disk = result[1].substr(2,1);
-            unique_letters[disk] = 1;
-        }
-    }
-    known_disks_letters = [];
-    for(k in unique_letters) known_disks_letters.push(k.toLowerCase());
-} // }}}
-
-function get_disk() { // {{{
-    perfmon.list('PhysicalDisk', function(err, datas) {
-        var newcounters = datas.counters.sort();
-        if((newcounters.length!=known_disks.length)
-                || ! (newcounters.every(function(v,i) { return (v === known_disks[i]); } ))) {
-            known_disks = newcounters;
-
-            refresh_known_disk_letters();
-
-            perfmon(known_disks, function(err, data) {
-                var results = {};
-                each(data.counters, function (metric, value) {
-                    var regex = /^PhysicalDisk\((.*)\)\\(.*)/;
-                    var result = metric.match(regex);
-                    var disk;
-                    if (result[1] == '_Total') {
-                        disk = 'total';
-                    } else {
-                        disk = result[1].substr(2,1);
-                    }
-                    if (typeof results[disk] == 'undefined') {
-                        results[disk] = {};
-                    }
-                    if (typeof counters['disk-'+disk] == 'undefined') {
-                        counters['disk-'+disk] = client.plugin('disk', disk);
-                    }
-                    switch(result[2]) {
-                        case 'Disk Read Bytes/sec':
-                            results[disk].disk_octet_read = value;
-                            if (typeof results[disk].disk_octet_write != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
-                                delete results[disk].disk_octet_write;
-                                delete results[disk].disk_octet_read;
-                            }
-                        break;
-                        case 'Disk Write Bytes/sec':
-                            results[disk].disk_octet_write = value;
-                            if (typeof results[disk].disk_octet_read != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_octets', '', [results[disk].disk_octet_read, results[disk].disk_octet_write]);
-                                delete results[disk].disk_octet_read;
-                                delete results[disk].disk_octet_write;
-                            }
-                        break;
-                        case '% Disk Read Time':
-                            results[disk].disk_read_time = Number(value / 100);
-                            if (typeof results[disk].disk_write_time != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
-                                delete results[disk].disk_write_time;
-                                delete results[disk].disk_read_time;
-                            }
-                        break;
-                        case '% Disk Write Time':
-                            results[disk].disk_write_time = Number(value / 100);
-                            if (typeof results[disk].disk_read_time != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_time', '', [results[disk].disk_read_time, results[disk].disk_write_time]);
-                                delete results[disk].disk_read_time;
-                                delete results[disk].disk_write_time;
-                            }
-                        break;
-                        case 'Disk Reads/sec':
-                            results[disk].disk_read = value;
-                            if (typeof results[disk].disk_write != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
-                                delete results[disk].disk_write;
-                                delete results[disk].disk_read;
-                            }
-                        break;
-                        case 'Disk Writes/sec':
-                            results[disk].disk_write = value;
-                            if (typeof results[disk].disk_read != 'undefined') {
-                                counters['disk-'+disk].addCounter('disk_ops', '', [results[disk].disk_read, results[disk].disk_write]);
-                                delete results[disk].disk_read;
-                                delete results[disk].disk_write;
-                            }
-                        break;
-                    }
-            });
-        });
-        }
-    });
-} // }}}
-function launch_collector_disk(interval) { // {{{
-    get_disk();
-    setInterval(get_disk, interval);
-} // }}}
-
 function get_interface() { // {{{
     perfmon.list('Network Interface', function(err, datas) {
         var newcounters = datas.counters.sort();
@@ -294,10 +167,6 @@ function launch_collector_interface(interval) { // {{{
     get_interface();
     setInterval(get_interface, interval);
 } // }}}
-
-function launch_collector_load() { // {{{
-    perfmonGaugeToPlugin('\\processor(_total)\\% processor time', 'load', '', 'percent', '');
-} // }}}
 function get_uptime() { // {{{
     var plugin = client.plugin('uptime', '');
     plugin.setGauge('uptime', '', os.uptime());
@@ -337,15 +206,31 @@ exports.reloadConfig = function(c) { // {{{
 
 exports.monitor = function () {
     var default_interval = cfg.interval || client.interval || 60000;
-    launch_collector_cpu       (default_interval);
-    launch_collector_memory    (default_interval);
-    launch_collector_df        (default_interval);
-    launch_collector_disk      (default_interval);
-    launch_collector_interface (default_interval);
-    launch_collector_load      (default_interval);
-    launch_collector_uptime    (default_interval);
-    launch_collector_process   (default_interval);
-    launch_collector_swap      (default_interval);
+
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.cpu === 'undefined' || cfg.modules.cpu == 1) {
+        launch_collector_cpu(default_interval);
+        logger.info('Enabling CollectdCompat cpu module');
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.memory === 'undefined' || cfg.modules.memory == 1) {
+        launch_collector_memory(default_interval);
+        logger.info('Enabling CollectdCompat memory module');
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.interface === 'undefined' || cfg.modules.interface == 1) {
+        launch_collector_interface(default_interval);
+        logger.info('Enabling CollectdCompat interface module');
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.uptime === 'undefined' || cfg.modules.uptime == 1) {
+        launch_collector_uptime(default_interval);
+        logger.info('Enabling CollectdCompat uptime module');
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.process === 'undefined' || cfg.modules.process == 1) {
+        launch_collector_process(default_interval);
+        logger.info('Enabling CollectdCompat process module');
+    }
+    if (typeof cfg.modules === 'undefined' || typeof cfg.modules.swap === 'undefined' || cfg.modules.swap == 1) {
+        launch_collector_swap(default_interval);
+        logger.info('Enabling CollectdCompat module');
+    }
 };
 
 
