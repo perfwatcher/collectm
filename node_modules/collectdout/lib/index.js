@@ -1,6 +1,7 @@
 var dgram = require('dgram');
 var net = require('net');
 var os = require('os');
+var crypto = require('crypto');
 
 /**
  * Generic helper because all Collectd plugins and PluginInstance
@@ -92,8 +93,8 @@ PluginInstance.prototype = {
  *
  * Syntax :
  *   1/ var client = Collectd();
- *   2/ var client = Collectd(int, string, int, string);
- *   3/ var client = Collectd(int, object, ignored, string);
+ *   2/ var client = Collectd(int, string, int, string, int, string, string);
+ *   3/ var client = Collectd(int, object, ignored, string, int, string, string);
  *
  * All arguments are optional (like in syntax 1)
  * Syntax 1
@@ -103,16 +104,30 @@ PluginInstance.prototype = {
  *   arg2 is the Collectd server name
  *   arg3 is the Collectd server port
  *   arg4 is the host name used in Collectd values
+ *   arg5 is the security level (0: No security, 1: Sign, 2: Encrypt)
+ *        optional, defaults to 0 (No security)
+ *   arg6 is the username used for signing/encrypting
+ *        required only if security level is 1 (Sign) or 2 (Encrypt)
+ *   arg7 is the password used for signing/encrypting
+ *        required only if security level is 1 (Sign) or 2 (Encrypt)
  * Syntax 3
  *   arg1 is the interval between 2 sending data to Collectd servers
  *   arg2 is an array like this : [ ['host1', port], ['host2', port], ...]
  *   arg3 is ignored.
  *   arg4 is the host name used in Collectd values
+ *   arg5 is the security level (0: No security, 1: Sign, 2: Encrypt)
+ *        optional, defaults to 0 (No security)
+ *   arg6 is the username used for signing/encrypting
+ *        required only if security level is 1 (Sign) or 2 (Encrypt)
+ *   arg7 is the password used for signing/encrypting
+ *        required only if security level is 1 (Sign) or 2 (Encrypt)
  */
-function Collectd(interval, host, port, hostname) {
+function Collectd(interval, host, port, hostname, securityLevel, username, password) {
     this.interval = interval || 10000;
     this.serverHosts = [];
-
+    this.securityLevel = securityLevel;
+    this.username = username;
+    this.password = password;
     this.plugins = {};
     this.hostname = typeof hostname !== 'undefined' ? hostname : os.hostname();
 
@@ -156,8 +171,12 @@ Collectd.prototype.plugin = function(name, instance) {
  */
 Collectd.prototype.send = function() {
     var prevHostname, prevPlugin, prevInstance, prevType, prevTypeInstance, prevTime, prevInterval;
-
-    var pkt = new Packet(this.write.bind(this));
+    var pkt = new Packet({
+        sendCb: this.write.bind(this),
+        securityLevel: this.securityLevel,
+        username: this.username,
+        password: this.password,
+    });
     var hostname = this.hostname;
     var interval = this.interval;
     var time = Math.floor(new Date().getTime() / 1000);
@@ -245,8 +264,9 @@ Collectd.prototype.NOTIF_OKAY=4;
  * Note : if notif.h is defined and its value is false, the default hostname will be sent
  */
 Collectd.prototype.sendNotif = function(notif) {
-
-    var pkt = new Packet(this.write.bind(this));
+    var pkt = new Packet({
+        sendCb: this.write.bind(this)
+    });
     var hostname = this.hostname;
     var time = Math.floor(new Date().getTime() / 1000);
 
@@ -279,20 +299,135 @@ Collectd.prototype.write = function(buf) {
     }
 };
 
-
 var MAX_PACKET_SIZE = 1024;
 
-function Packet(sendCb) {
-    this.sendCb = sendCb;
-    this.buf = new Buffer(MAX_PACKET_SIZE);
+var SECURITY_LEVEL = {
+    NONE: 0,
+    SIGN: 1,
+    ENCRYPT: 2,
+};
+var SIGNATURE_OVERHEAD = 36;
+var ENCRYPTION_OVERHEAD = 42;
+
+function Packet(args) {
+
+    this.sendCb = args.sendCb;
+    this.username = args.username;
+    this.password = args.password;
+    this.securityLevel = args.securityLevel !== undefined ? args.securityLevel : 0;
     this.pos = 0;
+
+    switch (this.securityLevel) {
+        case SECURITY_LEVEL.NONE:
+            this.overhead = 0;
+            break;
+        case SECURITY_LEVEL.SIGN:
+            this.overhead = SIGNATURE_OVERHEAD + this.username.length;
+            break;
+        case SECURITY_LEVEL.ENCRYPT:
+            this.overhead = ENCRYPTION_OVERHEAD + this.username.length;
+            break;
+        default:
+            throw 'Packet: Invalid Security Level';
+            break;
+    }
+
+    this.buf = new Buffer(MAX_PACKET_SIZE - this.overhead);
 }
 
 Packet.prototype = {
+
     send: function() {
-	if (this.pos > 0)
-	    this.sendCb(this.buf.slice(0, this.pos));
-	this.pos = 0;
+        if (this.pos > 0) {
+            this.encapsulate();
+            this.sendCb(this.buf);
+        }
+        this.pos = 0;
+    },
+
+    encapsulate: function () {
+        switch (this.securityLevel) {
+            case SECURITY_LEVEL.NONE:
+                break;
+            case SECURITY_LEVEL.SIGN:
+                this.sign();
+                break;
+            case SECURITY_LEVEL.ENCRYPT:
+                this.encrypt();
+                break;
+            default:
+                throw new Error('Invalid Security Level: ' +
+                    this.securityLevel);
+        }
+    },
+
+    sign: function () {
+
+        // Signed Packet format:
+        // [header][data]
+        //
+        // Header format:
+        // [packet_type][header_length][    mac   ][ username ]
+        // [  2 bytes  ][   2 bytes   ][ 32 bytes ][  dynamic ]
+
+        // original (unencapsulated) packet
+        var original = this.buf.slice(0, this.pos);
+
+        // Calculate HMAC on concatenation of username and payload
+        var hmac_sha256 = crypto.createHmac('sha256', this.password);
+        hmac_sha256.write(this.username);
+        hmac_sha256.write(original);
+        var mac = hmac_sha256.digest();
+
+        // Create a new buffer for the signed packet
+        var buffer = new Buffer(this.overhead + original.length);
+        buffer.writeUInt16BE('0x0200', 0);
+        buffer.writeUInt16BE(this.overhead, 2);
+        mac.copy(buffer, 4);
+        buffer.write(this.username, 36);
+        original.copy(buffer, this.overhead);
+        this.buf = buffer;
+    },
+
+    encrypt: function () {
+        // Encrypted Packet format:
+        // [header][encr(data)]
+        //
+        // Header format:
+        // [packet_type][total_packet_length][username_length][username][    IV    ][ encr(checksum) ]
+        // [  2 bytes  ][      2 bytes      ][    2 bytes    ][dynamic ][ 16 bytes ][    20 bytes    ]
+
+        // original (unencapsulated) packet
+        var original = this.buf.slice(0, this.pos);
+
+        // Calculate SHA1 checksum of original packet
+        var sha1 = crypto.createHash('sha1');
+        sha1.write(original);
+        var checksum = sha1.digest();
+
+        // Create encryption key by hashing password
+        var sha256 = crypto.createHash('sha256');
+        sha256.write(this.password);
+        var key = sha256.digest();
+
+        // Generate an initialization vector
+        var iv = crypto.randomBytes(16);
+
+        // Encrypt concatenation of checksum and original
+        var aes256_ofb = crypto.createCipheriv('aes-256-ofb', key, iv);
+        aes256_ofb.write(checksum);
+        aes256_ofb.write(original);
+        var ciphertext = aes256_ofb.read()
+
+        // Create a new buffer for the encrypted packet
+        var buffer = new Buffer(this.overhead + original.length);
+        buffer.writeUInt16BE('0x0210', 0);
+        buffer.writeUInt16BE(buffer.length, 2);
+        buffer.writeUInt16BE(this.username.length, 4);
+        buffer.write(this.username, 6);
+        iv.copy(buffer, 6 + this.username.length);
+        ciphertext.copy(buffer, 6 + this.username.length + 16);
+        this.buf = buffer;
     },
 
     addStringPart: function(id, str) {
@@ -370,27 +505,27 @@ Packet.prototype = {
 
     /* Tries to make it fit in 1024 bytes or starts a new packet */
     catchOverflow: function(cb, resetCb) {
-	var tries = 2;
-	while(tries > 0) {
-	    tries--;
+        var tries = 2;
+        while(tries > 0) {
+            tries--;
 
-	    var oldPos = this.pos;
-	    try {
-		/* On success return */
-		return cb();
-	    } catch (e) {
-		if (e.constructor === PacketOverflow) {
-		    /* Flush packet so far */
-		    this.pos = oldPos;
-		    this.send();
-		    this.buf = new Buffer(MAX_PACKET_SIZE);
-		    /* Clear state */
-		    resetCb();
-		    /* And retry... */
-		} else
-		    throw e;
-	    }
-	}
+            var oldPos = this.pos;
+            try {
+                /* On success return */
+                return cb();
+            } catch (e) {
+                if (e.constructor === PacketOverflow) {
+                    /* Flush packet so far */
+                    this.pos = oldPos;
+                    this.send();
+                    this.buf = new Buffer(MAX_PACKET_SIZE - this.overhead);
+                    /* Clear state */
+                    resetCb();
+                /* And retry... */
+                } else
+                    throw e;
+            }
+        }
     }
 };
 

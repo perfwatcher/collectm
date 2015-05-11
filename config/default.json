@@ -10,6 +10,13 @@
 
   "Interval": 60,
 
+// Cryptography/Security settings
+  "Crypto": {
+    "SecurityLevel": 0,
+    "Username": "alice",
+    "Password": "12345678"
+  },
+
 //  Time To Live : will stop Collectm after this value (86400sec = 1 day).
 //  This is useful if you think there is a memory leak and want to reboot periodically
 //  Collectm. Stop Collectm after 86400sec and Windows will restart the service.

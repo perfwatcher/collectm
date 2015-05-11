@@ -94,6 +94,34 @@ function get_interval() {
     return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
 }
 
+function get_security_level() {
+    var securityLevel = 0;
+    if (cfg.has('Crypto') && cfg.get('Crypto').SecurityLevel !== undefined) {
+        securityLevel = cfg.get('Crypto').SecurityLevel;
+        if (securityLevel !== 0 && securityLevel !== 1 && securityLevel !== 2) {
+            throw new Error('Security level must be in (0, 1, 2).');
+        }
+    }
+    if ((get_username() === '' || get_password() === '') && securityLevel > 0) {
+        throw new Error('Security level set greater to 0 but username or password left empty.');
+    }
+    return securityLevel;
+}
+
+function get_username() {
+    if (cfg.has('Crypto') && cfg.get('Crypto').Username !== undefined) {
+        return cfg.get('Crypto').Username;
+    }
+    return '';
+}
+
+function get_password() {
+    if (cfg.has('Crypto') && cfg.get('Crypto').Password !== undefined) {
+        return cfg.get('Crypto').Password;
+    }
+    return '';
+}
+
 function get_collectm_ttl() {
     return(cfg.has('CollectmTimeToLive') ? (cfg.get('CollectmTimeToLive') * 1000) : 0);
 }
@@ -105,7 +133,7 @@ function get_log_deletion_days() {
 function remove_old_logs(days) {
     var now = new Date();
     now = now.getTime();
-    
+
     fs.readdir(path.join(prefix, 'logs'), function(err, files) {
             var filenames;
             if(err) {
@@ -143,7 +171,8 @@ function remove_old_logs(days) {
 collectmHostname = get_hostname_with_case();
 logger.log('info', 'Sending metrics to Collectd with hostname '+collectmHostname+' (case sensitive).');
 defaultInterval = get_interval();
-client = new Collectd(defaultInterval, get_collectd_servers_and_ports(), 0, collectmHostname);
+client = new Collectd(defaultInterval, get_collectd_servers_and_ports(), 0, collectmHostname,
+                      get_security_level(), get_username(), get_password());
 logger.log('info', 'Default interval is ' + defaultInterval + ' ms');
 
 /* Load the plugins */
@@ -229,7 +258,7 @@ if(cfg.get('HttpConfig.enable')) {
 collectmTimeToLive = get_collectm_ttl();
 if(collectmTimeToLive > 60) {
     logger.info('TTL configured : will gracefully stop after '+parseInt(collectmTimeToLive/1000)+' seconds');
-    setTimeout(function() { 
+    setTimeout(function() {
             logger.error('Gracefully stopped after configured TTL');
             process.exit();
             }, collectmTimeToLive);
