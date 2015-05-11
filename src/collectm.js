@@ -1,3 +1,5 @@
+/*! CollectM - v1.5.1modularization - Built 2015-05-08 */
+
 
 var process = require('process');
 process.env.ALLOW_CONFIG_MUTATIONS = 1;
@@ -8,7 +10,7 @@ var Collectd = require('collectdout');
 var cfg = require('config');
 var collectmHTTPConfig = require('./httpconfig.js');
 
-var collectmVersion = '<%= pkg.version %>';
+var collectmVersion = '1.5.1modularization';
 
 var counters = [];
 var client;
@@ -88,6 +90,8 @@ function get_collectd_servers_and_ports() {
     }
     return(res);
 }
+
+logger.info('Default interval is: ' + get_interval() + 'ms');
 
 function get_interval() {
     return(cfg.has('Interval') ? (cfg.get('Interval') * 1000) : 60000);
