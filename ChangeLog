@@ -1,3 +1,7 @@
+Version 1.6.0rc2
+- Fixed a bug in Ping plugin (stddev)
+- Moved to node-0.12.7
+
 Version 1.6.0rc1
 
 - PR #10 : added Load plugin (Thanks to Paul Tzianos)
