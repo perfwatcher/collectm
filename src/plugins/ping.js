@@ -200,7 +200,7 @@ function stddev() {
     var sum = 0;
     if (pingData.replies.length > 0) {
         for (var i=0 ; i<pingData.replies.length ; i++) {
-            var sq (pingData.replies[i] - pingData.average);
+            var sq = (pingData.replies[i] - pingData.average);
             sum += (sq * sq);
         }
         sum /= pingData.replies.length;
