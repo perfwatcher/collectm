@@ -1,6 +1,7 @@
 Version 1.6.0rc2
 - Fixed a bug in Ping plugin (stddev)
 - Moved to node-0.12.7
+- ... and removed the Ping plugin due to instabilities
 
 Version 1.6.0rc1
 
