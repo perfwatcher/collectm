@@ -1,17 +1,16 @@
-Version 1.6.0rc2
-- Fixed a bug in Ping plugin (stddev)
+Version 1.6.0
+
 - Moved to node-0.12.7
-- ... and removed the Ping plugin due to instabilities
-
-Version 1.6.0rc1
-
 - PR #10 : added Load plugin (Thanks to Paul Tzianos)
-- PR #11 : added Ping plugin (Thanks to Paul Tzianos)
 - PR #12 : added Disk plugin (Thanks to Paul Tzianos)
 - PR #15 : added Df plugin (Thanks to Paul Tzianos)
 - PR #13 (1) : removed duplicate modules from collectdCompat plugin (Thanks to Paul Tzianos)
 - PR #13 (2) : some modules of CollectdCompat plugin are now optional (Thanks to Paul Tzianos)
 - PR #14 : Added crypto support (Thanks to Dimitris Rozakis)
+Ping plugin (added and removed)
+- Fixed a bug in Ping plugin (stddev)
+- ... and removed the Ping plugin due to instabilities
+- PR #11 : added Ping plugin (Thanks to Paul Tzianos)
 
 Version 1.5.1
 
