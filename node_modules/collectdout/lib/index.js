@@ -293,9 +293,9 @@ Collectd.prototype.sendNotif = function(notif) {
     pkt.send();
 };
 
-Collectd.prototype.write = function(buf) {
+Collectd.prototype.write = function(buf, pos) {
     for (var i=0; i < this.serverHosts.length; i++) {
-        this.serverHosts[i].sock.send(buf, 0, buf.length, this.serverHosts[i].port, this.serverHosts[i].host);
+        this.serverHosts[i].sock.send(buf, 0, pos, this.serverHosts[i].port, this.serverHosts[i].host);
     }
 };
 
@@ -340,7 +340,7 @@ Packet.prototype = {
     send: function() {
         if (this.pos > 0) {
             this.encapsulate();
-            this.sendCb(this.buf);
+            this.sendCb(this.buf, this.pos);
         }
         this.pos = 0;
     },
